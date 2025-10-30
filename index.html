@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dasher – LunaBot AI Game Division™</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:linear-gradient(120deg,#1e1e2e,#2a2a3b);
+  overflow:hidden;
+  font-family:sans-serif;
+  user-select:none;
+}
+#gameCanvas{
+  display:block;
+  margin:0 auto;
+  background:linear-gradient(180deg,#222,#111);
+  border:3px solid #444;
+}
+#overlay{
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:white;text-align:center;
+}
+button{
+  background:#4f46e5;color:white;border:none;
+  padding:10px 20px;font-size:18px;border-radius:8px;
+  cursor:pointer;margin-top:10px;
+}
+button:hover{background:#6366f1}
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="900" height="500"></canvas>
+<div id="overlay">
+  <h1>Dasher</h1>
+  <p>Owned by LunaBot AI Game Division™</p>
+  <button id="startBtn">Start Game</button>
+</div>
+<script>
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+let cube={x:100,y:400,w:40,h:40,vy:0,onGround:true};
+let gravity=0.9;
+let jump=-17;
+let speed=6;
+let obstacles=[];
+let playing=false;
+let score=0;
+let level=1;
+let groundY=440;
+function resetGame(){
+  cube.y=400;cube.vy=0;cube.onGround=true;
+  score=0;obstacles=[];
+}
+function spawnObstacle(){
+  const size=30+Math.random()*20;
+  obstacles.push({x:canvas.width,y:groundY-size,w:size,h:size});
+}
+function update(){
+  if(!playing)return;
+  cube.vy+=gravity;
+  cube.y+=cube.vy;
+  if(cube.y+cube.h>=groundY){cube.y=groundY-cube.h;cube.vy=0;cube.onGround=true;}
+  for(let o of obstacles){
+    o.x-=speed;
+    if(o.x+o.w<0)obstacles.shift();
+    if(cube.x<o.x+o.w&&cube.x+cube.w>o.x&&cube.y<o.y+o.h&&cube.y+cube.h>o.y){
+      playing=false;
+      document.getElementById('overlay').innerHTML=`<h1>Game Over</h1><p>Score: ${score}</p><button onclick="restart()">Restart</button>`;
+    }
+  }
+  if(Math.random()<0.02)spawnObstacle();
+  score++;
+  draw();
+  requestAnimationFrame(update);
+}
+function draw(){
+  ctx.fillStyle='linear-gradient(180deg,#111,#000)';
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const grd=ctx.createLinearGradient(0,0,0,canvas.height);
+  grd.addColorStop(0,'#0f0c29');
+  grd.addColorStop(1,'#302b63');
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#0ff';
+  ctx.fillRect(cube.x,cube.y,cube.w,cube.h);
+  ctx.fillStyle='#f00';
+  for(let o of obstacles)ctx.fillRect(o.x,o.y,o.w,o.h);
+  ctx.fillStyle='white';
+  ctx.font='20px Arial';
+  ctx.fillText('Score: '+score,20,30);
+}
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&cube.onGround){cube.vy=jump;cube.onGround=false;}
+});
+document.getElementById('startBtn').onclick=()=>{
+  document.getElementById('overlay').style.display='none';
+  playing=true;
+  update();
+};
+function restart(){
+  document.getElementById('overlay').style.display='none';
+  resetGame();
+  playing=true;
+  update();
+}
+</script>
+</body>
+</html>
