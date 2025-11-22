@@ -58,6 +58,20 @@ input,select {
   margin-bottom:15px;
 }
 
+#express-disabled-overlay {
+  position:absolute;
+  inset:0;
+  background:rgba(200,200,200,0.6);
+  z-index:10;
+  border-radius:12px;
+  cursor:not-allowed;
+}
+
+#payment-request-wrapper {
+  position:relative;
+  opacity:0.4; /* disabled look */
+}
+
 button {
   width:100%;
   padding:16px;
@@ -71,24 +85,10 @@ button {
   cursor:pointer;
 }
 
-.full-link-btn {
-  width:100%;
-  background:#ff33dd;
-  color:#fff;
-  text-align:center;
-  padding:14px;
-  border-radius:12px;
-  font-size:17px;
-  margin-top:12px;
-  font-weight:600;
-  cursor:pointer;
-  border:none;
-}
-
-#card-blocker-overlay {
-  position:absolute;
-  inset:0;
-  z-index:50;
+button:disabled {
+  background:#aa66aa;
+  cursor:not-allowed;
+  opacity:0.55;
 }
 </style>
 </head>
@@ -178,27 +178,21 @@ button {
 </label>
 
 <div class="payment-panel">
+
   <div class="pay-method-title">Pay with :</div>
 
-  <!-- Apple/Google Pay -->
-  <div id="payment-request-button"></div>
-
-  <!-- Full-width Link button -->
-  <button id="link-button" type="button" class="full-link-btn">
-    Pay with Link
-  </button>
-
-  <!-- Card Input -->
-  <div style="position:relative; margin-top:15px;">
-      <div id="payment-element"></div>
-      <!-- overlay blocker -->
-      <div id="card-overlay"
-           style="position:absolute; inset:0; z-index:10; cursor:not-allowed;">
-      </div>
+  <div id="payment-request-wrapper">
+      <div id="payment-request-button"></div>
+      <div id="express-disabled-overlay"></div>
   </div>
+
+  <div style="margin-top:20px;">
+      <div id="payment-element"></div>
+  </div>
+
 </div>
 
-<button id="pay-btn">Complete Payment</button>
+<button id="pay-btn" disabled>Complete Payment</button>
 
 </form>
 
@@ -211,34 +205,41 @@ Charmers Checkout © 2025
 <script>
 const stripe = Stripe("pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc");
 
-const requiredFields = [
-  "name","email","color","size","shipping","processing",
-  "address1","city","region","postal","tos"
-];
+const req = ["name","email","size","color","shipping","processing","address1","city","region","postal","tos"];
 
-function isFormComplete() {
-  for (let id of requiredFields) {
-    let el = document.getElementById(id);
-    if (!el) continue;
-
-    if (el.type === "checkbox") {
-      if (!el.checked) return false;
+function isValid(){
+  for(let id of req){
+    let el=document.getElementById(id);
+    if(el.type==="checkbox"){
+      if(!el.checked) return false;
     } else {
-      if (!el.value.trim()) return false;
+      if(!el.value.trim()) return false;
     }
   }
   return true;
 }
 
-function guard(action) {
-  if (!isFormComplete()) {
-    alert("Fill this form first");
-    return false;
+function updateLocks(){
+  const overlay=document.getElementById("express-disabled-overlay");
+  const wrapper=document.getElementById("payment-request-wrapper");
+  const payBtn=document.getElementById("pay-btn");
+
+  if(isValid()){
+    overlay.style.display="none";
+    wrapper.style.opacity="1";
+    payBtn.disabled=false;
+  } else {
+    overlay.style.display="block";
+    wrapper.style.opacity="0.4";
+    payBtn.disabled=true;
   }
-  return true;
 }
 
-// price logic
+document.querySelectorAll("input,select,checkbox")
+  .forEach(e=>e.addEventListener("input",updateLocks));
+
+updateLocks();
+
 const sizeEl=document.getElementById("size");
 const shipEl=document.getElementById("shipping");
 const procEl=document.getElementById("processing");
@@ -251,10 +252,10 @@ const taxCost=document.getElementById("taxCost");
 const totalEl=document.getElementById("total");
 
 function applyCoupons(sub){
- let c=couponEl.value.toUpperCase();
+ let code=couponEl.value.toUpperCase();
  let d=0;
- if(c==="CHARM10BLACKF") d=0.10;
- if(c==="CHRISTMAS35") d=0.35;
+ if(code==="CHARM10BLACKF") d=0.10;
+ if(code==="CHRISTMAS35") d=0.35;
  return {discount:sub*d};
 }
 
@@ -263,6 +264,7 @@ function calcTotal(){
      ship=parseFloat(shipEl.value||0),
      proc=parseFloat(procEl.value||0),
      fee=1.5;
+
  let sub=size+ship+proc+fee;
  let {discount}=applyCoupons(sub);
  let taxed=(sub-discount)*0.095;
@@ -274,16 +276,16 @@ function calcTotal(){
  discCost.textContent="-$"+discount.toFixed(2);
  taxCost.textContent="$"+taxed.toFixed(2);
  totalEl.textContent="$"+total.toFixed(2);
+
  return Math.round(total*100);
 }
 
 [sizeEl,shipEl,procEl,couponEl].forEach(x=>x.addEventListener("input",calcTotal));
 calcTotal();
 
-// INIT STRIPE
 setTimeout(initStripe,300);
 
-async function initStripe() {
+async function initStripe(){
 
  let amount=calcTotal();
 
@@ -297,89 +299,62 @@ async function initStripe() {
 
  const elements=stripe.elements({clientSecret});
 
- //---------------------------------------------------------
- // APPLE PAY / GOOGLE PAY
- //---------------------------------------------------------
- const pr = stripe.paymentRequest({
+ const pr=stripe.paymentRequest({
    country:"US",
    currency:"usd",
-   total:{label:"Charmers Order", amount},
+   total:{label:"Charmers Order",amount},
    requestPayerName:true,
    requestPayerEmail:true
  });
 
- const prButton = elements.create("paymentRequestButton",{paymentRequest:pr});
+ const prButton=elements.create("paymentRequestButton",{paymentRequest:pr});
 
- pr.canMakePayment().then(res=>{
-   if(res){
+ pr.canMakePayment().then(result=>{
+   if(result){
      prButton.mount("#payment-request-button");
-
-     // Guard Apple/Google Pay
-     prButton._originalOnClick = prButton._originalOnClick || prButton.onClick;
-     prButton.onClick = function(e){
-        if(!guard()) { e.preventDefault(); return; }
-     };
    }
  });
 
- //---------------------------------------------------------
- // LINK BUTTON GUARD
- //---------------------------------------------------------
- const linkBtn=document.getElementById("link-button");
-linkBtn.addEventListener("click",()=> {
-   if(!guard()) return;
-   // actually simulate Link click by focusing the element
-   document.querySelector("#payment-element iframe").contentWindow.focus();
-});
-
- //---------------------------------------------------------
- // CARD FIELD (Stripe Payment Element)
- //---------------------------------------------------------
- const cardEl = elements.create("payment", {layout:"tabs"});
+ const cardEl=elements.create("payment",{layout:"tabs"});
  cardEl.mount("#payment-element");
 
-// Block card field until form complete
-const cardOverlay=document.getElementById("card-overlay");
-cardOverlay.addEventListener("click",()=>{
- if(!guard()) return;
- cardOverlay.style.display="none";
-});
+ document.getElementById("checkout-form")
+  .addEventListener("submit",async e=>{
+     e.preventDefault();
+     if(!isValid()){
+       alert("Fill this form first");
+       return;
+     }
 
- //---------------------------------------------------------
- // SUBMIT PAYMENT
- //---------------------------------------------------------
- document.getElementById("checkout-form").addEventListener("submit",async e=>{
-   e.preventDefault();
-   if(!guard()) return;
+     const result=await stripe.confirmPayment({elements,redirect:"if_required"});
 
-   const result = await stripe.confirmPayment({elements,redirect:"if_required"});
+     if(result.error){
+       alert("Payment failed: "+result.error.message);
+       return;
+     }
 
-   if(result.error){
-      alert("Payment failed: "+result.error.message);
-      return;
-   }
+     alert("Payment successful! Sending order email…");
 
-   alert("Payment successful! Sending order email…");
+     let body=
+      "Name: "+document.getElementById("name").value+"%0A"+
+      "Email: "+document.getElementById("email").value+"%0A"+
+      "Phone: "+document.getElementById("phone").value+"%0A"+
+      "Bracelet Size: "+sizeEl.value+"%0A"+
+      "Bracelet Color: "+document.getElementById("color").value+"%0A"+
+      "Shipping: "+shipEl.options[shipEl.selectedIndex].text+"%0A"+
+      "Processing: "+procEl.options[procEl.selectedIndex].text+"%0A"+
+      "Address: "+document.getElementById("address1").value+
+                " "+document.getElementById("address2").value+
+                ", "+document.getElementById("city").value+
+                ", "+document.getElementById("region").value+
+                ", "+document.getElementById("postal").value+"%0A"+
+      "Total Paid: "+totalEl.textContent+"%0A"+
+      "Payment ID: "+result.paymentIntent.id+"%0A";
 
-   let body =
-    "Name: "+document.getElementById("name").value+"%0A"+
-    "Email: "+document.getElementById("email").value+"%0A"+
-    "Phone: "+document.getElementById("phone").value+"%0A"+
-    "Bracelet Size: "+sizeEl.value+"%0A"+
-    "Bracelet Color: "+document.getElementById("color").value+"%0A"+
-    "Shipping: "+shipEl.options[shipEl.selectedIndex].text+"%0A"+
-    "Processing: "+procEl.options[procEl.selectedIndex].text+"%0A"+
-    "Address: "+document.getElementById("address1").value+
-              " "+document.getElementById("address2").value+
-              ", "+document.getElementById("city").value+
-              ", "+document.getElementById("region").value+
-              ", "+document.getElementById("postal").value+"%0A"+
-    "Total Paid: "+totalEl.textContent+"%0A"+
-    "Payment ID: "+result.paymentIntent.id+"%0A";
+     window.location.href=
+       "mailto:Charmers2346@gmail.com?subject=New Charmers Order&body="+body;
+  });
 
-   window.location.href="mailto:Charmers2346@gmail.com?subject=New Charmers Order&body="+body;
-
- });
 }
 </script>
 
