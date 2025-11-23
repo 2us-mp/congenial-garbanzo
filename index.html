@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Charmers Checkout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://js.stripe.com/v3/"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+
+<style>
+body {
+  font-family: Poppins, sans-serif;
+  background: linear-gradient(135deg, #7b16ff, #c822ff);
+  margin: 0;
+  padding: 20px;
+  color: #fff;
+}
+
+.container {
+  max-width: 760px;
+  margin: auto;
+  background: rgba(255,255,255,0.14);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+}
+
+h2 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-size: 16px;
+}
+
+input, select {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  margin-top: 6px;
+  background: #ffffffd9;
+  font-size: 15px;
+}
+
+.total-box {
+  background: rgba(0,0,0,0.25);
+  padding: 18px;
+  border-radius: 14px;
+  margin-top: 25px;
+}
+
+.total-box div {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.payment-panel {
+  background: #fff;
+  color: #000;
+  padding: 20px;
+  border-radius: 16px;
+  margin-top: 25px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+}
+
+/* Disabled express checkout buttons */
+.disabled-pay {
+  filter: grayscale(1);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Complete Payment button */
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 25px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  background: #ff33dd;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Charmers Checkout</h2>
+
+<form id="checkout-form">
+
+<label>Full Name</label>
+<input id="name" required>
+
+<label>Email</label>
+<input id="email" type="email" required>
+
+<label>Phone (optional)</label>
+<input id="phone">
+
+<label>Bracelet Size</label>
+<select id="size" required>
+<option value="">Select</option>
+<option value="6">Extra Small – $6</option>
+<option value="9">Small – $9</option>
+<option value="11">Medium – $11</option>
+<option value="15">Large – $15</option>
+<option value="20">Extra Large – $20</option>
+</select>
+
+<label>Bracelet Color</label>
+<input id="color" required>
+
+<label>Coupon Code</label>
+<input id="coupon">
+
+<label>Shipping Option</label>
+<select id="shipping" required>
+<option value="9">USPS Ground advantage® – $9</option>
+<option value="13">USPS Priority Mail – $13</option>
+<option value="25">USPS Priority Mail Express – $25</option>
+<option value="78">USPS Priority Mail International – $78</option>
+<option value="95">USPS Priority Mail Express International – $95</option>
+</select>
+
+<label>Processing</label>
+<select id="processing" required>
+<option value="0">CLU Ground – Free</option>
+<option value="0.75">CLU Priority – $0.75</option>
+<option value="1.00">CLU Express – $1.00</option>
+</select>
+
+<label>Street Address</label>
+<input id="address1" required>
+
+<label>Address Line 2 (optional)</label>
+<input id="address2">
+
+<label>City</label>
+<input id="city" required>
+
+<label>State</label>
+<input id="region" required>
+
+<label>Postal Code</label>
+<input id="postal" required>
+
+<label>Country</label>
+<select id="country">
+<option value="US">United States</option>
+</select>
+
+<div class="total-box">
+  <div><span>Bracelet:</span><span id="braceCost">$0.00</span></div>
+  <div><span>Shipping:</span><span id="shipCost">$0.00</span></div>
+  <div><span>Processing:</span><span id="procCost">$0.00</span></div>
+  <div><span>Coupons:</span><span id="discCost">$0.00</span></div>
+  <div><span>Fees:</span><span id="feeCost">$1.50</span></div>
+  <div><span>Secret Adj:</span><span id="taxCost">$0.00</span></div>
+  <hr>
+  <div><b>Total:</b><b id="total">$0.00</b></div>
+</div>
+
+<label>
+<input type="checkbox" id="tos" required>
+I agree to the Charmers ToS
+</label>
+
+<div class="payment-panel">
+
+<h3>Complete your payment</h3>
+
+<!-- Express Checkout -->
+<div id="express-container" class="disabled-pay">
+  <div id="payment-request-button"></div>
+</div>
+
+<!-- Card Form -->
+<div id="payment-element"></div>
+
+</div>
+
+<button id="pay-btn" disabled>Complete Payment</button>
+
+</form>
+
+<div class="footer">Charmers Checkout © 2025</div>
+
+</div>
+
+<script>
+const stripe = Stripe(
+  "pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc"
+);
+
+const sizeEl = document.getElementById("size");
+const shipEl = document.getElementById("shipping");
+const procEl = document.getElementById("processing");
+const couponEl = document.getElementById("coupon");
+
+const braceCost = document.getElementById("braceCost");
+const shipCost = document.getElementById("shipCost");
+const procCost = document.getElementById("procCost");
+const discCost = document.getElementById("discCost");
+const taxCost = document.getElementById("taxCost");
+const totalEl = document.getElementById("total");
+
+function applyCoupons(sub){
+  let c = couponEl.value.toUpperCase();
+  let d = 0;
+  if(c==="CHARM10BLACKF") d=0.10;
+  if(c==="CHRISTMAS35") d=0.35;
+  return {discount: sub * d};
+}
+
+function calcTotal(){
+  let size = parseFloat(sizeEl.value||0);
+  let ship = parseFloat(shipEl.value||0);
+  let proc = parseFloat(procEl.value||0);
+  let fee = 1.5;
+
+  let sub = size + ship + proc + fee;
+  let {discount} = applyCoupons(sub);
+  let taxed = (sub - discount) * 0.095;
+  let total = sub - discount + taxed;
+
+  braceCost.textContent = "$" + size.toFixed(2);
+  shipCost.textContent = "$" + ship.toFixed(2);
+  procCost.textContent = "$" + proc.toFixed(2);
+  discCost.textContent = "-$" + discount.toFixed(2);
+  taxCost.textContent = "$" + taxed.toFixed(2);
+  totalEl.textContent = "$" + total.toFixed(2);
+
+  return Math.round(total * 100);
+}
+
+[sizeEl, shipEl, procEl, couponEl].forEach(x=>x.addEventListener("input", calcTotal));
+calcTotal();
+
+// VALIDATION FOR BUTTONS
+function validateForm(){
+  const required = [
+    "name","email","size","color","shipping","processing",
+    "address1","city","region","postal"
+  ];
+
+  for(let id of required){
+    if(!document.getElementById(id).value.trim()) return false;
+  }
+
+  if(!document.getElementById("tos").checked) return false;
+
+  return true;
+}
+
+function updateButtons(){
+  const valid = validateForm();
+
+  const express = document.getElementById("express-container");
+  const payBtn = document.getElementById("pay-btn");
+
+  if(valid){
+    express.classList.remove("disabled-pay");
+    payBtn.disabled = false;
+  } else {
+    express.classList.add("disabled-pay");
+    payBtn.disabled = true;
+  }
+}
+
+document.querySelectorAll("input,select").forEach(el=>{
+  el.addEventListener("input", updateButtons);
+});
+
+setTimeout(initStripe, 250);
+
+async function initStripe(){
+  let amount = calcTotal();
+
+  let res = await fetch("https://pay-charmersv2.onrender.com/create-payment-intent", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({amount})
+  });
+
+  let {clientSecret} = await res.json();
+
+  const elements = stripe.elements({clientSecret});
+
+  // EXPRESS CHECKOUT
+  const pr = stripe.paymentRequest({
+    country:"US",
+    currency:"usd",
+    total:{label:"Charmers Order", amount},
+    requestPayerName:true,
+    requestPayerEmail:true
+  });
+
+  const prButton = elements.create("paymentRequestButton",{paymentRequest:pr});
+
+  pr.canMakePayment().then(result=>{
+    if(result){
+      prButton.mount("#payment-request-button");
+    }
+  });
+
+  // CARD FORM
+  const card = elements.create("payment");
+  card.mount("#payment-element");
+
+  // SUBMIT
+  document.getElementById("checkout-form").addEventListener("submit", async e=>{
+    e.preventDefault();
+
+    if(!validateForm()){
+      alert("Fill out all required fields first!");
+      return;
+    }
+
+    let result = await stripe.confirmPayment({
+      elements,
+      redirect:"if_required"
+    });
+
+    if(result.error){
+      alert("Payment failed: " + result.error.message);
+      return;
+    }
+
+    alert("Payment successful! Sending email…");
+
+    let body =
+      "Name: "+document.getElementById("name").value+"%0A"+
+      "Email: "+document.getElementById("email").value+"%0A"+
+      "Phone: "+document.getElementById("phone").value+"%0A"+
+      "Bracelet Size: "+sizeEl.value+"%0A"+
+      "Bracelet Color: "+document.getElementById("color").value+"%0A"+
+      "Shipping: "+shipEl.options[shipEl.selectedIndex].text+"%0A"+
+      "Processing: "+procEl.options[procEl.selectedIndex].text+"%0A"+
+      "Address: "+document.getElementById("address1").value+" "+document.getElementById("address2").value+", "+document.getElementById("city").value+", "+document.getElementById("region").value+" "+document.getElementById("postal").value+"%0A"+
+      "Total Paid: "+totalEl.textContent+"%0A"+
+      "Payment ID: "+result.paymentIntent.id+"%0A";
+
+    window.location.href = "mailto:Charmers2346@gmail.com?subject=New Charmers Order&body="+body;
+  });
+}
+</script>
+
+</body>
+</html>
