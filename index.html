@@ -1,420 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Charmers Checkout</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-<!-- Stripe Elements -->
-<script src="https://js.stripe.com/v3/"></script>
-
-<!-- reCAPTCHA Enterprise -->
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"></script>
-
-<style>
-body {
-    margin: 0;
-    padding: 0;
-    background: #f4e8ff;
-    font-family: Inter, sans-serif;
-}
-
-.container {
-    max-width: 780px;
-    margin: auto;
-    margin-top: 30px;
-    background: white;
-    padding: 25px;
-    border-radius: 18px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.15);
-}
-
-h1 {
-    text-align: center;
-    font-size: 30px;
-    color: #7a2cff;
-    font-weight: 800;
-}
-
-.section-title {
-    margin-top: 25px;
-    margin-bottom: 10px;
-    font-size: 20px;
-    color: #444;
-    font-weight: 700;
-}
-
-input, select, textarea {
-    width: 100%;
-    padding: 13px;
-    font-size: 16px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-}
-
-textarea {
-    height: 90px;
-}
-
-button {
-    width: 100%;
-    background: linear-gradient(135deg,#8d3bff,#d66bff);
-    color: white;
-    border: none;
-    padding: 14px;
-    font-size: 18px;
-    font-weight: 700;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-top: 14px;
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-#error-box, #success-box {
-    display: none;
-    padding: 14px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    font-size: 16px;
-}
-
-#error-box {
-    background: #ffe5e8;
-    color: #a30000;
-}
-
-#success-box {
-    background: #e8ffe8;
-    color: #007700;
-}
-
-.total-box {
-    background: #f8f0ff;
-    border: 1px solid #e0c7ff;
-    padding: 15px;
-    border-radius: 12px;
-    font-size: 19px;
-    font-weight: 700;
-    margin-top: 20px;
-}
-
-#apple-pay-container {
-    margin-top: 20px;
-    display: none;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charmers Custom Bracelet Checkout</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        /* Custom Styles for better aesthetics and Stripe Elements */
+        :root {
+            --primary-purple: #4c1d95; /* Deep Purple 900 */
+            --light-purple: #f3f4f6; /* Gray 100 for lighter elements */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-purple);
+            min-height: 100vh;
+        }
+        /* Style for the Stripe Card Element iframe */
+        #card-element {
+            padding: 1rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+        .form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        /* Custom scrollbar for aesthetic */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #5b21b6; }
+        ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 4px; }
+    </style>
 </head>
-<body>
+<body class="p-4 md:p-8 flex items-center justify-center">
 
-<div class="container">
+    <div id="checkout-container" class="w-full max-w-xl bg-white shadow-2xl rounded-xl p-6 sm:p-8 lg:p-10">
+        <h1 class="text-3xl font-extrabold text-center text-purple-900 mb-6">Charmers Checkout</h1>
+        <p class="text-center text-purple-700 mb-8">Secure payment powered by Stripe.</p>
 
-<h1>Charmers Checkout</h1>
+        <!-- Dynamic Message Box -->
+        <div id="message-box" class="hidden p-4 mb-4 text-sm rounded-lg" role="alert"></div>
 
-<div id="error-box"></div>
-<div id="success-box"></div>
+        <form id="payment-form" class="space-y-6">
 
-<!-- ===================== -->
-<!-- CUSTOMER INFORMATION -->
-<!-- ===================== -->
-<div class="section-title">Customer Information</div>
-<input id="name" placeholder="Full Name">
-<input id="email" placeholder="Email">
-<input id="phone" placeholder="Phone Number (optional)">
+            <!-- 1. Contact Information -->
+            <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">1. Contact & Shipping</h2>
+                
+                <div class="space-y-4">
+                    <input type="text" id="name" placeholder="Full Name (Required)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <input type="email" id="email" placeholder="Email (Required for order confirmation)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    <input type="tel" id="phone" placeholder="Phone (Optional)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                </div>
+            </section>
 
-<!-- ===================== -->
-<!-- BRACELET SIZE -->
-<!-- ===================== -->
-<div class="section-title">Bracelet Size</div>
-<select id="braceletSize">
-    <option value="">Select bracelet size</option>
-    <option value="6">Extra Small — $6</option>
-    <option value="9">Small — $9</option>
-    <option value="11">Medium — $11</option>
-    <option value="15">Large — $15</option>
-    <option value="20">Extra Large — $20</option>
-</select>
+            <!-- 2. Address Details -->
+            <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">2. Shipping Address</h2>
+                <div class="space-y-4">
+                    <input type="text" id="street" placeholder="Street Address" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" id="city" placeholder="City" required class="p-3 border border-gray-300 rounded-lg">
+                        <input type="text" id="state" placeholder="State / Province" required class="p-3 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" id="zip" placeholder="Zip / Postal Code" required class="p-3 border border-gray-300 rounded-lg">
+                        <input type="text" id="country" placeholder="Country" required class="p-3 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+            </section>
 
-<!-- ===================== -->
-<!-- BRACELET TEXT -->
-<!-- ===================== -->
-<textarea id="braceletText" maxlength="100" placeholder="Bracelet Text (Max 100 characters)"></textarea>
+            <!-- 3. Bracelet Details -->
+            <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">3. Custom Bracelet Details ($25.00)</h2>
 
-<!-- ===================== -->
-<!-- ADDRESS -->
-<!-- ===================== -->
-<div class="section-title">Shipping Address</div>
-<input id="street" placeholder="Street Address">
-<input id="street2" placeholder="Apartment / Suite (optional)">
-<input id="city" placeholder="City">
-<input id="state" placeholder="State / Region">
-<input id="postal" placeholder="Postal Code">
-<input id="country" placeholder="Country">
+                <div class="space-y-4">
+                    <!-- Size Selection -->
+                    <div>
+                        <label for="size" class="block text-sm font-medium text-gray-700 mb-1">Bracelet Size (Required)</label>
+                        <select id="size" required class="form-control w-full p-3 border border-gray-300 rounded-lg bg-white appearance-none cursor-pointer focus:ring-purple-500 focus:border-purple-500">
+                            <option value="" disabled selected>Select a size</option>
+                            <option value="XS">XS (6.0 in)</option>
+                            <option value="S">S (6.5 in)</option>
+                            <option value="M">M (7.0 in)</option>
+                            <option value="L">L (7.5 in)</option>
+                            <option value="XL">XL (8.0 in)</option>
+                        </select>
+                    </div>
 
-<!-- ===================== -->
-<!-- SHIPPING METHOD -->
-<!-- ===================== -->
-<div class="section-title">Shipping Method</div>
-<select id="shipping">
-    <option value="">Select shipping</option>
-    <option value="9">USA – Ground Advantage ($9)</option>
-    <option value="13">USA – Priority Mail ($13)</option>
-    <option value="25">USA – Priority Mail Express ($25)</option>
-    <option value="47">International – First Class ($47)</option>
-    <option value="78">International – Priority Mail ($78)</option>
-</select>
+                    <!-- Custom Text Input -->
+                    <div>
+                        <label for="bracelet-text" class="block text-sm font-medium text-gray-700 mb-1">Custom Text (Max 15 characters)</label>
+                        <input type="text" id="bracelet-text" maxlength="15" placeholder="Enter custom message here" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                </div>
+            </section>
 
-<!-- ===================== -->
-<!-- PROCESSING -->
-<!-- ===================== -->
-<div class="section-title">Processing Method</div>
-<select id="processing">
-    <option value="">Select processing</option>
-    <option value="0.50">Charmers 24 Hour Processing™ ($0.50)</option>
-    <option value="0.00">Charmers 7 Day 12 Hours Processing™ (FREE)</option>
-</select>
+            <!-- 4. Shipping Options -->
+            <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">4. Shipping Method</h2>
+                <div class="space-y-3" id="shipping-options">
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="ground" data-cost="500" required class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Ground Advantage (5-7 Days)</span>
+                        <span class="text-purple-600 font-bold">$5.00</span>
+                    </label>
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="priority" data-cost="900" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail (2-3 Days)</span>
+                        <span class="text-purple-600 font-bold">$9.00</span>
+                    </label>
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="express" data-cost="2600" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail Express (1-2 Days)</span>
+                        <span class="text-purple-600 font-bold">$26.00</span>
+                    </label>
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="international" data-cost="1800" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">International Shipping</span>
+                        <span class="text-purple-600 font-bold">$18.00</span>
+                    </label>
+                </div>
+            </section>
 
-<label>
-<input id="tos" type="checkbox">
-I agree to the Charmers Terms of Service and usage policies.
-</label>
+            <!-- 5. Payment Details -->
+            <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">5. Payment Details</h2>
+                <!-- Stripe Element will be inserted here -->
+                <div id="card-element">
+                    <!-- A Stripe Element will be inserted here. -->
+                </div>
+            </section>
 
-<div class="total-box">
-Total: $<span id="total">0.00</span>
-</div>
+            <!-- Order Summary & TOS -->
+            <section class="space-y-4">
+                <div class="p-4 bg-purple-800 rounded-lg text-white font-bold text-lg flex justify-between">
+                    <span>Order Total:</span>
+                    <span id="order-total-display">$25.00</span>
+                </div>
 
-<!-- APPLE / GOOGLE PAY -->
-<div id="apple-pay-container"></div>
+                <!-- TOS Checkbox -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="tos-agree" required class="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <label for="tos-agree" class="ml-3 text-sm text-gray-700 select-none">
+                        I agree to the <a href="#" class="text-purple-600 hover:text-purple-700 font-medium" onclick="alert('In a real application, this link would lead to the Charmers Terms of Service page.'); return false;">Terms of Service (TOS)</a>
+                    </label>
+                </div>
+            </section>
 
-<!-- CARD ELEMENT -->
-<div id="card-element" style="margin-top:20px;"></div>
+            <!-- Submit Button -->
+            <button id="submit-button" type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50" disabled>
+                Pay <span id="button-price-display">$25.00</span>
+            </button>
+        </form>
+    </div>
 
-<button id="payBtn">Complete Payment</button>
+    <script>
+        // --- Configuration ---
+        const STRIPE_PK = 'pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc';
+        const BACKEND_URL = 'https://pay-charmersv2.onrender.com/create-payment-intent';
+        const BASE_PRICE_CENTS = 2500; // $25.00 for the bracelet
 
-<button id="emailBtn" style="display:none;background:#48cc5a;margin-top:20px;">
-Complete Order (Send Email)
-</button>
+        // --- Stripe Initialization ---
+        let stripe;
+        let elements;
+        let cardElement;
 
-</div>
+        function initializeStripe() {
+            try {
+                stripe = Stripe(STRIPE_PK);
+                elements = stripe.elements();
 
-<script>
-/* ==========================================================
-   STRIPE INITIALIZATION
-========================================================== */
-const stripe = Stripe("pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc");
+                // Custom styling for the Stripe Element
+                const style = {
+                    base: {
+                        fontSize: '16px',
+                        color: '#374151',
+                        '::placeholder': {
+                            color: '#9ca3af',
+                        },
+                    },
+                };
+                
+                // Create an instance of the card Element.
+                cardElement = elements.create('card', {style: style});
 
-const elements = stripe.elements({
-    mode: "payment",
-    currency: "usd",
-    appearance: { theme: "stripe" }
-});
+                // Add an instance of the card Element into the `card-element` div.
+                cardElement.mount('#card-element');
 
-const card = elements.create("card");
-card.mount("#card-element");
+                console.log('Stripe initialized successfully.');
 
-/* ==========================================================
-   TOTAL CALCULATION (SIZE-BASED)
-========================================================== */
-function updateTotal() {
-    const sizePrice = parseFloat(document.getElementById("braceletSize").value || 0);
-    const ship = parseFloat(document.getElementById("shipping").value || 0);
-    const proc = parseFloat(document.getElementById("processing").value || 0);
+            } catch (error) {
+                displayMessage(`Error initializing Stripe: ${error.message}. Please check the provided Public Key.`, 'error');
+            }
+        }
 
-    const subtotal = sizePrice + ship + proc;
-    const fee = subtotal * 0.029 + 0.30;
-    const tax = subtotal * 0.05;
+        // --- Helper Functions ---
 
-    const total = subtotal + fee + tax;
+        /**
+         * Converts cents to a currency display string (e.g., 2500 -> $25.00).
+         * @param {number} cents - The amount in cents.
+         * @returns {string} The formatted currency string.
+         */
+        function formatPrice(cents) {
+            return (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        }
 
-    document.getElementById("total").innerText = total.toFixed(2);
+        /**
+         * Calculates the current total price in cents based on product and shipping.
+         * @returns {number} The total price in cents.
+         */
+        function calculateTotal() {
+            let shippingCost = 0;
+            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
 
-    return total;
-}
+            if (selectedShipping) {
+                // data-cost attribute holds the shipping cost in cents
+                shippingCost = parseInt(selectedShipping.getAttribute('data-cost'));
+            }
 
-document.querySelectorAll("#braceletSize,#shipping,#processing")
-    .forEach(el => el.addEventListener("input", updateTotal));
+            return BASE_PRICE_CENTS + shippingCost;
+        }
 
-/* ==========================================================
-   PAYMENT REQUEST (APPLE PAY / GOOGLE PAY)
-========================================================== */
-function checkPaymentRequestReady() {
-    const required =
-        document.getElementById("name").value.trim() &&
-        document.getElementById("email").value.trim() &&
-        document.getElementById("braceletSize").value &&
-        document.getElementById("shipping").value &&
-        document.getElementById("processing").value;
+        /**
+         * Updates the price display elements.
+         */
+        function updatePriceDisplay() {
+            const totalCents = calculateTotal();
+            const totalPrice = formatPrice(totalCents);
+            
+            document.getElementById('order-total-display').textContent = totalPrice;
+            document.getElementById('button-price-display').textContent = totalPrice;
+            
+            // Re-check button status after price update
+            checkFormValidity();
+        }
 
-    if (!required) return;
+        /**
+         * Checks if all required form fields and the TOS are valid to enable the pay button.
+         */
+        function checkFormValidity() {
+            const form = document.getElementById('payment-form');
+            const submitButton = document.getElementById('submit-button');
+            const tosAgreed = document.getElementById('tos-agree').checked;
+            const isShippingSelected = document.querySelector('input[name="shipping"]:checked');
+            
+            // Check HTML5 validity for all required fields
+            const isFormValid = form.checkValidity();
 
-    const paymentRequest = stripe.paymentRequest({
-        country: "US",
-        currency: "usd",
-        total: { label: "Charmers Order", amount: Math.round(updateTotal() * 100) },
-        requestPayerName: true,
-        requestPayerEmail: true
-    });
+            // Check if all necessary custom conditions are met
+            if (isFormValid && tosAgreed && isShippingSelected) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
 
-    paymentRequest.canMakePayment().then(result => {
-        if (result) {
-            const container = document.getElementById("apple-pay-container");
-            container.style.display = "block";
-            container.innerHTML = "";
+        /**
+         * Displays a non-alert message box in the UI.
+         * @param {string} message - The message content.
+         * @param {'success'|'error'|'info'} type - The type of message.
+         */
+        function displayMessage(message, type = 'info') {
+            const msgBox = document.getElementById('message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800', 'bg-blue-100', 'text-blue-800');
 
-            const prButton = elements.create("paymentRequestButton", { paymentRequest });
-            prButton.mount("#apple-pay-container");
+            if (type === 'error') {
+                msgBox.classList.add('bg-red-100', 'text-red-800');
+            } else if (type === 'success') {
+                msgBox.classList.add('bg-green-100', 'text-green-800');
+            } else {
+                msgBox.classList.add('bg-blue-100', 'text-blue-800');
+            }
+            msgBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // --- Payment Logic ---
 
-            paymentRequest.on("paymentmethod", async (ev) => {
-                const totalAmount = Math.round(updateTotal() * 100);
+        /**
+         * Handles the form submission and payment intent creation/confirmation.
+         * @param {Event} event - The form submission event.
+         */
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const submitButton = document.getElementById('submit-button');
 
-                const piRes = await fetch(
-                    "https://pay-charmersv2.onrender.com/create-payment-intent",
+            if (!document.getElementById('tos-agree').checked) {
+                displayMessage('You must agree to the Terms of Service to proceed with payment.', 'error');
+                return;
+            }
+
+            // 1. Collect Data
+            const totalCents = calculateTotal();
+            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+            const shippingName = selectedShipping.parentNode.querySelector('span:nth-child(2)').textContent.trim();
+            const shippingCost = parseInt(selectedShipping.getAttribute('data-cost'));
+
+            const paymentData = {
+                amount: totalCents,
+                items: [
                     {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({
-                            amount: totalAmount,
-                            method: "payment_request",
-                            name: document.getElementById("name").value,
-                            email: document.getElementById("email").value,
-                            braceletSize: document.getElementById("braceletSize").value,
-                            braceletText: document.getElementById("braceletText").value,
-                            shipping: document.getElementById("shipping").value,
-                            processing: document.getElementById("processing").value,
-                            address: {
-                                street: document.getElementById("street").value,
-                                city: document.getElementById("city").value,
-                                state: document.getElementById("state").value,
-                                postal: document.getElementById("postal").value,
-                                country: document.getElementById("country").value
-                            }
-                        })
+                        name: "Custom Charms Bracelet",
+                        price: BASE_PRICE_CENTS,
+                        quantity: 1,
+                        details: {
+                            size: document.getElementById('size').value,
+                            text: document.getElementById('bracelet-text').value,
+                        }
                     }
-                );
+                ],
+                shippingOption: {
+                    name: shippingName,
+                    price: shippingCost,
+                },
+                customerDetails: {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: {
+                        street: document.getElementById('street').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        zip: document.getElementById('zip').value,
+                        country: document.getElementById('country').value,
+                    }
+                }
+            };
+            
+            // Disable button and show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+            displayMessage('Initiating payment...', 'info');
 
-                const piJSON = await piRes.json();
+            // 2. Create Payment Intent (Call Backend)
+            let clientSecret;
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData),
+                });
 
-                const confirm = await stripe.confirmCardPayment(
-                    piJSON.clientSecret,
-                    { payment_method: ev.paymentMethod.id },
-                    { handleActions: false }
-                );
+                const data = await response.json();
 
-                if (confirm.error) {
-                    ev.complete("fail");
-                    showError("Payment failed.");
-                } else {
-                    ev.complete("success");
-                    showSuccess("Your order was processed. Expect a confirmation email.");
-                    document.getElementById("emailBtn").style.display = "block";
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || 'Failed to create Payment Intent on the server.');
+                }
+
+                clientSecret = data.clientSecret;
+                displayMessage('Payment intent created. Confirming payment...', 'info');
+
+            } catch (error) {
+                displayMessage(`Payment Intent Error: ${error.message}`, 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = `Pay ${formatPrice(totalCents)}`;
+                return;
+            }
+
+            // 3. Confirm Payment (Call Stripe)
+            const result = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: paymentData.customerDetails.name,
+                        email: paymentData.customerDetails.email,
+                    }
                 }
             });
-        }
-    });
-}
 
-document.querySelectorAll("#name,#email,#braceletSize,#shipping,#processing")
-    .forEach(el => el.addEventListener("input", checkPaymentRequestReady));
+            if (result.error) {
+                // Show error to your customer (e.g., insufficient funds, card declined)
+                displayMessage(`Payment failed: ${result.error.message}`, 'error');
+            } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                // The payment has been processed!
+                displayMessage(`Success! Payment of ${formatPrice(result.paymentIntent.amount)} completed. Your order confirmation will be emailed to you.`, 'success');
+                // You might want to disable the form entirely here
+                document.getElementById('payment-form').reset();
+                document.getElementById('checkout-container').innerHTML = `
+                    <div class="text-center p-8">
+                        <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h1 class="text-2xl font-bold text-purple-900 mb-2">Order Confirmed!</h1>
+                        <p class="text-gray-600">Thank you for your Charmers order. A receipt and order details have been sent to ${paymentData.customerDetails.email}.</p>
+                    </div>
+                `;
 
-/* ==========================================================
-   CARD PAYMENT
-========================================================== */
-document.getElementById("payBtn").addEventListener("click", async () => {
-    if (!document.getElementById("tos").checked) {
-        return showError("You must accept the Terms of Service.");
-    }
-
-    const total = updateTotal();
-
-    grecaptcha.enterprise.ready(async () => {
-        const token = await grecaptcha.enterprise.execute(
-            "6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO",
-            { action: "pay" }
-        );
-
-        const res = await fetch(
-            "https://pay-charmersv2.onrender.com/create-payment-intent",
-            {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    amount: Math.round(total * 100),
-                    method: "card",
-                    name: document.getElementById("name").value,
-                    email: document.getElementById("email").value,
-                    braceletSize: document.getElementById("braceletSize").value,
-                    braceletText: document.getElementById("braceletText").value,
-                    shipping: document.getElementById("shipping").value,
-                    processing: document.getElementById("processing").value,
-                    address: {
-                        street: document.getElementById("street").value,
-                        city: document.getElementById("city").value,
-                        state: document.getElementById("state").value,
-                        postal: document.getElementById("postal").value,
-                        country: document.getElementById("country").value
-                    },
-                    recaptcha: token
-                })
+            } else {
+                 displayMessage('Payment confirmation failed. Unknown error occurred.', 'error');
             }
-        );
-
-        const json = await res.json();
-
-        const result = await stripe.confirmCardPayment(json.clientSecret, {
-            payment_method: { card }
-        });
-
-        if (result.error) {
-            showError("Payment failed: " + result.error.message);
-        } else {
-            showSuccess("Your order was processed. Expect a confirmation email.");
-            document.getElementById("emailBtn").style.display = "block";
+            
+            // Re-enable button on failure or final status
+            submitButton.disabled = false;
+            submitButton.textContent = `Pay ${formatPrice(totalCents)}`;
         }
-    });
-});
 
-/* ==========================================================
-   EMAIL ORDER FINAL STEP
-========================================================== */
-document.getElementById("emailBtn").addEventListener("click", () => {
-    const body =
-        `Name: ${document.getElementById("name").value}\n` +
-        `Email: ${document.getElementById("email").value}\n` +
-        `Bracelet Size: ${document.getElementById("braceletSize").value}\n` +
-        `Bracelet Text: ${document.getElementById("braceletText").value}\n` +
-        `Shipping: ${document.getElementById("shipping").value}\n` +
-        `Processing: ${document.getElementById("processing").value}\n` +
-        `Address:\n${document.getElementById("street").value}\n${document.getElementById("city").value}, ${document.getElementById("state").value} ${document.getElementById("postal").value}\n${document.getElementById("country").value}`;
 
-    window.location.href =
-        `mailto:charmers2390@gmail.com?subject=Charmers Order&body=` + encodeURIComponent(body);
-});
+        // --- Event Listeners and Setup ---
+        window.onload = function() {
+            initializeStripe();
+            updatePriceDisplay(); // Set initial price
 
-/* ==========================================================
-   UI HELPERS
-========================================================== */
-function showError(msg) {
-    const box = document.getElementById("error-box");
-    box.innerText = msg;
-    box.style.display = "block";
-    document.getElementById("success-box").style.display = "none";
-}
+            const form = document.getElementById('payment-form');
+            form.addEventListener('submit', handleSubmit);
+            
+            // Listeners for input changes to update price and button status
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    // Only update price for shipping option changes
+                    if (input.name === 'shipping') {
+                        updatePriceDisplay();
+                    }
+                    // Check validity for all changes
+                    checkFormValidity();
+                });
+            });
 
-function showSuccess(msg) {
-    const box = document.getElementById("success-box");
-    box.innerText = msg;
-    box.style.display = "block";
-    document.getElementById("error-box").style.display = "none";
-}
-</script>
-
+            // Specific listener for TOS agreement
+            document.getElementById('tos-agree').addEventListener('change', checkFormValidity);
+        };
+    </script>
 </body>
 </html>
+
