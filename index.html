@@ -6,17 +6,25 @@
     <title>Charmers Custom Bracelet Checkout</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FIX 1: Load Google reCAPTCHA v2 FIRST, before Stripe, for better DOM interaction handling -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <!-- Load Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- FIX 2: Load Google Maps API (REQUIRED FOR AUTOCOMPLETE) -->
+    <!-- !!! IMPORTANT: Replace YOUR_GOOGLE_MAPS_API_KEY with your actual Places API-enabled key. -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initAutocomplete"></script>
+    
     <style>
         /* Custom Styles for better aesthetics and Stripe Elements */
         :root {
-            --primary-purple: #4c1d95; /* Deep Purple 900 */
-            --light-purple: #f3f4f6; /* Gray 100 for lighter elements */
+            --primary-purple: #4c1d95; /* Deep Purple 800 */
+            --light-purple-bg: #f3f4f6; /* Gray 100 for lighter elements */
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--primary-purple);
+            background-color: var(--primary-purple); /* Main background is purple */
             min-height: 100vh;
         }
         /* Style for the Stripe Card Element iframe */
@@ -25,23 +33,31 @@
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
             background-color: white;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
         }
         .form-control {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
         }
-        /* Custom scrollbar for aesthetic */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #5b21b6; }
-        ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 4px; }
+        /* Style for the Stripe Payment Request Button */
+        #payment-request-button {
+            margin-bottom: 1rem;
+            min-height: 48px;
+        }
+        /* Ensure autocomplete dropdown is above other elements */
+        .pac-container {
+            z-index: 1000 !important; 
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex items-center justify-center">
 
     <div id="checkout-container" class="w-full max-w-xl bg-white shadow-2xl rounded-xl p-6 sm:p-8 lg:p-10">
-        <h1 class="text-3xl font-extrabold text-center text-purple-900 mb-6">Charmers Checkout</h1>
-        <p class="text-center text-purple-700 mb-8">Secure payment powered by Stripe.</p>
+        <h1 class="text-3xl font-extrabold text-center text-purple-900 mb-6">Charmers Custom Checkout</h1>
+        <p class="text-center text-purple-700 mb-8">Secure payment with Card, Apple Pay, Google Pay, and Link.</p>
 
         <!-- Dynamic Message Box -->
         <div id="message-box" class="hidden p-4 mb-4 text-sm rounded-lg" role="alert"></div>
@@ -50,7 +66,7 @@
 
             <!-- 1. Contact Information -->
             <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
-                <h2 class="text-xl font-semibold text-purple-800 mb-4">1. Contact & Shipping</h2>
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">1. Contact Details</h2>
                 
                 <div class="space-y-4">
                     <input type="text" id="name" placeholder="Full Name (Required)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
@@ -59,10 +75,11 @@
                 </div>
             </section>
 
-            <!-- 2. Address Details -->
+            <!-- 2. Address Details (with Google Maps Autocomplete) -->
             <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
-                <h2 class="text-xl font-semibold text-purple-800 mb-4">2. Shipping Address</h2>
+                <h2 class="text-xl font-semibold text-purple-800 mb-4">2. Shipping Address <span class="text-xs text-gray-500">(Start typing address below)</span></h2>
                 <div class="space-y-4">
+                    <input type="text" id="autocomplete-address" placeholder="Start typing your address..." required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500">
                     <input type="text" id="street" placeholder="Street Address" required class="w-full p-3 border border-gray-300 rounded-lg">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input type="text" id="city" placeholder="City" required class="p-3 border border-gray-300 rounded-lg">
@@ -105,25 +122,37 @@
             <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
                 <h2 class="text-xl font-semibold text-purple-800 mb-4">4. Shipping Method</h2>
                 <div class="space-y-3" id="shipping-options">
+                    <!-- Domestic -->
                     <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
-                        <input type="radio" name="shipping" value="ground" data-cost="500" required class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
-                        <span class="text-gray-900 font-medium flex-grow">USPS Ground Advantage (5-7 Days)</span>
-                        <span class="text-purple-600 font-bold">$5.00</span>
-                    </label>
-                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
-                        <input type="radio" name="shipping" value="priority" data-cost="900" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
-                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail (2-3 Days)</span>
+                        <input type="radio" name="shipping" value="ground" data-cost="900" required class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Ground Advantage ® (5-7 Days)</span>
                         <span class="text-purple-600 font-bold">$9.00</span>
                     </label>
                     <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
-                        <input type="radio" name="shipping" value="express" data-cost="2600" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
-                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail Express (1-2 Days)</span>
-                        <span class="text-purple-600 font-bold">$26.00</span>
+                        <input type="radio" name="shipping" value="priority" data-cost="1500" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail ® (2-3 Days)</span>
+                        <span class="text-purple-600 font-bold">$15.00</span>
                     </label>
                     <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
-                        <input type="radio" name="shipping" value="international" data-cost="1800" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
-                        <span class="text-gray-900 font-medium flex-grow">International Shipping</span>
-                        <span class="text-purple-600 font-bold">$18.00</span>
+                        <input type="radio" name="shipping" value="express" data-cost="2900" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail Express ® (1-2 Days)</span>
+                        <span class="text-purple-600 font-bold">$29.00</span>
+                    </label>
+                    <!-- International -->
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="int-first-class" data-cost="3400" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS First Class Package International</span>
+                        <span class="text-purple-600 font-bold">$34.00</span>
+                    </label>
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="int-priority" data-cost="5900" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail International</span>
+                        <span class="text-purple-600 font-bold">$59.00</span>
+                    </label>
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-purple-100 transition-colors cursor-pointer">
+                        <input type="radio" name="shipping" value="int-express" data-cost="10100" class="form-control h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                        <span class="text-gray-900 font-medium flex-grow">USPS Priority Mail Express International</span>
+                        <span class="text-purple-600 font-bold">$101.00</span>
                     </label>
                 </div>
             </section>
@@ -131,17 +160,34 @@
             <!-- 5. Payment Details -->
             <section class="border border-purple-200 p-4 rounded-lg bg-purple-50">
                 <h2 class="text-xl font-semibold text-purple-800 mb-4">5. Payment Details</h2>
-                <!-- Stripe Element will be inserted here -->
+                
+                <!-- Stripe Payment Request Button (Apple Pay / Google Pay / Link) -->
+                <div id="payment-request-button">
+                    <!-- Button will be rendered here by Stripe -->
+                </div>
+
+                <div class="flex items-center my-4">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="flex-shrink mx-4 text-gray-500 text-sm font-medium">OR PAY WITH CARD</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+
+                <!-- Stripe Card Element -->
                 <div id="card-element">
-                    <!-- A Stripe Element will be inserted here. -->
+                    <!-- A Stripe Card Element will be inserted here. -->
                 </div>
             </section>
 
-            <!-- Order Summary & TOS -->
+            <!-- 6. Security & Summary -->
             <section class="space-y-4">
                 <div class="p-4 bg-purple-800 rounded-lg text-white font-bold text-lg flex justify-between">
                     <span>Order Total:</span>
                     <span id="order-total-display">$25.00</span>
+                </div>
+
+                <!-- reCAPTCHA V2 -->
+                <div id="recaptcha-container" class="flex justify-center my-4">
+                    <div class="g-recaptcha" data-sitekey="6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"></div>
                 </div>
 
                 <!-- TOS Checkbox -->
@@ -166,94 +212,72 @@
         const BACKEND_URL = 'https://pay-charmersv2.onrender.com/create-payment-intent';
         const BASE_PRICE_CENTS = 2500; // $25.00 for the bracelet
 
-        // --- Stripe Initialization ---
+        // --- Global Stripe Variables ---
         let stripe;
         let elements;
         let cardElement;
+        let paymentRequest;
+        let prButton;
 
-        function initializeStripe() {
-            try {
-                stripe = Stripe(STRIPE_PK);
-                elements = stripe.elements();
-
-                // Custom styling for the Stripe Element
-                const style = {
-                    base: {
-                        fontSize: '16px',
-                        color: '#374151',
-                        '::placeholder': {
-                            color: '#9ca3af',
-                        },
-                    },
-                };
-                
-                // Create an instance of the card Element.
-                cardElement = elements.create('card', {style: style});
-
-                // Add an instance of the card Element into the `card-element` div.
-                cardElement.mount('#card-element');
-
-                console.log('Stripe initialized successfully.');
-
-            } catch (error) {
-                displayMessage(`Error initializing Stripe: ${error.message}. Please check the provided Public Key.`, 'error');
-            }
-        }
+        // --- Google Maps Autocomplete Variables ---
+        let autocomplete;
+        const addressFields = {
+            street: document.getElementById('street'),
+            city: document.getElementById('city'),
+            state: document.getElementById('state'),
+            zip: document.getElementById('zip'),
+            country: document.getElementById('country'),
+        };
 
         // --- Helper Functions ---
 
-        /**
-         * Converts cents to a currency display string (e.g., 2500 -> $25.00).
-         * @param {number} cents - The amount in cents.
-         * @returns {string} The formatted currency string.
-         */
         function formatPrice(cents) {
             return (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         }
 
         /**
          * Calculates the current total price in cents based on product and shipping.
-         * @returns {number} The total price in cents.
+         * @returns {{totalCents: number, shipping: {cost: number, name: string} | null}}
          */
         function calculateTotal() {
             let shippingCost = 0;
+            let shippingName = "N/A";
             const selectedShipping = document.querySelector('input[name="shipping"]:checked');
 
             if (selectedShipping) {
-                // data-cost attribute holds the shipping cost in cents
                 shippingCost = parseInt(selectedShipping.getAttribute('data-cost'));
+                shippingName = selectedShipping.parentNode.querySelector('span:nth-child(2)').textContent.trim();
             }
 
-            return BASE_PRICE_CENTS + shippingCost;
+            return {
+                totalCents: BASE_PRICE_CENTS + shippingCost,
+                shipping: selectedShipping ? { cost: shippingCost, name: shippingName } : null
+            };
         }
 
-        /**
-         * Updates the price display elements.
-         */
         function updatePriceDisplay() {
-            const totalCents = calculateTotal();
+            const { totalCents } = calculateTotal();
             const totalPrice = formatPrice(totalCents);
             
             document.getElementById('order-total-display').textContent = totalPrice;
             document.getElementById('button-price-display').textContent = totalPrice;
             
-            // Re-check button status after price update
             checkFormValidity();
+            // Also update the Payment Request Button if it exists
+            if (paymentRequest) {
+                updatePaymentRequest();
+            }
         }
 
-        /**
-         * Checks if all required form fields and the TOS are valid to enable the pay button.
-         */
         function checkFormValidity() {
             const form = document.getElementById('payment-form');
             const submitButton = document.getElementById('submit-button');
             const tosAgreed = document.getElementById('tos-agree').checked;
             const isShippingSelected = document.querySelector('input[name="shipping"]:checked');
             
-            // Check HTML5 validity for all required fields
             const isFormValid = form.checkValidity();
 
-            // Check if all necessary custom conditions are met
+            // Disable if not valid, no shipping, or TOS not agreed
             if (isFormValid && tosAgreed && isShippingSelected) {
                 submitButton.disabled = false;
             } else {
@@ -261,11 +285,6 @@
             }
         }
 
-        /**
-         * Displays a non-alert message box in the UI.
-         * @param {string} message - The message content.
-         * @param {'success'|'error'|'info'} type - The type of message.
-         */
         function displayMessage(message, type = 'info') {
             const msgBox = document.getElementById('message-box');
             msgBox.textContent = message;
@@ -281,28 +300,186 @@
             msgBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
-        // --- Payment Logic ---
+        // --- Stripe Initialization ---
 
-        /**
-         * Handles the form submission and payment intent creation/confirmation.
-         * @param {Event} event - The form submission event.
-         */
-        async function handleSubmit(event) {
-            event.preventDefault();
-            const submitButton = document.getElementById('submit-button');
+        function updatePaymentRequest() {
+            const { totalCents, shipping } = calculateTotal();
+            if (!paymentRequest) return;
 
-            if (!document.getElementById('tos-agree').checked) {
-                displayMessage('You must agree to the Terms of Service to proceed with payment.', 'error');
-                return;
+            const displayItems = [
+                { label: 'Charmers Custom Bracelet', amount: BASE_PRICE_CENTS },
+            ];
+
+            // Add shipping line item if selected
+            if (shipping) {
+                displayItems.push({ label: shipping.name, amount: shipping.cost });
             }
 
-            // 1. Collect Data
-            const totalCents = calculateTotal();
-            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
-            const shippingName = selectedShipping.parentNode.querySelector('span:nth-child(2)').textContent.trim();
-            const shippingCost = parseInt(selectedShipping.getAttribute('data-cost'));
+            paymentRequest.update({
+                displayItems: displayItems,
+                total: {
+                    label: 'Total Due',
+                    amount: totalCents,
+                },
+            });
+        }
 
-            const paymentData = {
+        function initializeStripe() {
+            try {
+                stripe = Stripe(STRIPE_PK);
+                elements = stripe.elements();
+
+                // 1. Setup Card Element
+                const style = {
+                    base: {
+                        fontSize: '16px',
+                        color: '#374151',
+                        '::placeholder': { color: '#9ca3af' },
+                    },
+                };
+                cardElement = elements.create('card', { style: style });
+                cardElement.mount('#card-element');
+                
+                // 2. Setup Payment Request Button (Apple Pay, Google Pay, Link)
+                const { totalCents } = calculateTotal();
+
+                paymentRequest = stripe.paymentRequest({
+                    country: 'US', // Set to the country your merchant account is registered in
+                    currency: 'usd',
+                    total: {
+                        label: 'Total Due',
+                        amount: totalCents, // Initial total amount
+                    },
+                    requestPayerName: true,
+                    requestPayerEmail: true,
+                    requestShipping: true, // Required for Apple Pay to collect shipping
+                });
+
+                prButton = elements.create('paymentRequestButton', {
+                    paymentRequest: paymentRequest,
+                    style: {
+                        paymentRequestButton: {
+                            type: 'default', // 'default', 'donate', 'buy'
+                            theme: 'dark', // 'dark', 'light', 'light-outline'
+                            height: '48px',
+                        },
+                    },
+                });
+
+                // Check the availability of the Payment Request API first.
+                paymentRequest.canMakePayment().then(result => {
+                    if (result) {
+                        prButton.mount('#payment-request-button');
+                    } else {
+                        document.getElementById('payment-request-button').style.display = 'none';
+                    }
+                });
+
+                // Handle shipping option changes in the PRB flow
+                paymentRequest.on('shippingaddresschange', (event) => {
+                    // This logic determines available shipping and price based on the PRB-provided address.
+                    const country = event.shippingAddress.country;
+                    const shippingOptions = [];
+                    
+                    if (country === 'US') {
+                         shippingOptions.push({
+                            id: 'ground',
+                            label: 'USPS Ground Advantage (5-7 Days)',
+                            detail: '$9.00',
+                            amount: 900,
+                        });
+                        event.updateWith({
+                            status: 'success',
+                            shippingOptions: shippingOptions,
+                            total: {
+                                label: 'Total Due',
+                                amount: BASE_PRICE_CENTS + 900
+                            }
+                        });
+                    } else {
+                        // Default international option for simplicity in PRB flow
+                         shippingOptions.push({
+                            id: 'int-first-class',
+                            label: 'USPS First Class Package International',
+                            detail: '$34.00',
+                            amount: 3400,
+                        });
+                        event.updateWith({
+                            status: 'success',
+                            shippingOptions: shippingOptions,
+                            total: {
+                                label: 'Total Due',
+                                amount: BASE_PRICE_CENTS + 3400
+                            }
+                        });
+                    }
+                });
+
+                // Handle the PRB confirmation
+                paymentRequest.on('paymentmethod', async (event) => {
+                    // Check reCAPTCHA before proceeding with PRB payment
+                    const recaptchaToken = grecaptcha.getResponse();
+                    if (!recaptchaToken) {
+                        displayMessage('Please complete the reCAPTCHA verification before paying.', 'error');
+                        event.complete('fail'); // Fail the payment request if reCAPTCHA is missing
+                        return;
+                    }
+
+                    // PRB flow includes both address and shipping option in the event
+                    const prbData = buildPaymentData(event.shippingAddress, event.shippingOption);
+                    await processPayment(prbData, event.paymentMethod.id, event.complete);
+                });
+
+
+                console.log('Stripe and PRB initialized.');
+
+            } catch (error) {
+                displayMessage(`Error initializing Stripe: ${error.message}. Please check the provided Public Key.`, 'error');
+            }
+        }
+
+        /**
+         * Builds the structured data payload for the backend API call.
+         * @param {object | null} addressFromPrb - Shipping address object from Stripe PRB (optional).
+         * @param {object | null} shippingOptionFromPrb - Shipping option object from Stripe PRB (optional).
+         * @returns {object} The payment data payload.
+         */
+        function buildPaymentData(addressFromPrb = null, shippingOptionFromPrb = null) {
+            
+            const { totalCents, shipping } = calculateTotal();
+            
+            // Default to form data
+            let shippingDetails = shipping;
+            let customerEmail = document.getElementById('email').value;
+            let customerName = document.getElementById('name').value;
+            let customerPhone = document.getElementById('phone').value;
+            let customerAddress = {
+                street: document.getElementById('street').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zip: document.getElementById('zip').value,
+                country: document.getElementById('country').value,
+            };
+
+            // Override with PRB data if available
+            if (addressFromPrb && shippingOptionFromPrb) {
+                shippingDetails = {
+                    name: shippingOptionFromPrb.label,
+                    price: shippingOptionFromPrb.amount,
+                };
+                customerEmail = addressFromPrb.email || document.getElementById('email').value;
+                customerName = addressFromPrb.recipient || document.getElementById('name').value;
+                customerPhone = addressFromPrb.phone || document.getElementById('phone').value;
+                customerAddress = {
+                    street: addressFromPrb.addressLine[0] + (addressFromPrb.addressLine[1] ? ', ' + addressFromPrb.addressLine[1] : ''),
+                    city: addressFromPrb.city,
+                    state: addressFromPrb.region,
+                    zip: addressFromPrb.postalCode,
+                    country: addressFromPrb.country,
+                };
+            }
+
+            return {
                 amount: totalCents,
                 items: [
                     {
@@ -315,30 +492,38 @@
                         }
                     }
                 ],
-                shippingOption: {
-                    name: shippingName,
-                    price: shippingCost,
-                },
+                shippingOption: shippingDetails,
                 customerDetails: {
-                    name: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    address: {
-                        street: document.getElementById('street').value,
-                        city: document.getElementById('city').value,
-                        state: document.getElementById('state').value,
-                        zip: document.getElementById('zip').value,
-                        country: document.getElementById('country').value,
-                    }
+                    name: customerName,
+                    email: customerEmail,
+                    phone: customerPhone,
+                    address: customerAddress
                 }
             };
-            
-            // Disable button and show loading state
-            submitButton.disabled = true;
-            submitButton.textContent = 'Processing...';
-            displayMessage('Initiating payment...', 'info');
+        }
 
-            // 2. Create Payment Intent (Call Backend)
+
+        // --- Core Payment Processing Logic ---
+
+        /**
+         * Processes the payment, either via card (using clientSecret) or PRB (using paymentMethodId).
+         * @param {object} paymentData - Structured data payload for the backend.
+         * @param {string} [paymentMethodId] - Stripe Payment Method ID for PRB flow.
+         * @param {function} [prbCompletionCallback] - Callback function for PRB flow to tell Stripe to close the modal.
+         */
+        async function processPayment(paymentData, paymentMethodId = null, prbCompletionCallback = null) {
+            const submitButton = document.getElementById('submit-button');
+            const totalCents = paymentData.amount;
+            
+            let isCardFlow = !paymentMethodId;
+
+            if (isCardFlow) {
+                 submitButton.disabled = true;
+                 submitButton.textContent = 'Processing...';
+                 displayMessage('Initiating Card Payment...', 'info');
+            }
+
+            // 1. Create Payment Intent (Call Backend)
             let clientSecret;
             try {
                 const response = await fetch(BACKEND_URL, {
@@ -358,30 +543,47 @@
 
             } catch (error) {
                 displayMessage(`Payment Intent Error: ${error.message}`, 'error');
-                submitButton.disabled = false;
-                submitButton.textContent = `Pay ${formatPrice(totalCents)}`;
+                if (isCardFlow) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = `Pay ${formatPrice(totalCents)}`;
+                } else {
+                    prbCompletionCallback('fail');
+                }
                 return;
             }
 
-            // 3. Confirm Payment (Call Stripe)
-            const result = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: cardElement,
-                    billing_details: {
-                        name: paymentData.customerDetails.name,
-                        email: paymentData.customerDetails.email,
+            // 2. Confirm Payment
+            let result;
+            
+            if (isCardFlow) {
+                // Card Flow: Use confirmCardPayment with clientSecret
+                result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: paymentData.customerDetails.name,
+                            email: paymentData.customerDetails.email,
+                        }
                     }
-                }
-            });
-
+                });
+            } else {
+                // PRB Flow: Use confirmCardPayment with paymentMethodId
+                result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: paymentMethodId
+                });
+                // Stripe PRB requires a completion call
+                prbCompletionCallback(result.error ? 'fail' : 'success');
+            }
+            
+            // 3. Handle Result
             if (result.error) {
-                // Show error to your customer (e.g., insufficient funds, card declined)
                 displayMessage(`Payment failed: ${result.error.message}`, 'error');
             } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-                // The payment has been processed!
                 displayMessage(`Success! Payment of ${formatPrice(result.paymentIntent.amount)} completed. Your order confirmation will be emailed to you.`, 'success');
-                // You might want to disable the form entirely here
+                // Clear UI after successful payment
                 document.getElementById('payment-form').reset();
+                grecaptcha.reset(); // Reset reCAPTCHA
+                
                 document.getElementById('checkout-container').innerHTML = `
                     <div class="text-center p-8">
                         <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -394,9 +596,84 @@
                  displayMessage('Payment confirmation failed. Unknown error occurred.', 'error');
             }
             
-            // Re-enable button on failure or final status
-            submitButton.disabled = false;
-            submitButton.textContent = `Pay ${formatPrice(totalCents)}`;
+            // Re-enable button on failure or final status for card flow
+            if (isCardFlow) {
+                submitButton.disabled = false;
+                submitButton.textContent = `Pay ${formatPrice(totalCents)}`;
+            }
+        }
+        
+        // --- Form Submission Handler (Card Flow Only) ---
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            // 1. Mandatory Checks
+            if (!document.getElementById('tos-agree').checked) {
+                displayMessage('You must agree to the Terms of Service to proceed with payment.', 'error');
+                return;
+            }
+
+            const recaptchaToken = grecaptcha.getResponse();
+            if (!recaptchaToken) {
+                displayMessage('Please complete the reCAPTCHA verification before paying.', 'error');
+                return;
+            }
+
+            const paymentData = buildPaymentData();
+            await processPayment(paymentData);
+        }
+
+        // --- Google Maps Autocomplete Setup ---
+        window.initAutocomplete = function() {
+            const input = document.getElementById('autocomplete-address');
+            
+            // Check if Google Maps is fully loaded (required for the Places API)
+            if (typeof google === 'undefined' || typeof google.maps === 'undefined' || typeof google.maps.places === 'undefined') {
+                console.error("Google Maps API or Places Library failed to load. Autocomplete disabled. Ensure API Key is valid.");
+                input.placeholder = "Address Autocomplete is disabled. Enter address manually.";
+                return;
+            }
+
+            autocomplete = new google.maps.places.Autocomplete(input, {
+                componentRestrictions: { country: ["us", "ca"] }, // Limit to US and Canada for better results
+                fields: ["address_components", "geometry", "name"],
+                types: ["address"],
+            });
+
+            autocomplete.addListener('place_changed', fillInAddress);
+        }
+
+        function fillInAddress() {
+            const place = autocomplete.getPlace();
+
+            if (!place || !place.address_components) {
+                displayMessage('Could not retrieve address details. Please fill manually.', 'info');
+                return;
+            }
+
+            // Clear old values
+            Object.values(addressFields).forEach(field => field.value = '');
+
+            // Get component map for easier lookup
+            const componentMap = {};
+            place.address_components.forEach(component => {
+                componentMap[component.types[0]] = component.long_name;
+                componentMap[component.types[0] + '_short'] = component.short_name;
+            });
+
+            // Street address logic
+            const streetNumber = componentMap['street_number'] || '';
+            const route = componentMap['route'] || '';
+            addressFields.street.value = `${streetNumber} ${route}`.trim();
+
+            // City, State, Zip, Country
+            addressFields.city.value = componentMap['locality'] || componentMap['sublocality_level_1'] || componentMap['postal_town'] || '';
+            addressFields.state.value = componentMap['administrative_area_level_1_short'] || componentMap['administrative_area_level_1'] || '';
+            addressFields.zip.value = componentMap['postal_code'] || '';
+            addressFields.country.value = componentMap['country_short'] || '';
+            
+            // Focus on the next field after filling
+            addressFields.street.focus();
         }
 
 
