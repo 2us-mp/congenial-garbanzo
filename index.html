@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Charmers Checkout v4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"></script>
+<style>
+body{font-family:Arial,system-ui;background:#050010;color:#fff;margin:0;padding:0}
+.container{max-width:900px;margin:20px auto;padding:0 16px}
+.card{background:#130527;border:1px solid #3b2560;border-radius:12px;padding:16px;margin-top:16px}
+input,select{width:100%;padding:10px;margin:6px 0;background:#1a0f2b;border:1px solid #5b3f8c;border-radius:7px;color:#fff;font-size:14px}
+button{padding:12px;border:none;border-radius:8px;background:#7c3aed;color:#fff;width:100%;margin-top:10px;font-size:15px;font-weight:600}
+button.disabled{opacity:0.45;pointer-events:none}
+.summary-line{display:flex;justify-content:space-between;margin:4px 0;font-size:14px}
+.summary-line.total{margin-top:6px;font-size:18px;font-weight:bold;border-top:1px solid #433060;padding-top:6px}
+#card-element{margin-top:12px;padding:12px;background:#0b0616;border:1px solid #4b3b78;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h2 style="text-align:center;margin-bottom:10px;">🔥 Black Friday: Use code CHARM10BLACKF for 50% off bracelets</h2>
+
+<!-- CUSTOMER INFO -->
+<div class="card">
+<h2>Customer Information</h2>
+
+<label>Name</label>
+<input id="name" type="text" required>
+
+<label>Email</label>
+<input id="email" type="email" required>
+
+<label>Phone (optional)</label>
+<input id="phone" type="text">
+</div>
+
+<!-- ADDRESS -->
+<div class="card">
+<h2>Shipping Address</h2>
+
+<label>Street Address</label>
+<input id="addr1" type="text" required>
+
+<label>Street Address 2 (optional)</label>
+<input id="addr2" type="text">
+
+<label>City</label>
+<input id="city" type="text" required>
+
+<label>State / Province / Region</label>
+<input id="state" type="text" required>
+
+<label>Postal Code</label>
+<input id="zip" type="text" required>
+
+<label>Country</label>
+<input id="country" type="text" value="United States" required>
+</div>
+
+<!-- BRACELET OPTIONS -->
+<div class="card">
+<h2>Bracelet Details</h2>
+
+<label>Bracelet Size</label>
+<select id="size">
+<option value="5">Small — $5.00</option>
+<option value="9">Medium — $9.00</option>
+<option value="11">Large — $11.00</option>
+<option value="15">Extra Large — $15.00</option>
+</select>
+
+<label>Bracelet Color</label>
+<input id="color" type="text" placeholder="Enter bracelet color" required>
+
+<label>Coupon Code</label>
+<input id="coupon" type="text" placeholder="Enter coupon code (optional)">
+<div id="coupon-msg" style="font-size:13px;margin-top:4px;min-height:18px;"></div>
+</div>
+
+<script>
+// ----------------------------------------------------------
+// INITIALIZE STRIPE
+// ----------------------------------------------------------
+const stripe = Stripe("pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc");
+const elements = stripe.elements();
+const card = elements.create("card");
+card.mount("#card-element");
+
+// ----------------------------------------------------------
+// ELEMENT REFERENCES
+// ----------------------------------------------------------
+const nameI=document.getElementById("name");
+const emailI=document.getElementById("email");
+const phoneI=document.getElementById("phone");
+const addr1=document.getElementById("addr1");
+const addr2=document.getElementById("addr2");
+const city=document.getElementById("city");
+const stateI=document.getElementById("state");
+const zip=document.getElementById("zip");
+const country=document.getElementById("country");
+const size=document.getElementById("size");
+const color=document.getElementById("color");
+const coupon=document.getElementById("coupon");
+const shipping=document.getElementById("shipping");
+const processing=document.getElementById("processing");
+const tos=document.getElementById("tos");
+const paybtn=document.getElementById("paybtn");
+const status=document.getElementById("status");
+const prbBox=document.getElementById("payment-request-button");
+
+// SUMMARY FIELDS
+const sBrace=document.getElementById("sum-bracelet");
+const sTax=document.getElementById("sum-tax");
+const sProc=document.getElementById("sum-proc");
+const sShip=document.getElementById("sum-ship");
+const sTotal=document.getElementById("sum-total");
+
+// ----------------------------------------------------------
+// HELPERS
+// ----------------------------------------------------------
+function money(n){ return "$"+n.toFixed(2); }
+
+// ----------------------------------------------------------
+// COMPUTE TOTAL
+// ----------------------------------------------------------
+function computeTotal(){
+    let b = parseFloat(size.value);
+
+    // coupon logic
+    const code = coupon.value.trim().toUpperCase();
+    const msg = document.getElementById("coupon-msg");
+    if(code==="CHARM10BLACKF"){
+        b = b * 0.5;
+        msg.textContent="Black Friday 50% discount applied.";
+        msg.style.color="#4ade80";
+    } else if(code===""){
+        msg.textContent="";
+    } else {
+        msg.textContent="Invalid coupon.";
+        msg.style.color="#f87171";
+    }
+
+    const tax = b * 0.095;
+    const p = parseFloat(processing.value);
+    const sh = parseFloat(shipping.value);
+    const total = b + tax + p + sh;
+
+    sBrace.textContent = money(b);
+    sTax.textContent   = money(tax);
+    sProc.textContent  = money(p);
+    sShip.textContent  = money(sh);
+    sTotal.textContent = money(total);
+
+    return Math.round(total * 100);
+}
+
+// ----------------------------------------------------------
+// VALIDATION
+// ----------------------------------------------------------
+let recaptchaOK = false;
+
+function allFilled(){
+    return (
+        nameI.value && emailI.value && addr1.value &&
+        city.value && stateI.value && zip.value &&
+        color.value && tos.checked && recaptchaOK
+    );
+}
+
+function unlockButtons(){
+    if(allFilled()){
+        paybtn.classList.remove("disabled");
+        prbBox.classList.remove("disabled");
+    } else {
+        paybtn.classList.add("disabled");
+        prbBox.classList.add("disabled");
+    }
+}
+
+// ----------------------------------------------------------
+// UPDATE EVERY INPUT
+// ----------------------------------------------------------
+document.querySelectorAll("input,select").forEach(el=>{
+    el.addEventListener("input",()=>{
+        const amount = computeTotal();
+        unlockButtons();
+        if(window.paymentRequest){
+            window.paymentRequest.update({
+                total:{label:"Charmers Order", amount:amount}
+            });
+        }
+    });
+});
+
+// Initial compute
+computeTotal();
+
+// ----------------------------------------------------------
+// reCAPTCHA ENTERPRISE
+// ----------------------------------------------------------
+grecaptcha.enterprise.ready(async()=>{
+    const token = await grecaptcha.enterprise.execute(
+        "6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO",
+        {action:"submit"}
+    );
+    recaptchaOK = true;
+    unlockButtons();
+});
+
+// ----------------------------------------------------------
+// PAYMENT REQUEST BUTTON
+// ----------------------------------------------------------
+window.paymentRequest = stripe.paymentRequest({
+    country:"US",
+    currency:"usd",
+    total:{ label:"Charmers Order", amount: computeTotal() },
+    requestPayerName:true,
+    requestPayerEmail:true,
+    requestShipping:true,
+    shippingOptions:[
+        {id:"ga", label:"USPS Ground Advantage — $9.00", amount:900},
+        {id:"pm", label:"USPS Priority Mail — $11.00", amount:1100},
+        {id:"pme",label:"USPS Priority Mail Express — $29.00",amount:2900},
+        {id:"fcpi",label:"USPS First-Class Package International Service — Unavailable",amount:0,unavailable:true},
+        {id:"pmi", label:"USPS Priority Mail International — Unavailable",amount:0,unavailable:true},
+        {id:"pmei",label:"USPS Priority Mail Express International — Unavailable",amount:0,unavailable:true}
+    ]
+});
+
+// shipping change handler
+window.paymentRequest.on("shippingoptionchange", e=>{
+    shipping.value = (
+        e.shippingOption.id==="ga" ? 9 :
+        e.shippingOption.id==="pm" ? 11 :
+        e.shippingOption.id==="pme"? 29 : 9
+    );
+    const newTotal = computeTotal();
+    e.updateWith({
+        status:"success",
+        total:{label:"Charmers Order",amount:newTotal}
+    });
+});
+
+// mount PRB
+window.paymentRequest.canMakePayment().then(res=>{
+    if(res){
+        const prb = elements.create("paymentRequestButton",{paymentRequest:window.paymentRequest});
+        prb.mount("#payment-request-button");
+    } else prbBox.style.display="none";
+});
+
+// ----------------------------------------------------------
+// PRB PAYMENT
+// ----------------------------------------------------------
+window.paymentRequest.on("paymentmethod", async ev=>{
+    try{
+        const amount = computeTotal();
+        const r = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({amount:amount,currency:"usd"})
+        });
+        const data = await r.json();
+
+        const confirm = await stripe.confirmCardPayment(
+            data.clientSecret,
+            {payment_method:ev.paymentMethod.id},
+            {handleActions:false}
+        );
+
+        if(confirm.error){
+            ev.complete("fail");
+            status.textContent = confirm.error.message;
+            status.style.color="#f87171";
+            return;
+        }
+
+        ev.complete("success");
+        finishEmail();
+    }catch(e){
+        ev.complete("fail");
+        status.textContent="Payment failed.";
+        status.style.color="#f87171";
+    }
+});
+
+// ----------------------------------------------------------
+// CARD PAYMENT
+// ----------------------------------------------------------
+paybtn.onclick = async()=>{
+    if(paybtn.classList.contains("disabled"))return;
+
+    status.textContent="";
+
+    try{
+        const amount = computeTotal();
+        const r = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({amount:amount,currency:"usd"})
+        });
+        const data = await r.json();
+
+        const confirm = await stripe.confirmCardPayment(
+            data.clientSecret,
+            {payment_method:{card:card,billing_details:{name:nameI.value,email:emailI.value}}}
+        );
+
+        if(confirm.error){
+            status.textContent=confirm.error.message;
+            status.style.color="#f87171";
+        } else {
+            finishEmail();
+        }
+    }catch(e){
+        status.textContent="Payment failed.";
+        status.style.color="#f87171";
+    }
+};
+
+// ----------------------------------------------------------
+// SUCCESS → EMAIL → COMPLETE
+// ----------------------------------------------------------
+function finishEmail(){
+    status.style.color="#4ade80";
+    status.textContent="Payment successful — opening email…";
+
+    const body =
+        "Name: "+nameI.value+"\n"+
+        "Email: "+emailI.value+"\n"+
+        "Phone: "+phoneI.value+"\n"+
+        "Bracelet: "+sBrace.textContent+"\n"+
+        "Tax: "+sTax.textContent+"\n"+
+        "Processing: "+sProc.textContent+"\n"+
+        "Shipping: "+sShip.textContent+"\n"+
+        "Total: "+sTotal.textContent+"\n"+
+        "Bracelet Size: "+size.options[size.selectedIndex].text+"\n"+
+        "Bracelet Color: "+color.value+"\n"+
+        "Address: "+addr1.value+" "+addr2.value+", "+city.value+", "+stateI.value+" "+zip.value+", "+country.value;
+
+    const mail="mailto:Charmers2346@gmail.com?subject="+
+        encodeURIComponent("Charmers bracelet order")+
+        "&body="+encodeURIComponent(body);
+
+    window.location.href = mail;
+
+    setTimeout(()=>{
+        status.textContent="Order Completed ✔ Expect a confirmation email soon.";
+    },1200);
+}
+</script>
+
+</div></body></html>
