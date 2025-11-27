@@ -2,324 +2,261 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Charmers Checkout v3</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charmers Checkout</title>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
 <!-- Stripe -->
 <script src="https://js.stripe.com/v3/"></script>
-<!-- reCAPTCHA -->
-<script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
+
+<!-- reCAPTCHA Enterprise -->
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"></script>
+
+<!-- Google Maps Autocomplete -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=REPLACE_WITH_YOUR_MAPS_KEY&libraries=places">
+</script>
+
 <style>
-body{font-family:Arial,system-ui;background:#050010;color:#fff;margin:0;padding:0}
-.container{max-width:900px;margin:20px auto;padding:0 16px}
-.card{background:#130527;border:1px solid #3b2560;border-radius:12px;padding:16px;margin-top:16px}
-input,select{width:100%;padding:10px;margin:6px 0;background:#1a0f2b;border:1px solid #5b3f8c;border-radius:7px;color:#fff;font-size:14px}
-button{padding:12px;border:none;border-radius:8px;background:#7c3aed;color:#fff;width:100%;margin-top:10px;font-size:15px;font-weight:600}
-button.disabled{opacity:0.4;pointer-events:none}
-.summary-line{display:flex;justify-content:space-between;margin:4px 0;font-size:14px}
-.summary-line.total{margin-top:6px;font-size:18px;font-weight:bold;border-top:1px solid #433060;padding-top:6px}
-#card-element{margin-top:12px;padding:12px;background:#0b0616;border-radius:8px;border:1px solid #4b3b78}
+:root {
+    --pink: #ff4fe0;
+    --purple: #7a2bff;
+}
 </style>
 </head>
-<body>
-<div class='container'>
+<body class="bg-gray-100">
 
-<!-- Customer Info -->
-<div class="card">
-<h2>Customer Information</h2>
-<input id="name" placeholder="Full Name">
-<input id="email" type="email" placeholder="Email">
-<input id="phone" placeholder="Phone (optional)">
-</div>
+<div class="max-w-xl mx-auto bg-white p-6 my-10 rounded-xl shadow">
 
-<!-- Address -->
-<div class="card">
-<h2>Shipping Address</h2>
-<input id="addr1" placeholder="Street Address">
-<input id="addr2" placeholder="Apt / Unit (optional)">
-<input id="city" placeholder="City">
-<input id="state" placeholder="State / Province">
-<input id="zip" placeholder="Postal Code">
-<select id="country">
-<option value="US">United States</option>
-</select>
-</div>
+<h1 class="text-3xl font-bold text-purple-700 mb-4 text-center">
+Charmers Custom Bracelet Checkout
+</h1>
 
-<!-- Bracelet -->
-<div class="card">
-<h2>Bracelet Details</h2>
-<select id="size">
-<option value="5">Small – $5</option>
-<option value="9">Medium – $9</option>
-<option value="11">Large – $11</option>
-<option value="15">XL – $15</option>
-</select>
-<input id="color" placeholder="Bracelet Color">
+<!-- FORM -->
+<div class="space-y-4">
 
-<h2 style="margin-top:12px;">Coupon</h2>
-<input id="coupon" placeholder="Enter coupon code">
-<div id="coupon-msg" style="font-size:12px;margin-top:4px;"></div>
-</div>
+<input id="name" class="w-full p-3 border rounded" placeholder="Full Name">
+<input id="email" class="w-full p-3 border rounded" placeholder="Email">
+<input id="phone" class="w-full p-3 border rounded" placeholder="Phone (optional)">
+<textarea id="bracelet" class="w-full p-3 border rounded" placeholder="Bracelet Text"></textarea>
 
 <!-- Shipping -->
-<div class="card">
-<h2>Shipping</h2>
-<select id="shipping">
-<option value="9">USPS Ground Advantage – $9</option>
-<option value="11">USPS Priority Mail – $11</option>
-<option value="29">USPS Priority Mail Express – $29</option>
-<option value="29">USPS First Class Intl – $29</option>
-<option value="59">USPS Priority Mail International – $59</option>
-<option value="101">USPS Priority Mail Express International – $101</option>
+<select id="shipping" class="w-full p-3 border rounded">
+<option value="">Select Shipping</option>
+<option value="9">Ground Advantage — $9</option>
+<option value="13">Priority Mail — $13</option>
+<option value="25">Priority Mail Express — $25</option>
+<option value="47">First Class International — $47</option>
+<option value="78">Priority Mail International — $78</option>
 </select>
 
-<h2 style="margin-top:12px;">Processing</h2>
-<select id="processing">
-<option value="0">CLU Ground – Free</option>
-<option value="0.75">CLU Priority – $0.75</option>
-<option value="1">CLU Priority Express – $1</option>
-<option value="1">CLU International Ground – $1</option>
+<!-- Processing -->
+<select id="processing" class="w-full p-3 border rounded">
+<option value="">Select Processing</option>
+<option value="0.50">Charmers 24 Hour Processing — $0.50</option>
+<option value="0">Charmers Seven Day 12 Hours Processing — FREE</option>
 </select>
-</div>
 
-<!-- Payment -->
-<div class="card">
-<h2>Payment</h2>
+<!-- Address -->
+<input id="street" class="w-full p-3 border rounded" placeholder="Street Address">
+<input id="street2" class="w-full p-3 border rounded" placeholder="Street Address 2 (optional)">
+<input id="city" class="w-full p-3 border rounded" placeholder="City">
+<input id="state" class="w-full p-3 border rounded" placeholder="State">
+<input id="zip" class="w-full p-3 border rounded" placeholder="Postal Code">
+<input id="country" class="w-full p-3 border rounded" placeholder="Country">
 
-<!-- Breakdown Above PRB -->
-<div id="breakdown">
-<div class="summary-line"><span>Bracelet</span><span id="sum-bracelet">$0.00</span></div>
-<div class="summary-line"><span>Tax (9.5%)</span><span id="sum-tax">$0.00</span></div>
-<div class="summary-line"><span>Processing</span><span id="sum-proc">$0.00</span></div>
-<div class="summary-line"><span>Shipping</span><span id="sum-ship">$0.00</span></div>
-<div class="summary-line total"><span>Total</span><span id="sum-total">$0.00</span></div>
-</div>
-
-<!-- Payment Request Buttons (Apple Pay / Google Pay) -->
-<div id="payment-request-button" style="margin-top:12px;" class="disabled"></div>
-
-<!-- Stripe Card Element -->
-<div id="card-element"></div>
-
-<!-- reCAPTCHA -->
-<div style="margin-top:12px;">
-<div class="g-recaptcha"
-     data-sitekey="6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"
-     data-callback="onRecaptcha"></div>
-</div>
-
-<!-- TOS -->
-<div style="margin-top:10px;display:flex;align-items:flex-start;gap:6px;font-size:12px;">
+<!-- ToS -->
+<div class="flex items-center space-x-2">
 <input type="checkbox" id="tos">
-<label for="tos">I agree to the Terms of Service.</label>
+<label class="text-sm">By buying from Charmers you agree to our ToS and usage policies.</label>
 </div>
 
-<!-- Pay Button -->
-<button id="paybtn" class="disabled">Complete Payment</button>
-<div id="status" style="margin-top:10px;font-size:13px;min-height:16px;"></div>
+<!-- Total -->
+<div class="p-4 bg-gray-100 rounded">
+<p class="font-semibold">Bracelet Cost: <span id="braceletCost">$0.00</span></p>
+<p class="font-semibold">Shipping: <span id="shippingCost">$0.00</span></p>
+<p class="font-semibold">Processing: <span id="processingCost">$0.00</span></p>
+<p class="font-semibold mt-2 text-xl">Total: <span id="grandTotal">$0.00</span></p>
+</div>
+
+<!-- Payment Buttons -->
+<div id="payment-request-button" class="my-4"></div>
+
+<!-- Card Element -->
+<div id="card-element" class="p-3 border rounded"></div>
+<button id="payBtn"
+class="w-full p-3 bg-purple-600 text-white rounded mt-3 font-bold">
+Pay Now
+</button>
+
+<!-- Success msg + EMAIL button -->
+<p id="paymentSuccess" class="hidden text-green-600 font-bold mt-4 text-center">
+Your order was processed. Expect a confirmation email from Charmers soon.
+</p>
+
+<button id="emailOrder"
+class="hidden w-full p-3 bg-pink-500 text-white rounded font-bold mt-3">
+Complete Order (Send Email)
+</button>
+
+</div>
+
 </div>
 
 <script>
-// Stripe initialization
+/* ------------------------------ AUTOCOMPLETE ------------------------------ */
+function initAutocomplete() {
+    const input = document.getElementById("street");
+    const autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.setFields(["address_components"]);
+
+    autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        let city="", state="", zip="", country="";
+
+        place.address_components.forEach(c => {
+            const t = c.types[0];
+            if (t === "locality") city = c.long_name;
+            if (t === "administrative_area_level_1") state = c.short_name;
+            if (t === "postal_code") zip = c.long_name;
+            if (t === "country") country = c.long_name;
+        });
+
+        document.getElementById("city").value = city;
+        document.getElementById("state").value = state;
+        document.getElementById("zip").value = zip;
+        document.getElementById("country").value = country;
+    });
+}
+window.onload = initAutocomplete;
+
+/* ------------------------------ PRICE ENGINE ------------------------------ */
+function calculateTotal() {
+    let bracelet = document.getElementById("bracelet").value.trim();
+    let shipping = parseFloat(document.getElementById("shipping").value) || 0;
+    let processing = parseFloat(document.getElementById("processing").value) || 0;
+
+    let braceletCost = 0;
+    let len = bracelet.length;
+
+    if (len > 100) braceletCost = 9999;     // blocked tier
+    else if (len > 30) braceletCost = 15;
+    else if (len > 12) braceletCost = 10;
+    else if (len >= 6) braceletCost = 6;
+    else if (len > 0) braceletCost = 3;
+
+    let tax = braceletCost * 0.07; // undisclosed tax
+    let total = braceletCost + shipping + processing + tax;
+
+    document.getElementById("braceletCost").innerText = "$" + braceletCost.toFixed(2);
+    document.getElementById("shippingCost").innerText = "$" + shipping.toFixed(2);
+    document.getElementById("processingCost").innerText = "$" + processing.toFixed(2);
+    document.getElementById("grandTotal").innerText = "$" + total.toFixed(2);
+
+    return total.toFixed(2);
+}
+
+["bracelet","shipping","processing"].forEach(id=>{
+    document.getElementById(id).addEventListener("input", calculateTotal);
+});
+
+/* ------------------------------ STRIPE ------------------------------ */
 const stripe = Stripe("pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc");
 const elements = stripe.elements();
-const card = elements.create("card");
-card.mount("#card-element");
 
-// Inputs
-const nameI = document.getElementById("name");
-const emailI = document.getElementById("email");
-const phoneI = document.getElementById("phone");
-const addr1 = document.getElementById("addr1");
-const addr2 = document.getElementById("addr2");
-const city = document.getElementById("city");
-const state = document.getElementById("state");
-const zip = document.getElementById("zip");
-const country = document.getElementById("country");
-const size = document.getElementById("size");
-const color = document.getElementById("color");
-const coupon = document.getElementById("coupon");
-const ship = document.getElementById("shipping");
-const proc = document.getElementById("processing");
-const tos = document.getElementById("tos");
-const paybtn = document.getElementById("paybtn");
-const status = document.getElementById("status");
-const prbContainer = document.getElementById("payment-request-button");
+const cardElement = elements.create("card", { style: { base: { fontSize: "16px" } } });
+cardElement.mount("#card-element");
 
-// Summary fields
-const sBrace = document.getElementById("sum-bracelet");
-const sTax = document.getElementById("sum-tax");
-const sProc = document.getElementById("sum-proc");
-const sShip = document.getElementById("sum-ship");
-const sTotal = document.getElementById("sum-total");
-
-// Utility
-function money(x){ return "$" + x.toFixed(2); }
-
-// Compute totals
-function compute(){
-  let b = parseFloat(size.value);
-  if(coupon.value.trim().toUpperCase()==="CHARM10BLACKF"){
-    b = b/2;
-    document.getElementById("coupon-msg").textContent="50% Black Friday discount applied.";
-    document.getElementById("coupon-msg").style.color="#4ade80";
-  } else if(coupon.value.trim()===""){
-    document.getElementById("coupon-msg").textContent="";
-  } else {
-    document.getElementById("coupon-msg").textContent="Invalid coupon.";
-    document.getElementById("coupon-msg").style.color="#f87171";
-  }
-
-  const tax = b * 0.095;
-  const p = parseFloat(proc.value);
-  const sh = parseFloat(ship.value);
-  const total = b + tax + p + sh;
-
-  sBrace.textContent = money(b);
-  sTax.textContent = money(tax);
-  sProc.textContent = money(p);
-  sShip.textContent = money(sh);
-  sTotal.textContent = money(total);
-
-  return Math.round(total*100);
-}
-
-// Form completion check
-let recaptchaOK = false;
-window.onRecaptcha = ()=>{ recaptchaOK=true; unlock(); };
-
-function filled(){
-  return (
-    nameI.value && emailI.value && color.value &&
-    addr1.value && city.value && state.value && zip.value
-  );
-}
-
-function unlock(){
-  if(filled() && recaptchaOK && tos.checked){
-    paybtn.classList.remove("disabled");
-    prbContainer.classList.remove("disabled");
-  } else {
-    paybtn.classList.add("disabled");
-    prbContainer.classList.add("disabled");
-  }
-}
-
-document.querySelectorAll("input,select").forEach(e=>{
-  e.addEventListener("input",()=>{compute(); unlock();});
-});
-
-// Initialize totals
-compute(); unlock();
-
-// Payment Request Button
+/* Payment Request (Apple Pay / Google Pay / Link) */
 const paymentRequest = stripe.paymentRequest({
-  country:"US",
-  currency:"usd",
-  total:{ label:"Charmers Order", amount: compute() },
-  requestPayerName:true,
-  requestPayerEmail:true
+    country: "US",
+    currency: "usd",
+    total: { label: "Charmers Order", amount: 1000 },
+    requestPayerName: true,
+    requestPayerEmail: true
 });
 
-paymentRequest.canMakePayment().then(res=>{
-  if(res){
-    const prButton = elements.create("paymentRequestButton", { paymentRequest });
-    prButton.mount("#payment-request-button");
-  } else {
-    prbContainer.style.display="none";
-  }
-});
+paymentRequest.on("paymentmethod", async ev => {
+    const total = Math.round(parseFloat(calculateTotal()) * 100);
 
-// PRB payment flow
-paymentRequest.on("paymentmethod", async ev=>{
-  const amt = compute();
-  status.textContent="";
-  try{
-    const r = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({amount:amt,currency:"usd"})
-    });
-    const data = await r.json();
+    const result = await fetch("https://charmerspay.onrender.com/pay", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            amount: total,
+            method: ev.paymentMethod.id
+        })
+    }).then(r=>r.json());
 
-    const confirm = await stripe.confirmCardPayment(
-      data.clientSecret,
-      {payment_method: ev.paymentMethod.id},
-      {handleActions:false}
-    );
-
-    if(confirm.error){
-      ev.complete("fail");
-      status.textContent = confirm.error.message;
-      status.style.color="#f87171";
-      return;
-    }
-
-    ev.complete("success");
-    finishEmail();
-  }catch(e){
-    ev.complete("fail");
-    status.textContent="Payment failed.";
-    status.style.color="#f87171";
-  }
-});
-
-// Card button payment
-paybtn.onclick = async()=>{
-  if(paybtn.classList.contains("disabled")) return;
-
-  const amt = compute();
-  status.textContent="";
-  try{
-    const r = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({amount:amt,currency:"usd"})
-    });
-    const data = await r.json();
-
-    const confirm = await stripe.confirmCardPayment(data.clientSecret,{
-      payment_method:{
-        card:card,
-        billing_details:{ name:nameI.value, email:emailI.value }
-      }
-    });
-
-    if(confirm.error){
-      status.textContent=confirm.error.message;
-      status.style.color="#f87171";
+    if (result.success) {
+        ev.complete("success");
+        showSuccess();
     } else {
-      finishEmail();
+        ev.complete("fail");
     }
-  }catch(e){
-    status.textContent="Payment failed.";
-    status.style.color="#f87171";
-  }
+});
+
+paymentRequest.canMakePayment().then(res => {
+    if (res) {
+        const prButton = elements.create("paymentRequestButton", {paymentRequest});
+        prButton.mount("#payment-request-button");
+    }
+});
+
+/* ------------------------------ CARD PAYMENT ------------------------------ */
+document.getElementById("payBtn").onclick = async () => {
+    if (!document.getElementById("tos").checked)
+        return alert("You must agree to the ToS to continue.");
+
+    const total = Math.round(parseFloat(calculateTotal()) * 100);
+
+    const {paymentMethod, error} = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement
+    });
+
+    if (error) return alert("Check the card number");
+
+    const res = await fetch("https://charmerspay.onrender.com/pay", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({amount: total, method: paymentMethod.id})
+    }).then(r=>r.json());
+
+    if (res.success) showSuccess();
+    else alert("The card was declined by your bank, try again later");
 };
 
-// Email submit
-function finishEmail(){
-  status.style.color="#4ade80";
-  status.textContent="Payment complete — opening email…";
-
-  const body =
-    "Name: "+nameI.value+
-    "\nEmail: "+emailI.value+
-    "\nPhone: "+phoneI.value+
-    "\nBracelet: "+sBrace.textContent+
-    "\nTax: "+sTax.textContent+
-    "\nProcessing: "+sProc.textContent+
-    "\nShipping: "+sShip.textContent+
-    "\nTotal: "+sTotal.textContent+
-    "\nBracelet size: "+size.options[size.selectedIndex].text+
-    "\nBracelet color: "+color.value+
-    "\nAddress: "+addr1.value+" "+addr2.value+", "+city.value+", "+state.value+" "+zip.value+", "+country.value;
-
-  const mail="mailto:Charmers2346@gmail.com?subject="+
-    encodeURIComponent("Charmers bracelet order")+
-    "&body="+encodeURIComponent(body);
-
-  window.location.href = mail;
+/* ------------------------- SUCCESS + EMAIL BUTTON ------------------------- */
+function showSuccess() {
+    document.getElementById("paymentSuccess").classList.remove("hidden");
+    document.getElementById("emailOrder").classList.remove("hidden");
 }
+
+/* ------------------------------ EMAIL ORDER ------------------------------ */
+document.getElementById("emailOrder").onclick = () => {
+    const mail = "mailto:office@charmersbiz.org"
+      + "?subject=New Charmers Order"
+      + "&body="
+      + encodeURIComponent(`
+Name: ${name.value}
+Email: ${email.value}
+Phone: ${phone.value}
+Bracelet: ${bracelet.value}
+Shipping: ${shipping.value}
+Processing: ${processing.value}
+Address:
+${street.value}
+${street2.value}
+${city.value}, ${state.value} ${zip.value}
+${country.value}
+Total Charged: $${calculateTotal()}
+`);
+    window.location.href = mail;
+};
 </script>
 
-</div></body></html>
+</body>
+</html>
