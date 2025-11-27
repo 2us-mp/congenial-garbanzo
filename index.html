@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Charmers Checkout – Working Version</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
+<style>
+body{font-family:Arial;background:#0b0014;color:#fff;margin:0;padding:0}
+.container{max-width:900px;margin:auto;padding:20px}
+.card{background:#140420;border:1px solid #3a245a;border-radius:10px;padding:15px;margin-top:15px}
+input,select{width:100%;padding:10px;margin:6px 0;background:#1a0f25;border:1px solid #573b88;border-radius:6px;color:#fff}
+button{padding:12px;border:none;border-radius:6px;background:#7a34ff;color:#fff;width:100%;margin-top:10px;font-size:16px}
+.summary-line{display:flex;justify-content:space-between;margin:4px 0}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="card">
+<h2>Customer Info</h2>
+<input id="name" placeholder="Full Name">
+<input id="email" placeholder="Email">
+</div>
+
+<div class="card">
+<h2>Address</h2>
+<input id="addr1" placeholder="Street Address">
+<input id="city" placeholder="City">
+<input id="state" placeholder="State">
+<input id="zip" placeholder="ZIP Code">
+</div>
+
+<div class="card">
+<h2>Bracelet Details</h2>
+<select id="size">
+<option value="5">Small – $5</option>
+<option value="9">Medium – $9</option>
+<option value="11">Large – $11</option>
+<option value="15">XL – $15</option>
+</select>
+<input id="color" placeholder="Bracelet Color">
+<h2>Coupon</h2>
+<input id="coupon" placeholder="Enter coupon code">
+<div id="coupon-msg"></div>
+</div>
+
+<div class="card">
+<h2>Shipping</h2>
+<select id="shipping">
+<option value="9">USPS Ground Advantage – $9</option>
+<option value="11">USPS Priority Mail – $11</option>
+<option value="29">USPS Priority Mail Express – $29</option>
+</select>
+
+<h2>Processing</h2>
+<select id="processing">
+<option value="0">CLU Ground – Free</option>
+<option value="1">CLU Priority Express – $1</option>
+</select>
+</div>
+
+<div class="card">
+<h2>Total Breakdown</h2>
+<div class="summary-line"><span>Bracelet</span><span id="sum-bracelet">$0.00</span></div>
+<div class="summary-line"><span>Tax (9.5%)</span><span id="sum-tax">$0.00</span></div>
+<div class="summary-line"><span>Processing</span><span id="sum-proc">$0.00</span></div>
+<div class="summary-line"><span>Shipping</span><span id="sum-ship">$0.00</span></div>
+<hr>
+<div class="summary-line" style="font-size:18px;font-weight:bold;"><span>Total</span><span id="sum-total">$0.00</span></div>
+</div>
+
+<div class="card">
+<label><input type="checkbox" id="tos"> I agree to the Charmers Terms of Service at https://tos.charmersbiz.org</label>
+<div class="g-recaptcha" data-sitekey="6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"></div>
+
+<h2>Payment</h2>
+<div id="card-element" style="background:#fff;color:#000;padding:10px;border-radius:6px;"></div>
+<button id="paybtn">Complete Payment</button>
+<div id="status"></div>
+</div>
+
+</div>
+
+<script>
+let stripe = Stripe("pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc");
+let elements = stripe.elements();
+let card = elements.create("card",{style:{base:{color:"#000"}}});
+card.mount("#card-element");
+
+function money(n){return "$"+n.toFixed(2);}
+
+function updateTotals(){
+let b = parseFloat(size.value);
+if(coupon.value.trim().toUpperCase()==="CHARM10BLACKF") b/=2;
+let t = b * 0.095;
+let p = parseFloat(processing.value);
+let s = parseFloat(shipping.value);
+
+sum_bracelet.innerText = money(b);
+sum_tax.innerText = money(t);
+sum_proc.innerText = money(p);
+sum_ship.innerText = money(s);
+sum_total.innerText = money(b+t+p+s);
+return Math.round((b+t+p+s)*100);
+}
+
+document.querySelectorAll("input,select").forEach(e=>e.addEventListener("input",updateTotals));
+updateTotals();
+
+paybtn.onclick = async () => {
+if(!tos.checked){status.innerText="Agree to ToS first";return;}
+
+let totalCents = updateTotals();
+let res = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({amount:totalCents,currency:"usd"})
+});
+let data = await res.json();
+
+let conf = await stripe.confirmCardPayment(data.clientSecret,{payment_method:{card:card}});
+if(conf.error){status.style.color="red";status.innerText=conf.error.message;}
+else{
+status.innerText="Success! Sending email…";
+let mail="mailto:Charmers2346@gmail.com?subject=Charmers bracelet order&body="+encodeURIComponent(
+"Total: "+sum_total.innerText+
+"\nBracelet: "+sum_bracelet.innerText+
+"\nTax: "+sum_tax.innerText+
+"\nShipping: "+sum_ship.innerText+
+"\nProcessing: "+sum_proc.innerText+
+"\nName: "+name.value+
+"\nAddress: "+addr1.value+", "+city.value+", "+state.value+" "+zip.value
+);
+location=mail;
+}
+};
+</script>
+
+</body>
+</html>
