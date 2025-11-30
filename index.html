@@ -1,355 +1,904 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Charmers Checkout v4</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://js.stripe.com/v3/"></script>
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Charmers Checkout</title>
+
+<!-- Basic styling; purple + pink theme -->
 <style>
-body{font-family:Arial,system-ui;background:#050010;color:#fff;margin:0;padding:0}
-.container{max-width:900px;margin:20px auto;padding:0 16px}
-.card{background:#130527;border:1px solid #3b2560;border-radius:12px;padding:16px;margin-top:16px}
-input,select{width:100%;padding:10px;margin:6px 0;background:#1a0f2b;border:1px solid #5b3f8c;border-radius:7px;color:#fff;font-size:14px}
-button{padding:12px;border:none;border-radius:8px;background:#7c3aed;color:#fff;width:100%;margin-top:10px;font-size:15px;font-weight:600}
-button.disabled{opacity:0.45;pointer-events:none}
-.summary-line{display:flex;justify-content:space-between;margin:4px 0;font-size:14px}
-.summary-line.total{margin-top:6px;font-size:18px;font-weight:bold;border-top:1px solid #433060;padding-top:6px}
-#card-element{margin-top:12px;padding:12px;background:#0b0616;border:1px solid #4b3b78;border-radius:8px}
+    :root {
+        --purple: #5a17ff;
+        --pink: #ff5aaa;
+        --dark: #1a1a1a;
+        --light: #ffffff;
+        --gray: #f1f1f1;
+    }
+    body {
+        margin:0;
+        font-family: Arial, sans-serif;
+        background: var(--light);
+        color: var(--dark);
+    }
+    header {
+        background: linear-gradient(90deg, var(--purple), var(--pink));
+        color: var(--light);
+        padding:12px 16px;
+        text-align:center;
+        position:sticky;
+        top:0;
+        z-index:1000;
+    }
+    header a{
+        color: var(--light);
+        text-decoration: underline;
+    }
+    main {
+        max-width: 800px;
+        margin: 24px auto;
+        padding:0 16px 48px;
+    }
+    h1, h2, h3 {
+        margin-top:1rem;
+        margin-bottom:.5rem;
+    }
+    label {
+        display:block;
+        margin-top:12px;
+        font-weight:600;
+    }
+    input[type=text], input[type=email], input[type=tel], select, textarea {
+        width:100%;
+        padding:8px;
+        margin-top:4px;
+        border:1px solid #ccc;
+        border-radius:4px;
+        box-sizing:border-box;
+    }
+    textarea {
+        resize:vertical;
+    }
+    .section {
+        border:1px solid #ddd;
+        border-radius:8px;
+        padding:16px;
+        margin-top:24px;
+        background: var(--gray);
+    }
+    .inline-group {
+        display:flex;
+        gap:16px;
+    }
+    .inline-group > * {
+        flex:1;
+    }
+    button {
+        background: var(--purple);
+        color: var(--light);
+        border:none;
+        padding:12px 20px;
+        font-size:1rem;
+        border-radius:4px;
+        cursor:pointer;
+        margin-top:16px;
+    }
+    button:disabled {
+        background:#999;
+        cursor:not-allowed;
+    }
+    #totals-panel {
+        border:1px solid #ccc;
+        border-radius:4px;
+        padding:12px;
+        background: #fff;
+        margin-top:16px;
+        font-family: monospace;
+    }
+    #totals-panel div {
+        display:flex;
+        justify-content: space-between;
+        margin:4px 0;
+    }
+    #final-total {
+        font-weight:bold;
+        border-top:1px solid #ccc;
+        padding-top:8px;
+        margin-top:8px;
+    }
+    .hidden { display:none !important; }
+    .color-dropdown, .color-dropdown-2 {
+        margin-top:4px;
+    }
+    #coupon-message {
+        margin-top:4px;
+        font-style:italic;
+        color:#c00;
+    }
+    .banner {
+        background: var(--pink);
+        color: var(--light);
+        text-align:center;
+        padding:8px;
+        font-size:0.9rem;
+        position:sticky;
+        top:48px;
+        z-index:999;
+    }
+    @media (max-width:600px){
+        .inline-group { flex-direction:column; }
+    }
 </style>
+
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+
 </head>
 <body>
-<div class="container">
-<h2 style="text-align:center;margin-bottom:10px;">🔥 Black Friday: Use code CHARM10BLACKF for 50% off bracelets</h2>
 
-<!-- CUSTOMER INFO -->
-<div class="card">
-<h2>Customer Information</h2>
+<header>
+    <h1>Charmers Checkout</h1>
+</header>
 
-<label>Name</label>
-<input id="name" type="text" required>
-
-<label>Email</label>
-<input id="email" type="email" required>
-
-<label>Phone (optional)</label>
-<input id="phone" type="text">
+<div class="banner">
+    We’re on eBay! <a href="https://ebay.us/m/S51i6y" target="_blank">Visit our store</a>
 </div>
 
-<!-- ADDRESS -->
-<div class="card">
-<h2>Shipping Address</h2>
+<main>
+    <!-- Customer info -->
+    <div class="section" id="customer-info">
+        <h2>Customer information</h2>
+        <label for="name">Name</label>
+        <input id="name" type="text" placeholder="Full name" required>
 
-<label>Street Address</label>
-<input id="addr1" type="text" required>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" required>
 
-<label>Street Address 2 (optional)</label>
-<input id="addr2" type="text">
+        <label for="phone">Phone</label>
+        <input id="phone" type="tel" placeholder="Optional">
+    </div>
 
-<label>City</label>
-<input id="city" type="text" required>
+    <!-- Bracelet selection -->
+    <div class="section" id="bracelet-section">
+        <h2>Choose your bracelet</h2>
 
-<label>State / Province / Region</label>
-<input id="state" type="text" required>
+        <label for="bracelet-type">Bracelet type</label>
+        <select id="bracelet-type">
+            <option value="birthstone">Charmers Birthstone Series</option>
+            <option value="heart">Charmers Heart Bracelet</option>
+            <option value="custom">Create Your Own Bracelet</option>
+        </select>
 
-<label>Postal Code</label>
-<input id="zip" type="text" required>
+        <!-- Birthstone -->
+        <div id="birthstone-fields" class="bracelet-specific">
+            <label for="birthstone">Your birthstone</label>
+            <input id="birthstone" type="text" placeholder="e.g., April, May" >
 
-<label>Country</label>
-<input id="country" type="text" value="United States" required>
-</div>
+            <label for="birthstone-size">Size</label>
+            <select id="birthstone-size" class="size-dropdown">
+                <option value="">Select size</option>
+                <option value="small" data-price="5">Small — $5</option>
+                <option value="medium" data-price="9">Medium — $9</option>
+                <option value="large" data-price="11">Large — $11</option>
+                <option value="xlarge" data-price="15">Extra Large — $15</option>
+            </select>
 
-<!-- BRACELET OPTIONS -->
-<div class="card">
-<h2>Bracelet Details</h2>
+            <label for="birthstone-personalization">Personalization text</label>
+            <textarea id="birthstone-personalization" rows="2" placeholder="Optional"></textarea>
 
-<label>Bracelet Size</label>
-<select id="size">
-<option value="5">Small — $5.00</option>
-<option value="9">Medium — $9.00</option>
-<option value="11">Large — $11.00</option>
-<option value="15">Extra Large — $15.00</option>
-</select>
+            <p style="margin-top:8px; font-size:0.9rem;">
+                10% of profits donated to Montessori School of Franklin.
+            </p>
+        </div>
 
-<label>Bracelet Color</label>
-<input id="color" type="text" placeholder="Enter bracelet color" required>
+        <!-- Heart bracelet -->
+        <div id="heart-fields" class="bracelet-specific hidden">
+            <p style="font-size:0.9rem;">Colors fixed to pink & purple.</p>
 
-<label>Coupon Code</label>
-<input id="coupon" type="text" placeholder="Enter coupon code (optional)">
-<div id="coupon-msg" style="font-size:13px;margin-top:4px;min-height:18px;"></div>
-</div>
+            <label for="heart-size">Size</label>
+            <select id="heart-size" class="size-dropdown">
+                <option value="">Select size</option>
+                <option value="small" data-price="5">Small — $5</option>
+                <option value="medium" data-price="9">Medium — $9</option>
+                <option value="large" data-price="11">Large — $11</option>
+                <option value="xlarge" data-price="15">Extra Large — $15</option>
+            </select>
+
+            <label for="heart-personalization">Personalization text</label>
+            <textarea id="heart-personalization" rows="2" placeholder="Optional"></textarea>
+        </div>
+
+        <!-- Custom bracelet -->
+        <div id="custom-fields" class="bracelet-specific hidden">
+            <label for="custom-feature">What do you want it to feature?</label>
+            <input id="custom-feature" type="text" placeholder="Describe your design or theme">
+
+            <!-- Color dropdown #1 -->
+            <label for="custom-color">Color</label>
+            <select id="custom-color" class="color-dropdown">
+                <!-- Standard colors list -->
+                <option value="">Select color</option>
+                <option value="red">Red</option>
+                <option value="orange">Orange</option>
+                <option value="yellow">Yellow</option>
+                <option value="green">Green</option>
+                <option value="teal">Teal</option>
+                <option value="blue">Blue</option>
+                <option value="navy">Navy</option>
+                <option value="cyan">Cyan</option>
+                <option value="purple">Purple</option>
+                <option value="magenta">Magenta</option>
+                <option value="pink">Pink</option>
+                <option value="lavender">Lavender</option>
+                <option value="white">White</option>
+                <option value="black">Black</option>
+                <option value="gray">Gray</option>
+                <option value="brown">Brown</option>
+                <option value="gold">Gold</option>
+                <option value="silver">Silver</option>
+                <option value="lime">Lime</option>
+                <option value="maroon">Maroon</option>
+                <option value="olive">Olive</option>
+                <option value="indigo">Indigo</option>
+                <option value="beige">Beige</option>
+                <option value="mint">Mint</option>
+                <option value="peach">Peach</option>
+                <option value="coral">Coral</option>
+                <option value="turquoise">Turquoise</option>
+                <option value="rose">Rose</option>
+                <option value="cream">Cream</option>
+                <option value="bronze">Bronze</option>
+                <option value="chartreuse">Chartreuse</option>
+                <!-- etc. add more if desired -->
+            </select>
+            <!-- Custom color input -->
+            <label for="custom-color-custom">Or enter a custom color</label>
+            <input id="custom-color-custom" type="text" placeholder="Custom color name">
+
+            <!-- Color dropdown #2 (if you need two colors for a bracelet; adjust if needed) -->
+            <label for="custom-color2">Optional second color</label>
+            <select id="custom-color2" class="color-dropdown-2">
+                <option value="">Select color</option>
+                <option value="red">Red</option>
+                <option value="orange">Orange</option>
+                <option value="yellow">Yellow</option>
+                <option value="green">Green</option>
+                <option value="teal">Teal</option>
+                <option value="blue">Blue</option>
+                <option value="navy">Navy</option>
+                <option value="cyan">Cyan</option>
+                <option value="purple">Purple</option>
+                <option value="magenta">Magenta</option>
+                <option value="pink">Pink</option>
+                <option value="lavender">Lavender</option>
+                <option value="white">White</option>
+                <option value="black">Black</option>
+                <option value="gray">Gray</option>
+                <option value="brown">Brown</option>
+                <option value="gold">Gold</option>
+                <option value="silver">Silver</option>
+                <option value="lime">Lime</option>
+                <option value="maroon">Maroon</option>
+                <option value="olive">Olive</option>
+                <option value="indigo">Indigo</option>
+                <option value="beige">Beige</option>
+                <option value="mint">Mint</option>
+                <option value="peach">Peach</option>
+                <option value="coral">Coral</option>
+                <option value="turquoise">Turquoise</option>
+                <option value="rose">Rose</option>
+                <option value="cream">Cream</option>
+                <option value="bronze">Bronze</option>
+                <option value="chartreuse">Chartreuse</option>
+                <!-- etc. -->
+            </select>
+
+            <label for="custom-size">Size</label>
+            <select id="custom-size" class="size-dropdown">
+                <option value="">Select size</option>
+                <option value="small" data-price="5">Small — $5</option>
+                <option value="medium" data-price="9">Medium — $9</option>
+                <option value="large" data-price="11">Large — $11</option>
+                <option value="xlarge" data-price="15">Extra Large — $15</option>
+            </select>
+
+            <label for="donation">Donate to</label>
+            <select id="donation">
+                <option value="remove_co2">Remove CO₂ from our environment (default)</option>
+                <option value="msf">MSF (Montessori School of Franklin)</option>
+                <option value="none">No one</option>
+            </select>
+
+            <label for="custom-personalization">Personalization text</label>
+            <textarea id="custom-personalization" rows="2" placeholder="Optional"></textarea>
+        </div>
+
+    </div>
+
+    <!-- Shipping -->
+    <div class="section" id="shipping-section">
+        <h2>Shipping</h2>
+        <label for="shipping-option">Shipping option</label>
+        <select id="shipping-option">
+            <option value="">Select shipping</option>
+            <option value="usps_ground" data-price="9">USPS Ground Advantage — $9</option>
+            <option value="usps_priority" data-price="11">USPS Priority Mail — $11</option>
+            <option value="usps_express" data-price="29">USPS Priority Mail Express — $29</option>
+            <option value="ups_exp" data-price="93">UPS Worldwide Expedited — $93</option>
+            <option value="ups_expr" data-price="119">UPS Worldwide Express — $119</option>
+            <option value="usps_intl_exp" data-price="178">USPS Priority Mail Express International — $178</option>
+        </select>
+
+        <label for="address1">Street address</label>
+        <input id="address1" type="text" placeholder="Address line 1" required>
+
+        <label for="address2">Street address 2</label>
+        <input id="address2" type="text" placeholder="Address line 2">
+
+        <div class="inline-group">
+            <div>
+                <label for="city">City</label>
+                <input id="city" type="text" placeholder="City" required>
+            </div>
+            <div>
+                <label for="state">State / Province</label>
+                <input id="state" type="text" placeholder="State" required>
+            </div>
+        </div>
+
+        <div class="inline-group">
+            <div>
+                <label for="postal">Postal code</label>
+                <input id="postal" type="text" placeholder="ZIP / Postal code" required>
+            </div>
+            <div>
+                <label for="country">Country</label>
+                <input id="country" type="text" placeholder="Country" required>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing -->
+    <div class="section" id="processing-section">
+        <h2>Processing</h2>
+        <label for="processing-option">Processing option</label>
+        <select id="processing-option">
+            <option value="">Select processing</option>
+            <option value="24h" data-price="0.50">Charmers 24 Hour Processing™ — $0.50</option>
+            <option value="7day" data-price="0">Charmers Seven Day 12 Hours Processing™ — $0.00</option>
+        </select>
+    </div>
+
+    <!-- Coupon -->
+    <div class="section" id="coupon-section">
+        <h2>Coupon</h2>
+        <label for="coupon-code">Enter coupon code</label>
+        <input id="coupon-code" type="text" placeholder="Optional">
+        <div id="coupon-message"></div>
+    </div>
+
+    <!-- Totals panel -->
+    <div id="totals-panel">
+        <div><span>Bracelet Price:</span><span id="bracelet-price">$0.00</span></div>
+        <div><span>Coupon Savings:</span><span id="coupon-savings">-$0.00</span></div>
+        <div><span>Processing Fee:</span><span id="processing-fee">$0.00</span></div>
+        <div><span>Shipping:</span><span id="shipping-fee">$0.00</span></div>
+        <div><span>Additional Fee:</span><span id="additional-fee">$0.00</span></div>
+        <div id="final-total"><span>FINAL TOTAL:</span><span id="final-total-amount">$0.00</span></div>
+    </div>
+
+    <!-- Payment section -->
+    <div class="section" id="payment-section">
+        <h2>Payment</h2>
+
+        <!-- Payment Request Button container -->
+        <div id="payment-request-button" class="hidden"></div>
+
+        <!-- Card Element container -->
+        <div id="card-element" style="margin-top:16px;"></div>
+
+        <!-- Display errors -->
+        <div id="card-errors" role="alert" style="color:#c00; margin-top:8px;"></div>
+
+        <!-- Pay button for card -->
+        <button id="card-button" data-secret="">Pay</button>
+    </div>
+
+    <!-- After payment success -->
+    <div id="success-section" class="section hidden">
+        <h2>Payment successful!</h2>
+        <p>Thank you for your order. Please click below to send your order details via email.</p>
+
+        <button id="email-button">Complete Order</button>
+    </div>
+</main>
 
 <script>
-// ----------------------------------------------------------
-// INITIALIZE STRIPE
-// ----------------------------------------------------------
-const stripe = Stripe("pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc");
-const elements = stripe.elements();
-const card = elements.create("card");
-card.mount("#card-element");
+(async function(){
+    // --------- CONFIG ----------
+    const stripePublicKey = {pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc}
+    // Your backend endpoint that creates PaymentIntent
+    const paymentIntentUrl = 'https://Pay-Charmersv2.onrender.com/create-payment-intent';
 
-// ----------------------------------------------------------
-// ELEMENT REFERENCES
-// ----------------------------------------------------------
-const nameI=document.getElementById("name");
-const emailI=document.getElementById("email");
-const phoneI=document.getElementById("phone");
-const addr1=document.getElementById("addr1");
-const addr2=document.getElementById("addr2");
-const city=document.getElementById("city");
-const stateI=document.getElementById("state");
-const zip=document.getElementById("zip");
-const country=document.getElementById("country");
-const size=document.getElementById("size");
-const color=document.getElementById("color");
-const coupon=document.getElementById("coupon");
-const shipping=document.getElementById("shipping");
-const processing=document.getElementById("processing");
-const tos=document.getElementById("tos");
-const paybtn=document.getElementById("paybtn");
-const status=document.getElementById("status");
-const prbBox=document.getElementById("payment-request-button");
-
-// SUMMARY FIELDS
-const sBrace=document.getElementById("sum-bracelet");
-const sTax=document.getElementById("sum-tax");
-const sProc=document.getElementById("sum-proc");
-const sShip=document.getElementById("sum-ship");
-const sTotal=document.getElementById("sum-total");
-
-// ----------------------------------------------------------
-// HELPERS
-// ----------------------------------------------------------
-function money(n){ return "$"+n.toFixed(2); }
-
-// ----------------------------------------------------------
-// COMPUTE TOTAL
-// ----------------------------------------------------------
-function computeTotal(){
-    let b = parseFloat(size.value);
-
-    // coupon logic
-    const code = coupon.value.trim().toUpperCase();
-    const msg = document.getElementById("coupon-msg");
-    if(code==="CHARM10BLACKF"){
-        b = b * 0.5;
-        msg.textContent="Black Friday 50% discount applied.";
-        msg.style.color="#4ade80";
-    } else if(code===""){
-        msg.textContent="";
-    } else {
-        msg.textContent="Invalid coupon.";
-        msg.style.color="#f87171";
+    // Utility
+    function fmtMoney(val) {
+        return '$' + val.toFixed(2);
     }
 
-    const tax = b * 0.095;
-    const p = parseFloat(processing.value);
-    const sh = parseFloat(shipping.value);
-    const total = b + tax + p + sh;
+    // DOM elements
+    const braceletType = document.getElementById('bracelet-type');
+    const birthstoneFields = document.getElementById('birthstone-fields');
+    const heartFields = document.getElementById('heart-fields');
+    const customFields = document.getElementById('custom-fields');
 
-    sBrace.textContent = money(b);
-    sTax.textContent   = money(tax);
-    sProc.textContent  = money(p);
-    sShip.textContent  = money(sh);
-    sTotal.textContent = money(total);
+    const sizeDropdowns = document.querySelectorAll('.size-dropdown');
+    const shippingOption = document.getElementById('shipping-option');
+    const processingOption = document.getElementById('processing-option');
 
-    return Math.round(total * 100);
-}
+    const couponCodeInput = document.getElementById('coupon-code');
+    const couponMessage = document.getElementById('coupon-message');
 
-// ----------------------------------------------------------
-// VALIDATION
-// ----------------------------------------------------------
-let recaptchaOK = false;
+    const totals = {
+        bracelet: 0,
+        coupon: 0,
+        processing: 0,
+        shipping: 0,
+        additional: 0,
+    };
 
-function allFilled(){
-    return (
-        nameI.value && emailI.value && addr1.value &&
-        city.value && stateI.value && zip.value &&
-        color.value && tos.checked && recaptchaOK
-    );
-}
+    const braceletPriceEl = document.getElementById('bracelet-price');
+    const couponSavingsEl = document.getElementById('coupon-savings');
+    const processingFeeEl = document.getElementById('processing-fee');
+    const shippingFeeEl = document.getElementById('shipping-fee');
+    const additionalFeeEl = document.getElementById('additional-fee');
+    const finalTotalEl = document.getElementById('final-total-amount');
 
-function unlockButtons(){
-    if(allFilled()){
-        paybtn.classList.remove("disabled");
-        prbBox.classList.remove("disabled");
-    } else {
-        paybtn.classList.add("disabled");
-        prbBox.classList.add("disabled");
+    const cardButton = document.getElementById('card-button');
+    const paymentRequestButtonDiv = document.getElementById('payment-request-button');
+    const cardErrors = document.getElementById('card-errors');
+
+    const successSection = document.getElementById('success-section');
+    const emailButton = document.getElementById('email-button');
+
+    // Customer info fields
+    const nameField = document.getElementById('name');
+    const emailField = document.getElementById('email');
+    const phoneField = document.getElementById('phone');
+
+    // Address
+    const address1Field = document.getElementById('address1');
+    const address2Field = document.getElementById('address2');
+    const cityField = document.getElementById('city');
+    const stateField = document.getElementById('state');
+    const postalField = document.getElementById('postal');
+    const countryField = document.getElementById('country');
+
+    // Coupon state
+    let couponApplied = null; // {code, discountAmount}
+
+    // Keep track of whether payment succeeded
+    let paymentSucceeded = false;
+
+    // --------- UI logic ----------
+    function showFieldsForType(type){
+        birthstoneFields.classList.add('hidden');
+        heartFields.classList.add('hidden');
+        customFields.classList.add('hidden');
+        if(type === 'birthstone') birthstoneFields.classList.remove('hidden');
+        if(type === 'heart') heartFields.classList.remove('hidden');
+        if(type === 'custom') customFields.classList.remove('hidden');
+        recalcTotals();
     }
-}
+    braceletType.addEventListener('change', e => {
+        showFieldsForType(e.target.value);
+    });
+    showFieldsForType(braceletType.value);
 
-// ----------------------------------------------------------
-// UPDATE EVERY INPUT
-// ----------------------------------------------------------
-document.querySelectorAll("input,select").forEach(el=>{
-    el.addEventListener("input",()=>{
-        const amount = computeTotal();
-        unlockButtons();
-        if(window.paymentRequest){
-            window.paymentRequest.update({
-                total:{label:"Charmers Order", amount:amount}
+    // Get bracelet price from selected size dropdown
+    function getBraceletPrice(){
+        // depends on selected type and size
+        let price = 0;
+        const type = braceletType.value;
+        let selectedOption;
+        if(type === 'birthstone'){
+            selectedOption = document.getElementById('birthstone-size').selectedOptions[0];
+        }else if(type === 'heart'){
+            selectedOption = document.getElementById('heart-size').selectedOptions[0];
+        }else{ // custom
+            selectedOption = document.getElementById('custom-size').selectedOptions[0];
+        }
+        if(selectedOption && selectedOption.dataset.price){
+            price = parseFloat(selectedOption.dataset.price);
+        }
+        return price;
+    }
+
+    // Get processing fee
+    function getProcessingFee(){
+        const option = processingOption.selectedOptions[0];
+        if(option && option.dataset.price){
+            return parseFloat(option.dataset.price);
+        }
+        return 0;
+    }
+
+    // Get shipping fee
+    function getShippingFee(){
+        const option = shippingOption.selectedOptions[0];
+        if(option && option.dataset.price){
+            return parseFloat(option.dataset.price);
+        }
+        return 0;
+    }
+
+    // Coupon validation
+    function validateCoupon(code){
+        const today = new Date();
+        const mm = today.getMonth()+1;
+        const dd = today.getDate();
+        const day = today.getDay(); // 0 Sunday ... 6 Saturday
+
+        // new customer check: localStorage
+        const isNewCustomer = localStorage.getItem('hasOrdered') === null;
+
+        if(!code) return null;
+
+        code = code.trim();
+        if(code.toLowerCase() === 'cybermonday25'.toLowerCase()){
+            // Cyber Monday -> Monday after Thanksgiving; easier to check via day==1 and date range?
+            // We'll check month/day; users expect only on Cyber Monday.
+            // For a quick version, check if it's Monday and in November after 20th.
+            if(day === 1 && mm === 11 && dd >= 20 && dd <= 30 && isNewCustomer){
+                return {code:'CyberMonday25', percent:25};
+            }
+            return {error:'Valid only on Cyber Monday for new customers.'};
+        }
+        if(code.toLowerCase() === 'christmasd34'.toLowerCase()){
+            // Dec 24 & 25
+            if(mm === 12 && (dd === 24 || dd === 25)){
+                return {code:'ChristmasD34', percent:34};
+            }
+            return {error:'Valid only on Dec 24 or 25.'};
+        }
+        return {error:'Invalid coupon code.'};
+    }
+
+    function applyCoupon(){
+        couponApplied = null;
+        couponMessage.textContent = '';
+        const code = couponCodeInput.value;
+        if(!code) {
+            recalcTotals();
+            return;
+        }
+        const res = validateCoupon(code);
+        if(res && res.error){
+            couponMessage.textContent = res.error;
+            recalcTotals();
+            return;
+        }
+        if(res){
+            // valid coupon
+            couponApplied = res;
+            couponMessage.textContent = 'Coupon applied: ' + res.code;
+            recalcTotals();
+        }
+    }
+
+    couponCodeInput.addEventListener('blur', applyCoupon);
+    couponCodeInput.addEventListener('change', applyCoupon);
+    couponCodeInput.addEventListener('keyup', (e)=>{
+        if(e.key === 'Enter') applyCoupon();
+    });
+
+    // Recalc totals
+    function recalcTotals(){
+        totals.bracelet = getBraceletPrice();
+        // compute coupon savings
+        if(couponApplied && couponApplied.percent){
+            totals.coupon = totals.bracelet * (couponApplied.percent / 100);
+        }else{
+            totals.coupon = 0;
+        }
+        totals.processing = getProcessingFee();
+        totals.shipping = getShippingFee();
+        totals.additional = 0; // default; you can set a nonzero fee if needed
+
+        // update display
+        braceletPriceEl.textContent = fmtMoney(totals.bracelet);
+        couponSavingsEl.textContent = '-' + fmtMoney(totals.coupon);
+        processingFeeEl.textContent = fmtMoney(totals.processing);
+        shippingFeeEl.textContent = fmtMoney(totals.shipping);
+        additionalFeeEl.textContent = fmtMoney(totals.additional);
+
+        const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
+        finalTotalEl.textContent = fmtMoney(final);
+
+        // disable Pay button if totals invalid or missing required selections
+        cardButton.disabled = final <= 0 || !validateRequired();
+    }
+
+    // Validate required fields for enabling payment
+    function validateRequired(){
+        // Basic customer info
+        if(!nameField.value.trim() || !emailField.value.trim()) return false;
+        // Shipping
+        if(!shippingOption.value || !address1Field.value.trim() || !cityField.value.trim() || !stateField.value.trim() || !postalField.value.trim() || !countryField.value.trim()) return false;
+        // Processing
+        if(!processingOption.value) return false;
+        // Bracelet-specific: must have size selected
+        const type = braceletType.value;
+        if(type === 'birthstone'){
+            if(!document.getElementById('birthstone-size').value) return false;
+        } else if(type === 'heart'){
+            if(!document.getElementById('heart-size').value) return false;
+        } else { // custom
+            if(!document.getElementById('custom-size').value) return false;
+        }
+        return true;
+    }
+
+    // Attach change listeners to recalc
+    document.querySelectorAll('select').forEach(el=>{
+        el.addEventListener('change', recalcTotals);
+    });
+    document.querySelectorAll('input').forEach(el=>{
+        el.addEventListener('change', recalcTotals);
+    });
+    document.querySelectorAll('textarea').forEach(el=>{
+        el.addEventListener('change', recalcTotals);
+    });
+
+    // --------- Stripe setup ----------
+    const stripe = Stripe(stripePublicKey, {apiVersion: "2025-11-17.clover"});
+    const elements = stripe.elements();
+
+    // Payment Request Button for Apple Pay / Google Pay
+    const paymentRequest = stripe.paymentRequest({
+        country: 'US',
+        currency: 'usd',
+        total: {
+            label: 'Total',
+            amount: 0, // will update before show
+        },
+        requestPayerName: true,
+        requestPayerEmail: true,
+    });
+
+    const prButton = elements.create('paymentRequestButton', {
+        paymentRequest,
+    });
+
+    // Check availability
+    const prCanMake = await paymentRequest.canMakePayment();
+    if(prCanMake && (prCanMake.applePay || prCanMake.googlePay)) {
+        // Show PRB
+        paymentRequestButtonDiv.classList.remove('hidden');
+        prButton.mount('#payment-request-button');
+
+        // Update total amount whenever totals change
+        const updatePRTotal = () => {
+            const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
+            const cents = Math.round(final * 100);
+            paymentRequest.update({
+                total: {
+                    label: 'Total',
+                    amount: cents,
+                }
             });
+        };
+
+        // Add listeners for updates
+        document.querySelectorAll('select, input, textarea').forEach(el=>{
+            el.addEventListener('change', updatePRTotal);
+        });
+
+        paymentRequest.on('token', async (ev) => {
+            // Check required validation
+            if(!validateRequired()){
+                ev.complete('fail');
+                alert('Please complete all required fields before paying.');
+                return;
+            }
+
+            // Create PaymentIntent on server
+            const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
+            const amountCents = Math.round(final * 100);
+            const response = await fetch(paymentIntentUrl, {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    amount: amountCents,
+                    currency:'usd',
+                    // optionally include metadata
+                })
+            });
+            const pi = await response.json();
+            if(pi.error){
+                ev.complete('fail');
+                cardErrors.textContent = pi.error;
+                return;
+            }
+
+            // Confirm with token
+            const result = await stripe.confirmCardPayment(
+                pi.clientSecret,
+                {payment_method: ev.token.id},
+                {handleActions: false}
+            );
+            if(result.error){
+                ev.complete('fail');
+                cardErrors.textContent = result.error.message;
+            }else{
+                ev.complete('success');
+                paymentSucceeded = true;
+                showSuccess();
+            }
+        });
+    } else {
+        // hide PRB
+        paymentRequestButtonDiv.classList.add('hidden');
+    }
+
+    // Card Element - single mount
+    const style = {
+        base: {
+            color: "#32325d",
+            fontFamily: 'Arial, sans-serif',
+            fontSmoothing: "antialiased",
+            fontSize: "16px",
+            "::placeholder": { color: "#a0a0a0" }
+        },
+        invalid: { color: "#fa755a", iconColor: "#fa755a" }
+    };
+    const card = elements.create("card", {style: style});
+    card.mount("#card-element");
+
+    card.on('change', (event)=>{
+        if(event.error){
+            cardErrors.textContent = event.error.message;
+        }else{
+            cardErrors.textContent = '';
         }
     });
-});
 
-// Initial compute
-computeTotal();
+    // Card payment handler
+    cardButton.addEventListener('click', async (e)=>{
+        e.preventDefault();
 
-// ----------------------------------------------------------
-// reCAPTCHA ENTERPRISE
-// ----------------------------------------------------------
-grecaptcha.enterprise.ready(async()=>{
-    const token = await grecaptcha.enterprise.execute(
-        "6LeT6JArAAAAAKZDUSTu8Krw6i1sQshZnbgMoLvO",
-        {action:"submit"}
-    );
-    recaptchaOK = true;
-    unlockButtons();
-});
-
-// ----------------------------------------------------------
-// PAYMENT REQUEST BUTTON
-// ----------------------------------------------------------
-window.paymentRequest = stripe.paymentRequest({
-    country:"US",
-    currency:"usd",
-    total:{ label:"Charmers Order", amount: computeTotal() },
-    requestPayerName:true,
-    requestPayerEmail:true,
-    requestShipping:true,
-    shippingOptions:[
-        {id:"ga", label:"USPS Ground Advantage — $9.00", amount:900},
-        {id:"pm", label:"USPS Priority Mail — $11.00", amount:1100},
-        {id:"pme",label:"USPS Priority Mail Express — $29.00",amount:2900},
-        {id:"fcpi",label:"USPS First-Class Package International Service — Unavailable",amount:0,unavailable:true},
-        {id:"pmi", label:"USPS Priority Mail International — Unavailable",amount:0,unavailable:true},
-        {id:"pmei",label:"USPS Priority Mail Express International — Unavailable",amount:0,unavailable:true}
-    ]
-});
-
-// shipping change handler
-window.paymentRequest.on("shippingoptionchange", e=>{
-    shipping.value = (
-        e.shippingOption.id==="ga" ? 9 :
-        e.shippingOption.id==="pm" ? 11 :
-        e.shippingOption.id==="pme"? 29 : 9
-    );
-    const newTotal = computeTotal();
-    e.updateWith({
-        status:"success",
-        total:{label:"Charmers Order",amount:newTotal}
-    });
-});
-
-// mount PRB
-window.paymentRequest.canMakePayment().then(res=>{
-    if(res){
-        const prb = elements.create("paymentRequestButton",{paymentRequest:window.paymentRequest});
-        prb.mount("#payment-request-button");
-    } else prbBox.style.display="none";
-});
-
-// ----------------------------------------------------------
-// PRB PAYMENT
-// ----------------------------------------------------------
-window.paymentRequest.on("paymentmethod", async ev=>{
-    try{
-        const amount = computeTotal();
-        const r = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({amount:amount,currency:"usd"})
-        });
-        const data = await r.json();
-
-        const confirm = await stripe.confirmCardPayment(
-            data.clientSecret,
-            {payment_method:ev.paymentMethod.id},
-            {handleActions:false}
-        );
-
-        if(confirm.error){
-            ev.complete("fail");
-            status.textContent = confirm.error.message;
-            status.style.color="#f87171";
+        if(!validateRequired()){
+            alert('Please complete all required fields.');
             return;
         }
 
-        ev.complete("success");
-        finishEmail();
-    }catch(e){
-        ev.complete("fail");
-        status.textContent="Payment failed.";
-        status.style.color="#f87171";
-    }
-});
+        // Final amount
+        const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
+        const amountCents = Math.round(final * 100);
 
-// ----------------------------------------------------------
-// CARD PAYMENT
-// ----------------------------------------------------------
-paybtn.onclick = async()=>{
-    if(paybtn.classList.contains("disabled"))return;
-
-    status.textContent="";
-
-    try{
-        const amount = computeTotal();
-        const r = await fetch("https://pay-charmers-v2.onrender.com/create-payment-intent",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({amount:amount,currency:"usd"})
-        });
-        const data = await r.json();
-
-        const confirm = await stripe.confirmCardPayment(
-            data.clientSecret,
-            {payment_method:{card:card,billing_details:{name:nameI.value,email:emailI.value}}}
-        );
-
-        if(confirm.error){
-            status.textContent=confirm.error.message;
-            status.style.color="#f87171";
-        } else {
-            finishEmail();
+        // Create PaymentIntent
+        let piResponse;
+        try{
+            piResponse = await fetch(paymentIntentUrl, {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    amount: amountCents,
+                    currency:'usd',
+                })
+            });
+        }catch(err){
+            cardErrors.textContent = 'Error contacting payment server.';
+            return;
         }
-    }catch(e){
-        status.textContent="Payment failed.";
-        status.style.color="#f87171";
+        const pi = await piResponse.json();
+        if(pi.error){
+            cardErrors.textContent = pi.error;
+            return;
+        }
+
+        // Confirm card payment
+        const {error, paymentIntent} = await stripe.confirmCardPayment(pi.clientSecret, {
+            payment_method: {
+                card:card,
+                billing_details:{
+                    name:nameField.value,
+                    email:emailField.value,
+                    phone:phoneField.value,
+                    address:{
+                        line1:address1Field.value,
+                        line2:address2Field.value,
+                        city:cityField.value,
+                        state:stateField.value,
+                        postal_code:postalField.value,
+                        country:countryField.value
+                    }
+                }
+            }
+        });
+
+        if(error){
+            cardErrors.textContent = error.message;
+        }else if(paymentIntent.status === 'succeeded'){
+            paymentSucceeded = true;
+            showSuccess();
+        }
+    });
+
+    function showSuccess(){
+        document.getElementById('payment-section').classList.add('hidden');
+        successSection.classList.remove('hidden');
+        // Mark user as not new after order
+        localStorage.setItem('hasOrdered','yes');
     }
-};
 
-// ----------------------------------------------------------
-// SUCCESS → EMAIL → COMPLETE
-// ----------------------------------------------------------
-function finishEmail(){
-    status.style.color="#4ade80";
-    status.textContent="Payment successful — opening email…";
+    // Email button: construct mailto
+    emailButton.addEventListener('click',()=>{
+        // Build email body
+        const type = braceletType.value;
+        let details = '';
+        if(type === 'birthstone'){
+            details += `Type: Charmers Birthstone Series\n`;
+            details += `Birthstone: ${document.getElementById('birthstone').value}\n`;
+            details += `Size: ${document.getElementById('birthstone-size').value}\n`;
+            details += `Personalization: ${document.getElementById('birthstone-personalization').value}\n`;
+        }else if(type === 'heart'){
+            details += `Type: Charmers Heart Bracelet\n`;
+            details += `Size: ${document.getElementById('heart-size').value}\n`;
+            details += `Personalization: ${document.getElementById('heart-personalization').value}\n`;
+        }else{
+            details += `Type: Create Your Own Bracelet\n`;
+            details += `Feature: ${document.getElementById('custom-feature').value}\n`;
+            // Color selection
+            const col = document.getElementById('custom-color').value;
+            const colCustom = document.getElementById('custom-color-custom').value.trim();
+            const col2 = document.getElementById('custom-color2').value;
+            details += `Color: ${colCustom || col || 'N/A'}\n`;
+            details += `Second Color: ${col2 || 'N/A'}\n`;
+            details += `Size: ${document.getElementById('custom-size').value}\n`;
+            details += `Donation: ${document.getElementById('donation').value}\n`;
+            details += `Personalization: ${document.getElementById('custom-personalization').value}\n`;
+        }
 
-    const body =
-        "Name: "+nameI.value+"\n"+
-        "Email: "+emailI.value+"\n"+
-        "Phone: "+phoneI.value+"\n"+
-        "Bracelet: "+sBrace.textContent+"\n"+
-        "Tax: "+sTax.textContent+"\n"+
-        "Processing: "+sProc.textContent+"\n"+
-        "Shipping: "+sShip.textContent+"\n"+
-        "Total: "+sTotal.textContent+"\n"+
-        "Bracelet Size: "+size.options[size.selectedIndex].text+"\n"+
-        "Bracelet Color: "+color.value+"\n"+
-        "Address: "+addr1.value+" "+addr2.value+", "+city.value+", "+stateI.value+" "+zip.value+", "+country.value;
+        // Totals
+        details += `\n--- Totals ---\n`;
+        details += `Bracelet Price: ${braceletPriceEl.textContent}\n`;
+        details += `Coupon Savings: ${couponSavingsEl.textContent}\n`;
+        details += `Processing Fee: ${processingFeeEl.textContent}\n`;
+        details += `Shipping: ${shippingFeeEl.textContent}\n`;
+        details += `Additional Fee: ${additionalFeeEl.textContent}\n`;
+        details += `FINAL TOTAL: ${finalTotalEl.textContent}\n`;
 
-    const mail="mailto:Charmers2346@gmail.com?subject="+
-        encodeURIComponent("Charmers bracelet order")+
-        "&body="+encodeURIComponent(body);
+        // Shipping address
+        details += `\n--- Shipping ---\n`;
+        details += `Street: ${address1Field.value}\n`;
+        details += `Street2: ${address2Field.value}\n`;
+        details += `City: ${cityField.value}\n`;
+        details += `State: ${stateField.value}\n`;
+        details += `Postal: ${postalField.value}\n`;
+        details += `Country: ${countryField.value}\n`;
 
-    window.location.href = mail;
+        // Customer contact
+        details += `\n--- Customer ---\n`;
+        details += `Name: ${nameField.value}\n`;
+        details += `Email: ${emailField.value}\n`;
+        details += `Phone: ${phoneField.value || 'N/A'}\n`;
 
-    setTimeout(()=>{
-        status.textContent="Order Completed ✔ Expect a confirmation email soon.";
-    },1200);
-}
+        // Coupon code
+        if(couponApplied && couponApplied.code){
+            details += `\nCoupon code used: ${couponApplied.code}\n`;
+        }
+
+        // mailto
+        const subject = encodeURIComponent(`New Charmers Order – ${nameField.value}`);
+        const body = encodeURIComponent(details);
+
+        const mailto = `mailto:Charmers2346@gmail.com?subject=${subject}&body=${body}`;
+        window.location.href = mailto;
+    });
+
+    // Initial calc
+    recalcTotals();
+})();
 </script>
 
-</div></body></html>
+</body>
+</html>
