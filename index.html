@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charmers Business USA LLC | Handcrafted Bracelets</title>
+    <title>Charmers Business USA LLC | Premium Handcrafted Bracelets</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Base Styles */
         :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #9b59b6;
-            --light: #f9f9f9;
-            --dark: #1a1a1a;
-            --gray: #7f8c8d;
+            --primary: #1a365d;
+            --secondary: #2d5aa0;
+            --accent: #9c27b0;
+            --success: #10b981;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
             --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s ease;
         }
         
@@ -26,16 +27,11 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             line-height: 1.6;
             color: var(--dark);
             background-color: var(--light);
-        }
-        
-        a {
-            text-decoration: none;
-            color: inherit;
-            transition: var(--transition);
+            -webkit-font-smoothing: antialiased;
         }
         
         .container {
@@ -45,10 +41,52 @@
             padding: 0 20px;
         }
         
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+        }
+        
+        /* Buttons */
         .btn {
-            display: inline-block;
-            padding: 12px 28px;
-            background-color: var(--secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
             color: white;
             border-radius: var(--border-radius);
             font-weight: 600;
@@ -56,430 +94,484 @@
             transition: var(--transition);
             border: none;
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
         }
         
         .btn:hover {
-            background-color: #2980b9;
             transform: translateY(-2px);
-            box-shadow: var(--box-shadow);
+            box-shadow: 0 6px 20px rgba(45, 90, 160, 0.25);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
         
         .btn-accent {
-            background-color: var(--accent);
+            background: linear-gradient(135deg, var(--accent), #7b1fa2);
         }
         
         .btn-accent:hover {
-            background-color: #8e44ad;
+            background: linear-gradient(135deg, #7b1fa2, var(--accent));
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #0da271);
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #0da271, var(--success));
         }
         
         .btn-outline {
-            background-color: transparent;
+            background: transparent;
             border: 2px solid var(--secondary);
             color: var(--secondary);
         }
         
         .btn-outline:hover {
-            background-color: var(--secondary);
+            background: var(--secondary);
             color: white;
         }
         
-        section {
-            padding: 80px 0;
-        }
-        
-        /* Header Styles */
+        /* Header */
         header {
             background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            padding: 15px 0;
         }
         
-        .header-container {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
         }
         
         .logo {
             display: flex;
             align-items: center;
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary);
+            gap: 12px;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        .logo i {
-            color: var(--accent);
-            margin-right: 8px;
+        .logo-icon {
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #10b981, #0da271);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
         }
         
         nav ul {
             display: flex;
+            gap: 30px;
             list-style: none;
-            gap: 25px;
         }
         
-        nav ul li a {
+        nav a {
             font-weight: 600;
-            font-size: 0.95rem;
             color: var(--dark);
-            padding: 5px 0;
             position: relative;
+            padding: 5px 0;
         }
         
-        nav ul li a:hover {
+        nav a:hover {
             color: var(--secondary);
         }
         
-        nav ul li a::after {
+        nav a::after {
             content: '';
             position: absolute;
             bottom: 0;
             left: 0;
             width: 0;
             height: 2px;
-            background-color: var(--secondary);
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
             transition: var(--transition);
         }
         
-        nav ul li a:hover::after {
+        nav a:hover::after {
             width: 100%;
         }
         
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--primary);
-            cursor: pointer;
+        .nav-cta {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white !important;
+            padding: 10px 24px !important;
+            border-radius: var(--border-radius);
+        }
+        
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 90, 160, 0.2);
         }
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95)), url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            text-align: center;
-            padding: 120px 0;
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            position: relative;
+            overflow: hidden;
         }
         
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: var(--primary);
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 0%, rgba(156, 39, 176, 0.03) 100%);
+            z-index: 0;
         }
         
-        .hero p {
-            font-size: 1.3rem;
+        .hero-content {
+            position: relative;
+            z-index: 1;
             max-width: 700px;
-            margin: 0 auto 40px;
+        }
+        
+        .hero-tagline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(156, 39, 176, 0.1);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
             color: var(--gray);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
         }
         
-        .hero-btns {
+        .hero-stats {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 3rem;
         }
         
-        /* About Section */
-        .about {
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        
+        /* Benefits Section */
+        .benefits {
+            padding: 100px 0;
             background-color: white;
         }
         
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-            color: var(--primary);
-            font-size: 2.2rem;
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
         }
         
-        .about-content {
+        .benefit-card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 40px 30px;
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow);
+            border-color: transparent;
+        }
+        
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 50px;
+            justify-content: center;
+            margin: 0 auto 25px;
+            color: white;
+            font-size: 1.8rem;
         }
         
-        .about-text {
-            flex: 1;
+        .benefit-card h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
         }
         
-        .about-text p {
-            margin-bottom: 20px;
+        .benefit-card p {
             color: var(--gray);
         }
         
-        .about-features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 30px;
+        /* Process Section */
+        .process {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
         }
         
-        .feature {
+        .process-steps {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            justify-content: space-between;
+            margin-top: 60px;
+            position: relative;
         }
         
-        .feature i {
-            color: var(--secondary);
-            font-size: 1.2rem;
-            margin-top: 3px;
+        .process-steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            z-index: 1;
         }
         
-        .about-image {
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 2;
             flex: 1;
+            max-width: 200px;
+        }
+        
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary);
+            border: 3px solid var(--secondary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        /* TOS Section */
+        .tos {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .tos-container {
+            background: var(--light);
             border-radius: var(--border-radius);
-            overflow: hidden;
+            padding: 50px;
             box-shadow: var(--box-shadow);
         }
         
-        .about-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        /* CEO Message */
-        .ceo-message {
-            background-color: #f0f7ff;
-            text-align: center;
-        }
-        
-        .ceo-quote {
-            max-width: 800px;
-            margin: 0 auto;
-            font-style: italic;
-            font-size: 1.4rem;
-            line-height: 1.8;
-            color: var(--primary);
-            position: relative;
-            padding: 0 20px;
-        }
-        
-        .ceo-quote::before,
-        .ceo-quote::after {
-            content: '"';
-            font-size: 4rem;
-            color: var(--secondary);
-            opacity: 0.3;
-            position: absolute;
-        }
-        
-        .ceo-quote::before {
-            top: -20px;
-            left: 0;
-        }
-        
-        .ceo-quote::after {
-            bottom: -50px;
-            right: 0;
-        }
-        
-        .ceo-signature {
-            margin-top: 70px;
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-        
-        /* Quick Links */
-        .quick-links {
-            background-color: white;
-        }
-        
-        .links-container {
+        .tos-points {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-        }
-        
-        .link-card {
-            background-color: #f9f9f9;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--box-shadow);
-        }
-        
-        .link-card h3 {
-            margin-bottom: 20px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .link-card h3 i {
-            color: var(--accent);
-        }
-        
-        .link-list {
-            list-style: none;
-        }
-        
-        .link-list li {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-        }
-        
-        .link-list li:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        
-        .link-list a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--gray);
-        }
-        
-        .link-list a:hover {
-            color: var(--secondary);
-        }
-        
-        .link-list i {
-            color: var(--secondary);
-            width: 20px;
-        }
-        
-        /* Contact */
-        .contact {
-            background-color: #f0f7ff;
-            text-align: center;
-        }
-        
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
             gap: 30px;
             margin-top: 40px;
         }
         
-        .contact-item {
+        .tos-point {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 25px;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            align-items: flex-start;
+            gap: 15px;
         }
         
-        .contact-item i {
-            color: var(--secondary);
+        .tos-point i {
+            color: var(--success);
             font-size: 1.2rem;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        
+        /* CTA Section */
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary), #0f1a2e);
+            color: white;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .cta-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         
         /* Footer */
         footer {
-            background-color: var(--primary);
+            background: #0f1a2e;
             color: white;
-            padding: 40px 0;
-            text-align: center;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
         }
         
         .footer-logo {
             font-size: 1.8rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 20px;
             display: flex;
-            justify-content: center;
             align-items: center;
             gap: 10px;
         }
         
-        .copyright {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-top: 20px;
+        .footer-links h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
         }
         
-        /* Responsive Styles */
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
         @media (max-width: 992px) {
-            .about-content {
-                flex-direction: column;
-            }
-            
-            .about-image {
-                order: -1;
-            }
-            
-            .hero h1 {
+            h1 {
                 font-size: 2.5rem;
             }
             
-            .hero p {
-                font-size: 1.1rem;
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .process-steps {
+                flex-direction: column;
+                gap: 40px;
+                align-items: center;
+            }
+            
+            .process-steps::before {
+                display: none;
+            }
+            
+            .step {
+                max-width: 100%;
             }
         }
         
         @media (max-width: 768px) {
-            nav ul {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: white;
+            .header-content {
                 flex-direction: column;
-                padding: 20px;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-                z-index: 99;
+                gap: 20px;
             }
             
-            nav ul.active {
-                display: flex;
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
             }
             
-            .mobile-menu-btn {
-                display: block;
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
             }
             
-            .hero-btns {
+            .cta-buttons {
                 flex-direction: column;
                 align-items: center;
             }
             
-            .hero-btns .btn {
+            .cta-buttons .btn {
                 width: 100%;
                 max-width: 300px;
             }
             
-            .hero {
-                padding: 80px 0;
-            }
-            
-            section {
-                padding: 60px 0;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .section-title {
-                font-size: 1.8rem;
-            }
-            
-            .links-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .contact-info {
-                flex-direction: column;
-                align-items: center;
+            .tos-container {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -487,147 +579,251 @@
 <body>
     <!-- Header -->
     <header>
-        <div class="header-container container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>Charmers</span>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <span>Charmers</span>
+                    <span class="trust-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        Trusted Since 2023
+                    </span>
+                </div>
+                
+                <nav>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#benefits">Why Choose Us</a></li>
+                        <li><a href="#process">How It Works</a></li>
+                        <li><a href="#tos">Policies</a></li>
+                        <li><a href="https://pay.charmersbiz.org" target="_blank" class="nav-cta">Shop Now</a></li>
+                    </ul>
+                </nav>
             </div>
-            
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <nav>
-                <ul id="navMenu">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="https://about.charmersbiz.org" target="_blank">About</a></li>
-                    <li><a href="https://faq.charmersbiz.org" target="_blank">FAQ</a></li>
-                    <li><a href="https://hires.charmersbiz.org" target="_blank">Careers</a></li>
-                    <li><a href="https://buy.stripe.com/dRm00j7gT6hhc245U19fW02" target="_blank">Donate</a></li>
-                    <li><a href="https://pay.charmersbiz.org" target="_blank" class="btn btn-outline">Pay</a></li>
-                </ul>
-            </nav>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="container">
-            <h1>Welcome to Charmers</h1>
-            <p>Beautiful handcrafted bracelets, fast shipping, and service you can trust.</p>
-            <div class="hero-btns">
-                <a href="#about" class="btn">Shop Now</a>
-                <a href="https://buy.stripe.com/dRm00j7gT6hhc245U19fW02" target="_blank" class="btn btn-accent">Donate to Support Us</a>
+            <div class="hero-content">
+                <div class="hero-tagline">
+                    <i class="fas fa-bolt"></i>
+                    Fast Shipping • Secure Payments
+                </div>
+                
+                <h1>Premium Handcrafted Bracelets That Tell Your Story</h1>
+                
+                <p class="hero-subtitle">
+                    Experience the Charmers difference: Each piece is meticulously crafted in Centerville, TN, 
+                    processed within 24 hours, and shipped with care through our CLU logistics system.
+                </p>
+                
+                <div class="hero-buttons">
+                    <a href="https://pay.charmersbiz.org" target="_blank" class="btn btn-success">
+                        <i class="fas fa-shopping-cart"></i>
+                        Shop Collection
+                    </a>
+                    <a href="#benefits" class="btn btn-outline">
+                        <i class="fas fa-star"></i>
+                        Why Choose Us
+                    </a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">24h</div>
+                        <div class="stat-label">Processing Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Secure Payments</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">5★</div>
+                        <div class="stat-label">Customer Rating</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section -->
-    <section class="about" id="about">
+    <!-- Benefits Section -->
+    <section class="benefits" id="benefits">
         <div class="container">
-            <h2 class="section-title">About Charmers</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>Charmers Business USA LLC is dedicated to creating quality bracelets with care. Every order is processed through our internal logistics system — Charmers Logistics Union (CLU) — ensuring reliable packaging, tracking, and delivery.</p>
-                    <p>We aim to provide transparent policies, modern and secure checkout, fast processing, and friendly customer communication. Whether you are ordering one bracelet or managing a bulk request, Charmers delivers.</p>
+            <h2 class="section-title">Why Customers Choose Charmers</h2>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3>Lightning-Fast Delivery</h3>
+                    <p>Our 24-hour processing and CLU logistics ensure your order ships within one business day. Track every step.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-hand-sparkles"></i>
+                    </div>
+                    <h3>Artisan Craftsmanship</h3>
+                    <p>Each bracelet is handcrafted with premium materials and meticulous attention to detail. No mass production.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Bank-Level Security</h3>
+                    <p>Stripe-powered payments with military-grade encryption. Your data is always protected.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>Dedicated Support</h3>
+                    <p>Real human support via text/email. We're here to ensure your complete satisfaction.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process" id="process">
+        <div class="container">
+            <h2 class="section-title">The Charmers Experience</h2>
+            
+            <div class="process-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Select & Order</h3>
+                    <p>Choose your bracelet design on our secure payment page</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>24-Hour Processing</h3>
+                    <p>Your order enters our Charmers Logistics Union (CLU) system immediately</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Handcrafted</h3>
+                    <p>Our artisans create your bracelet with precision and care</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Fast Shipping</h3>
+                    <p>Package shipped via reliable carrier with full tracking</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Enjoy & Share</h3>
+                    <p>Receive compliments and share your Charmers story</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOS Section -->
+    <section class="tos" id="tos">
+        <div class="container">
+            <h2 class="section-title">Our Commitment to You</h2>
+            
+            <div class="tos-container">
+                <p style="text-align: center; margin-bottom: 30px; font-size: 1.1rem;">
+                    At Charmers Business USA LLC, we believe in complete transparency. Here's what you can expect:
+                </p>
+                
+                <div class="tos-points">
+                    <div class="tos-point">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h3>Secure Transactions</h3>
+                            <p>All payments processed through Stripe with PCI-DSS compliance. Your financial data is never stored on our servers.</p>
+                        </div>
+                    </div>
                     
-                    <div class="about-features">
-                        <div class="feature">
-                            <i class="fas fa-shield-alt"></i>
-                            <div>
-                                <h4>Secure Payments</h4>
-                                <p>Protected by Stripe with advanced encryption</p>
-                            </div>
+                    <div class="tos-point">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h3>Satisfaction Guarantee</h3>
+                            <p>If you're not completely satisfied with your purchase, contact us within 14 days for a resolution.</p>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-shipping-fast"></i>
-                            <div>
-                                <h4>24-Hour Processing</h4>
-                                <p>Fast order processing and reliable shipping</p>
-                            </div>
+                    </div>
+                    
+                    <div class="tos-point">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h3>Privacy Protection</h3>
+                            <p>We never sell or share your personal information. Full details in our Privacy Policy.</p>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-hands-helping"></i>
-                            <div>
-                                <h4>Customer-First</h4>
-                                <p>Transparent policies and friendly support</p>
-                            </div>
+                    </div>
+                    
+                    <div class="tos-point">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h3>Shipping Promise</h3>
+                            <p>Orders processed within 24 hours via CLU logistics. Shipping times vary by location.</p>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-box-open"></i>
-                            <div>
-                                <h4>CLU Logistics</h4>
-                                <p>Modern packaging and tracking through CLU</p>
-                            </div>
+                    </div>
+                    
+                    <div class="tos-point">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h3>Clear Communication</h3>
+                            <p>Order confirmations, tracking updates, and responsive customer support via text/email.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tos-point">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <h3>Full Terms Available</h3>
+                            <p>Complete Terms of Service available at <a href="https://tos.charmersbiz.org" target="_blank">tos.charmersbiz.org</a></p>
                         </div>
                     </div>
                 </div>
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1593085512500-5d55148d6f0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Handcrafted bracelets">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CEO Message -->
-    <section class="ceo-message">
-        <div class="container">
-            <div class="ceo-quote">
-                I started Charmers to build something real — a business that is honest, fast, and truly customer-focused. You deserve a great product and a smooth experience, every single time.
-            </div>
-            <div class="ceo-signature">— Jameson Jones, CEO of Charmers</div>
-        </div>
-    </section>
-
-    <!-- Quick Links -->
-    <section class="quick-links">
-        <div class="container">
-            <h2 class="section-title">Quick Links</h2>
-            <div class="links-container">
-                <div class="link-card">
-                    <h3><i class="fas fa-globe"></i> Charmers Websites</h3>
-                    <ul class="link-list">
-                        <li><a href="https://charmersbiz.org" target="_blank"><i class="fas fa-home"></i> Home – https://Charmersbiz.org</a></li>
-                        <li><a href="https://about.charmersbiz.org" target="_blank"><i class="fas fa-info-circle"></i> About Us – https://about.charmersbiz.org</a></li>
-                        <li><a href="https://faq.charmersbiz.org" target="_blank"><i class="fas fa-question-circle"></i> FAQ – https://Faq.Charmersbiz.org</a></li>
-                        <li><a href="https://hires.charmersbiz.org" target="_blank"><i class="fas fa-briefcase"></i> Careers – https://hires.charmersbiz.org</a></li>
-                        <li><a href="https://tos.charmersbiz.org" target="_blank"><i class="fas fa-file-contract"></i> Terms of Service / Privacy – https://ToS.Charmersbiz.org</a></li>
-                    </ul>
-                </div>
                 
-                <div class="link-card">
-                    <h3><i class="fas fa-credit-card"></i> Payments & Contact</h3>
-                    <ul class="link-list">
-                        <li><a href="https://pay.charmersbiz.org" target="_blank"><i class="fas fa-money-check-alt"></i> Make a Payment – https://pay.Charmersbiz.org</a></li>
-                        <li><a href="https://buy.stripe.com/dRm00j7gT6hhc245U19fW02" target="_blank"><i class="fas fa-heart"></i> Donate to Charmers – Stripe Link</a></li>
-                        <li><a href="sms:9316230425"><i class="fas fa-sms"></i> Text: 931-623-0425</a></li>
-                        <li><a href="#" onclick="alert('Calling is currently disabled. Please text us instead.')"><i class="fas fa-phone"></i> Call: (Currently disabled)</a></li>
-                        <li><a href="mailto:contact@charmersbiz.org"><i class="fas fa-envelope"></i> Email: contact@charmersbiz.org</a></li>
-                    </ul>
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="https://tos.charmersbiz.org" target="_blank" class="btn btn-outline">
+                        <i class="fas fa-file-contract"></i>
+                        View Complete Terms
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Contact -->
-    <section class="contact">
+    <!-- CTA Section -->
+    <section class="cta">
         <div class="container">
-            <h2 class="section-title">Contact Charmers</h2>
-            <p>Reach out to us for questions, support, or custom orders.</p>
+            <h2>Ready to Experience the Charmers Difference?</h2>
             
-            <div class="contact-info">
-                <div class="contact-item">
-                    <i class="fas fa-sms"></i>
-                    <span><strong>Text:</strong> 931-623-0425</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <span><strong>Email:</strong> contact@charmersbiz.org</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span><strong>Location:</strong> Centerville, Tennessee</span>
-                </div>
+            <p class="cta-subtitle">
+                Join thousands of satisfied customers who trust Charmers for premium handcrafted bracelets, 
+                lightning-fast shipping, and exceptional service.
+            </p>
+            
+            <div class="cta-buttons">
+                <a href="https://pay.charmersbiz.org" target="_blank" class="btn btn-success" style="font-size: 1.1rem; padding: 18px 40px;">
+                    <i class="fas fa-gem"></i>
+                    Shop Premium Bracelets
+                </a>
+                
+                <a href="https://buy.stripe.com/dRm00j7gT6hhc245U19fW02" target="_blank" class="btn btn-accent" style="font-size: 1.1rem; padding: 18px 40px;">
+                    <i class="fas fa-heart"></i>
+                    Support Our Craft
+                </a>
+            </div>
+            
+            <div style="margin-top: 40px; font-size: 0.9rem; opacity: 0.8;">
+                <p><i class="fas fa-lock"></i> Secure checkout powered by Stripe • <i class="fas fa-truck"></i> Free shipping on orders over $50</p>
             </div>
         </div>
     </section>
@@ -635,50 +831,56 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="footer-logo">
-                <i class="fas fa-gem"></i>
-                <span>Charmers Business USA LLC</span>
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">
+                        <i class="fas fa-gem"></i>
+                        Charmers Business USA LLC
+                    </div>
+                    <p>Premium handcrafted bracelets from Centerville, Tennessee. Built on trust, transparency, and exceptional craftsmanship.</p>
+                    <div style="margin-top: 20px;">
+                        <div class="trust-badge" style="background: rgba(255, 255, 255, 0.1);">
+                            <i class="fas fa-award"></i>
+                            Official Business Registration
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="https://charmersbiz.org">Home</a></li>
+                        <li><a href="https://about.charmersbiz.org">About Us</a></li>
+                        <li><a href="https://faq.charmersbiz.org">FAQ & Support</a></li>
+                        <li><a href="https://hires.charmersbiz.org">Careers</a></li>
+                        <li><a href="https://tos.charmersbiz.org">Terms & Privacy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Connect With Us</h3>
+                    <ul>
+                        <li><a href="sms:9316230425"><i class="fas fa-sms"></i> Text: 931-623-0425</a></li>
+                        <li><a href="mailto:contact@charmersbiz.org"><i class="fas fa-envelope"></i> Email Support</a></li>
+                        <li><a href="https://pay.charmersbiz.org"><i class="fas fa-shopping-cart"></i> Make a Payment</a></li>
+                        <li><a href="https://buy.stripe.com/dRm00j7gT6hhc245U19fW02"><i class="fas fa-heart"></i> Donate</a></li>
+                        <li><i class="fas fa-map-marker-alt"></i> Centerville, TN</li>
+                    </ul>
+                </div>
             </div>
-            <p>Trust. Transparency. Convenience.</p>
-            <p class="copyright">© 2025 Charmers Business USA LLC. All rights reserved.</p>
+            
+            <div class="copyright">
+                <p>© 2025 Charmers Business USA LLC. All rights reserved. | Official Registered Business</p>
+                <p style="margin-top: 10px; font-size: 0.8rem;">Charmers Logistics Union (CLU) • 24-Hour Processing™ • Secure Stripe Payments</p>
+            </div>
         </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const navMenu = document.getElementById('navMenu');
-        
-        mobileMenuBtn.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            
-            // Change icon
-            const icon = mobileMenuBtn.querySelector('i');
-            if (navMenu.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
-        
-        // Close mobile menu when clicking a link
-        const navLinks = document.querySelectorAll('nav a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-                const icon = mobileMenuBtn.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            });
-        });
-        
-        // Smooth scrolling for anchor links
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                
                 const targetId = this.getAttribute('href');
                 if(targetId === '#') return;
                 
@@ -689,6 +891,29 @@
                         behavior: 'smooth'
                     });
                 }
+            });
+        });
+        
+        // Add scroll effect to header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+                header.style.padding = '10px 0';
+            } else {
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.08)';
+                header.style.padding = '15px 0';
+            }
+        });
+        
+        // Trust badges animation
+        const trustBadges = document.querySelectorAll('.trust-badge');
+        trustBadges.forEach(badge => {
+            badge.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+            badge.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
             });
         });
     </script>
