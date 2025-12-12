@@ -10,318 +10,6 @@
 
     <!-- Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
-
-    <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            margin: 0;
-            background: #f5f3ff;
-            color: #111827;
-        }
-        header {
-            background: linear-gradient(135deg, #5a17ff, #ff5aaa);
-            color: #fff;
-            padding: 20px 16px;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.6rem;
-        }
-        .banner {
-            background: #111827;
-            color: #f9fafb;
-            text-align: center;
-            padding: 8px 12px;
-            font-size: 0.9rem;
-        }
-        .banner a {
-            color: #a5b4fc;
-            text-decoration: underline;
-        }
-        main {
-            max-width: 960px;
-            margin: 24px auto 80px;
-            padding: 0 16px 80px;
-        }
-
-        /* Product gallery styles */
-        .product-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-            margin: 24px 0;
-        }
-        .product-card {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #fff;
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-            cursor: pointer;
-        }
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .product-card.selected {
-            border-color: #5a17ff;
-            border-width: 2px;
-            box-shadow: 0 0 0 2px rgba(90, 23, 255, 0.15);
-        }
-        .product-image {
-            height: 200px;
-            background: #f9fafb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .no-photo {
-            text-align: center;
-            color: #6b7280;
-            padding: 20px;
-        }
-        .product-info {
-            padding: 20px;
-        }
-        .product-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            color: #111827;
-        }
-        .product-price {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #5a17ff;
-            margin: 0 0 12px 0;
-        }
-        .product-description {
-            color: #6b7280;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin: 0 0 16px 0;
-        }
-        .select-btn {
-            width: 100%;
-            padding: 10px 14px;
-            background: #5a17ff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .select-btn:hover {
-            background: #4c11e0;
-        }
-        .select-btn.selected {
-            background: #16a34a;
-        }
-
-        .checkout-flow {
-            max-width: 820px;
-            margin: 0 auto;
-        }
-        .flow-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 24px 0 32px;
-        }
-        .flow-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: #e5e7eb;
-        }
-        .flow-dot.active {
-            background: #5a17ff;
-        }
-        .flow-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #111827;
-        }
-        .flow-step {
-            display: none;
-        }
-        .flow-step.active {
-            display: block;
-        }
-
-        .product-summary {
-            background: #eef2ff;
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 18px;
-            font-size: 0.93rem;
-        }
-        .product-summary h3 {
-            margin-top: 0;
-            color: #4c1d95;
-        }
-
-        .size-options {
-            display: flex;
-            gap: 12px;
-            margin: 16px 0;
-            flex-wrap: wrap;
-        }
-        .size-option {
-            flex: 1;
-            min-width: 90px;
-            padding: 10px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-size: 0.9rem;
-        }
-        .size-option:hover {
-            border-color: #5a17ff;
-        }
-        .size-option.selected {
-            border-color: #5a17ff;
-            background: #eef2ff;
-            font-weight: 600;
-        }
-        .size-price {
-            display: block;
-            margin-top: 4px;
-            color: #5a17ff;
-            font-weight: 600;
-        }
-
-        .section {
-            background: #fff;
-            padding: 18px 20px 22px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(15,23,42,0.06);
-            margin-bottom: 18px;
-        }
-        label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin: 12px 0 6px;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px 11px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-        }
-        textarea {
-            resize: vertical;
-        }
-        .inline-group {
-            display: flex;
-            gap: 12px;
-        }
-        .inline-group > div {
-            flex: 1;
-        }
-
-        .flow-navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
-        }
-        .nav-btn {
-            padding: 11px 20px;
-            background: #5a17ff;
-            color: #fff;
-            border: none;
-            border-radius: 999px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95rem;
-        }
-        .nav-btn.secondary {
-            background: #6b7280;
-        }
-        .nav-btn:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-        }
-
-        .cart-summary {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #111827;
-            color: #f9fafb;
-            padding: 12px 16px 16px;
-            border-top: 2px solid #5a17ff;
-            display: none;
-            box-shadow: 0 -6px 18px rgba(0,0,0,0.3);
-            z-index: 20;
-        }
-        .cart-summary.show {
-            display: block;
-        }
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            padding: 4px 0;
-        }
-        #cart-total-price {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-        #checkout-btn {
-            margin-top: 10px;
-            width: 100%;
-            padding: 11px;
-            border-radius: 999px;
-            border: none;
-            background: #5a17ff;
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.96rem;
-        }
-        #checkout-btn:disabled {
-            background: #4b5563;
-            cursor: not-allowed;
-        }
-
-        #payment-request-button.hidden {
-            display: none;
-        }
-        #card-element {
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            background: #f9fafb;
-        }
-
-        @media (max-width: 640px) {
-            .inline-group {
-                flex-direction: column;
-            }
-        }
-    </style>
 </head>
 <body>
 <header>
@@ -649,11 +337,37 @@
     let currentStep = 1;
     let stripe, elements, card;
 
+    // Payment Request global refs (so totals + shipping stay in sync)
+    let paymentRequest = null;
+    let prButton = null;
+
     const products = {
         birthstone: { name: 'Birthstone Bracelet', basePrice: 5, customization: 'birthstone' },
         heart: { name: 'Heart Bracelet', basePrice: 5, customization: 'heart' },
         custom: { name: 'Custom Bracelet', basePrice: 5, customization: 'custom' }
     };
+
+    const SHIPPING_OPTIONS = [
+        { id: 'usps_ground', label: 'USPS Ground Advantage', detail: '2–10 business days', amount: 900 },
+        { id: 'usps_priority', label: 'USPS Priority Mail', detail: '2–5 business days', amount: 1100 },
+        { id: 'usps_express', label: 'USPS Priority Mail Express', detail: '2–3 business days', amount: 2900 },
+        { id: 'ups_exp', label: 'UPS Worldwide Expedited', detail: '5–7 business days', amount: 9300 },
+        { id: 'ups_expr', label: 'UPS Worldwide Express', detail: '3–5 business days', amount: 11900 }
+    ];
+
+    function getShippingById(id) {
+        return SHIPPING_OPTIONS.find(o => o.id === id);
+    }
+
+    function syncPaymentRequestTotal() {
+        if (!paymentRequest) return;
+        paymentRequest.update({
+            total: {
+                label: 'Charmers Order',
+                amount: Math.round((braceletPrice + shippingPrice) * 100)
+            }
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
         initStripe();
@@ -689,31 +403,18 @@
     }
 
     function initPaymentRequestButton() {
-        const paymentRequest = stripe.paymentRequest({
+        paymentRequest = stripe.paymentRequest({
             country: 'US',
             currency: 'usd',
-            total: { label: 'Charmers Bracelet', amount: 0 },
+            total: { label: 'Charmers Order', amount: Math.round((braceletPrice + shippingPrice) * 100) },
             requestPayerName: true,
             requestPayerEmail: true,
             requestPayerPhone: true,
             requestShipping: true,
-            shippingOptions: [
-                {
-                    id: 'usps_ground',
-                    label: 'USPS Ground Advantage',
-                    detail: 'Delivery in 3-5 business days',
-                    amount: 900
-                },
-                {
-                    id: 'usps_priority',
-                    label: 'USPS Priority Mail',
-                    detail: 'Delivery in 1-3 business days',
-                    amount: 1100
-                }
-            ]
+            shippingOptions: SHIPPING_OPTIONS
         });
 
-        const prButton = elements.create('paymentRequestButton', {
+        prButton = elements.create('paymentRequestButton', {
             paymentRequest,
             style: {
                 paymentRequestButton: {
@@ -728,54 +429,103 @@
                 const container = document.getElementById('payment-request-button');
                 container.classList.remove('hidden');
                 prButton.mount('#payment-request-button');
+            }
+        });
 
-                paymentRequest.on('paymentmethod', async function (ev) {
-                    if (!validateShippingForm()) {
+        // Keep totals in sync when user changes shipping inside Apple Pay / Google Pay / Link
+        paymentRequest.on('shippingoptionchange', function (ev) {
+            const opt = getShippingById(ev.shippingOption.id);
+            if (opt) {
+                shippingPrice = opt.amount / 100;
+
+                // mirror selection back to your dropdown
+                const shippingSelect = document.getElementById('shipping-option');
+                if (shippingSelect) {
+                    shippingSelect.value = opt.id;
+                }
+
+                updateCartSummary();
+                updateOrderSummary();
+
+                ev.updateWith({
+                    status: 'success',
+                    total: {
+                        label: 'Charmers Order',
+                        amount: Math.round((braceletPrice + shippingPrice) * 100)
+                    }
+                });
+            } else {
+                ev.updateWith({ status: 'fail' });
+            }
+        });
+
+        // Your requested paymentmethod handler (with 3DS handling)
+        paymentRequest.on('paymentmethod', async ev => {
+            try {
+                // ✅ Validate before doing anything
+                if (!validateShippingForm() || !validateCustomization()) {
+                    ev.complete('fail');
+                    return;
+                }
+
+                const orderData = prepareOrderData();
+                const amountCents = Math.round(orderData.total * 100);
+
+                // ✅ Create PaymentIntent on backend
+                const res = await fetch(paymentIntentUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amountCents,
+                        currency: 'usd',
+                        orderDetails: orderData.orderDetails,
+                        customerInfo: orderData.customerInfo,
+                        shipping: orderData.shipping
+                    })
+                });
+
+                const pi = await res.json();
+                if (pi.error || !pi.clientSecret) {
+                    ev.complete('fail');
+                    return;
+                }
+
+                // ✅ Confirm payment (NO updateWith here)
+                const { error, paymentIntent } = await stripe.confirmCardPayment(
+                    pi.clientSecret,
+                    {
+                        payment_method: ev.paymentMethod.id
+                    },
+                    { handleActions: false }
+                );
+
+                if (error) {
+                    ev.complete('fail');
+                    return;
+                }
+
+                // ✅ Handle required actions (3DS, etc.)
+                if (paymentIntent.status === 'requires_action') {
+                    const { error: actionError, paymentIntent: finalIntent } =
+                        await stripe.confirmCardPayment(pi.clientSecret);
+
+                    if (actionError) {
                         ev.complete('fail');
-                        alert('Please complete all required shipping fields first.');
                         return;
                     }
 
-                    const orderData = prepareOrderData();
-                    const amountCents = Math.round(orderData.total * 100);
+                    await saveOrderToBackend(finalIntent.id, orderData);
+                } else {
+                    await saveOrderToBackend(paymentIntent.id, orderData);
+                }
 
-                    try {
-                        const response = await fetch(paymentIntentUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                amount: amountCents,
-                                currency: 'usd',
-                                orderDetails: orderData.orderDetails,
-                                customerInfo: orderData.customerInfo,
-                                shipping: orderData.shipping
-                            })
-                        });
+                // ✅ Tell Apple Pay / Google Pay we're done
+                ev.complete('success');
+                showSuccess();
 
-                        const pi = await response.json();
-                        if (pi.error) {
-                            ev.complete('fail');
-                            return;
-                        }
-
-                        const { error } = await stripe.confirmCardPayment(
-                            pi.clientSecret,
-                            { payment_method: ev.paymentMethod.id },
-                            { handleActions: false }
-                        );
-
-                        if (error) {
-                            ev.complete('fail');
-                        } else {
-                            await saveOrderToBackend(pi.paymentIntentId || pi.id, orderData);
-                            ev.complete('success');
-                            showSuccess();
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        ev.complete('fail');
-                    }
-                });
+            } catch (err) {
+                console.error(err);
+                ev.complete('fail');
             }
         });
     }
@@ -888,6 +638,7 @@
         }
         if (step === 4) {
             updateOrderSummary();
+            syncPaymentRequestTotal();
         }
     }
 
@@ -970,6 +721,7 @@
         if (checkoutBtn) {
             checkoutBtn.textContent = 'Checkout - $' + total.toFixed(2);
         }
+        syncPaymentRequestTotal();
     }
 
     function updateOrderSummary() {
@@ -1010,6 +762,7 @@
             (braceletPrice + shippingPrice).toFixed(2) + '</strong></p>';
 
         div.innerHTML = html;
+        syncPaymentRequestTotal();
     }
 
     function prepareOrderData() {
