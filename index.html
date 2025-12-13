@@ -2,256 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Charmers Bracelets - Handmade custom bracelets">
     <title>Charmers Bracelets</title>
     
-    <!-- External CSS File -->
+    <!-- External CSS -->
     <link rel="stylesheet" href="style.css">
     
     <!-- Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
     
     <style>
-        /* Product gallery styles */
-        .product-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-            margin: 24px 0;
-        }
-        
-        .product-card {
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            overflow: hidden;
-            background: white;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .product-card.selected {
-            border-color: #5a17ff;
-            border-width: 3px;
-            box-shadow: 0 0 0 2px rgba(90, 23, 255, 0.1);
-        }
-        
-        .product-image {
-            height: 200px;
-            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .no-photo {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-        }
-        
-        .no-photo i {
-            font-size: 48px;
-            margin-bottom: 12px;
-            display: block;
-        }
-        
-        .product-info {
-            padding: 20px;
-        }
-        
-        .product-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            color: #1a1a1a;
-        }
-        
-        .product-price {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #5a17ff;
-            margin: 0 0 12px 0;
-        }
-        
-        .product-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin: 0 0 16px 0;
-        }
-        
-        .select-btn {
+        /* Additional photo-specific styles */
+        .product-image img {
             width: 100%;
-            padding: 12px;
-            background: #5a17ff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .select-btn:hover {
-            background: #4a0fe6;
-        }
-        
-        .select-btn.selected {
-            background: #ff5aaa;
-        }
-        
-        .cart-summary {
-            position: sticky;
-            bottom: 0;
-            background: white;
-            border-top: 2px solid #5a17ff;
-            padding: 16px;
-            display: none;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-        }
-        
-        .cart-summary.show {
-            display: block;
-        }
-        
-        .checkout-flow {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .flow-step {
+            height: 100%;
+            object-fit: cover;
             display: none;
         }
         
-        .flow-step.active {
+        .product-image.has-photo img {
             display: block;
         }
         
-        .flow-navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid #eee;
+        .product-image.has-photo .no-photo {
+            display: none;
         }
         
-        .nav-btn {
-            padding: 12px 24px;
-            background: #5a17ff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .nav-btn:hover {
-            background: #4a0fe6;
-        }
-        
-        .nav-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .nav-btn.secondary {
-            background: #666;
-        }
-        
-        .flow-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 32px 0;
-        }
-        
-        .flow-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ddd;
-        }
-        
-        .flow-dot.active {
-            background: #5a17ff;
-        }
-        
-        .flow-title {
+        .photo-credit {
+            font-size: 0.7rem;
+            color: #999;
             text-align: center;
-            margin-bottom: 32px;
-            color: #1a1a1a;
-        }
-        
-        .product-summary {
-            background: #f8f8ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-        }
-        
-        .product-summary h3 {
-            margin-top: 0;
-            color: #5a17ff;
-        }
-        
-        .size-options {
-            display: flex;
-            gap: 12px;
-            margin: 16px 0;
-        }
-        
-        .size-option {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .size-option:hover {
-            border-color: #5a17ff;
-        }
-        
-        .size-option.selected {
-            border-color: #5a17ff;
-            background: #f0eaff;
-            font-weight: 600;
-        }
-        
-        .size-price {
-            display: block;
             margin-top: 4px;
-            color: #5a17ff;
-            font-weight: 600;
-        }
-        
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-        
-        .cart-total {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #5a17ff;
-            text-align: right;
-            margin-top: 16px;
         }
     </style>
 </head>
@@ -261,12 +43,13 @@
     </header>
 
     <div class="banner">
-        We're on eBay! <a href="https://ebay.us/m/S51i6y" target="_blank">Visit our store</a>
+        We're on eBay! <a href="https://ebay.us/m/S51i6y" target="_blank" rel="noopener">Visit our store</a>
     </div>
 
     <main>
-        <!-- Step 1: Product Selection -->
+        <!-- Checkout Flow -->
         <div class="checkout-flow">
+            <!-- Progress Indicator -->
             <div class="flow-indicator">
                 <div class="flow-dot active" id="dot-1"></div>
                 <div class="flow-dot" id="dot-2"></div>
@@ -274,58 +57,71 @@
                 <div class="flow-dot" id="dot-4"></div>
             </div>
             
+            <!-- Step 1: Product Selection -->
             <div id="step-1" class="flow-step active">
                 <h2 class="flow-title">Choose Your Bracelet</h2>
                 
                 <div class="product-gallery">
                     <!-- Birthstone Bracelet -->
                     <div class="product-card" data-product="birthstone">
-                        <div class="product-image">
+                        <div class="product-image has-photo">
+                            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=300&fit=crop&auto=format" 
+                                 alt="Birthstone bracelet with colorful gemstones"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.parentElement.classList.remove('has-photo')">
                             <div class="no-photo">
                                 <div style="font-size: 48px; margin-bottom: 12px;">💎</div>
-                                <strong>No photo available</strong><br>
-                                <small>Images coming soon</small>
+                                <strong>Birthstone Bracelet</strong>
                             </div>
                         </div>
+                        <div class="photo-credit">Photo: Unsplash</div>
                         <div class="product-info">
                             <h3 class="product-title">Charmers Birthstone Series</h3>
                             <p class="product-price">Starting at $5</p>
                             <p class="product-description">Personalized birthstone bracelet. 10% of profits donated to Montessori School of Franklin.</p>
-                            <button class="select-btn" onclick="selectProduct('birthstone')">Select This Bracelet</button>
+                            <button class="btn" onclick="selectProduct('birthstone')">Select This Bracelet</button>
                         </div>
                     </div>
                     
                     <!-- Heart Bracelet -->
                     <div class="product-card" data-product="heart">
-                        <div class="product-image">
+                        <div class="product-image has-photo">
+                            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=300&fit=crop&auto=format" 
+                                 alt="Heart-shaped pink and purple bracelet"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.parentElement.classList.remove('has-photo')">
                             <div class="no-photo">
                                 <div style="font-size: 48px; margin-bottom: 12px;">💖</div>
-                                <strong>No photo available</strong><br>
-                                <small>Images coming soon</small>
+                                <strong>Heart Bracelet</strong>
                             </div>
                         </div>
+                        <div class="photo-credit">Photo: Unsplash</div>
                         <div class="product-info">
                             <h3 class="product-title">Charmers Heart Bracelet</h3>
                             <p class="product-price">Starting at $5</p>
                             <p class="product-description">Beautiful pink & purple heart design. Perfect for any occasion.</p>
-                            <button class="select-btn" onclick="selectProduct('heart')">Select This Bracelet</button>
+                            <button class="btn" onclick="selectProduct('heart')">Select This Bracelet</button>
                         </div>
                     </div>
                     
                     <!-- Custom Bracelet -->
                     <div class="product-card" data-product="custom">
-                        <div class="product-image">
+                        <div class="product-image has-photo">
+                            <img src="https://images.unsplash.com/photo-1620234901387-5b4caa6a1749?w=400&h=300&fit=crop&auto=format" 
+                                 alt="Customizable bracelet with colorful beads"
+                                 loading="lazy"
+                                 onerror="this.style.display='none'; this.parentElement.classList.remove('has-photo')">
                             <div class="no-photo">
                                 <div style="font-size: 48px; margin-bottom: 12px;">🎨</div>
-                                <strong>No photo available</strong><br>
-                                <small>Custom design - your creation</small>
+                                <strong>Custom Bracelet</strong>
                             </div>
                         </div>
+                        <div class="photo-credit">Photo: Unsplash</div>
                         <div class="product-info">
                             <h3 class="product-title">Create Your Own Bracelet</h3>
                             <p class="product-price">Starting at $5</p>
                             <p class="product-description">Design your own unique bracelet. Choose colors, theme, and more!</p>
-                            <button class="select-btn" onclick="selectProduct('custom')">Create Custom Bracelet</button>
+                            <button class="btn" onclick="selectProduct('custom')">Create Custom Bracelet</button>
                         </div>
                     </div>
                 </div>
@@ -340,11 +136,11 @@
                 </div>
                 
                 <!-- Birthstone customization -->
-                <div id="birthstone-customization" class="bracelet-customization" style="display: none;">
-                    <label for="birthstone-input">Your birthstone month</label>
-                    <input id="birthstone-input" type="text" placeholder="e.g., April, May, Emerald" class="customization-input">
+                <div id="birthstone-customization" class="bracelet-customization hidden">
+                    <label for="birthstone-input">Your birthstone month <span class="required">*</span></label>
+                    <input id="birthstone-input" type="text" placeholder="e.g., April, May, Emerald" required>
                     
-                    <label>Select size</label>
+                    <label>Select size <span class="required">*</span></label>
                     <div class="size-options">
                         <div class="size-option" data-size="small" data-price="5">
                             Small<br>
@@ -365,14 +161,14 @@
                     </div>
                     
                     <label for="birthstone-personalization">Personalization text (optional)</label>
-                    <textarea id="birthstone-personalization" rows="3" placeholder="Add a special message or name" class="customization-input"></textarea>
+                    <textarea id="birthstone-personalization" rows="3" placeholder="Add a special message or name"></textarea>
                 </div>
                 
                 <!-- Heart customization -->
-                <div id="heart-customization" class="bracelet-customization" style="display: none;">
+                <div id="heart-customization" class="bracelet-customization hidden">
                     <p style="color: #666; font-style: italic;">Colors fixed to pink & purple.</p>
                     
-                    <label>Select size</label>
+                    <label>Select size <span class="required">*</span></label>
                     <div class="size-options">
                         <div class="size-option" data-size="small" data-price="5">
                             Small<br>
@@ -393,16 +189,16 @@
                     </div>
                     
                     <label for="heart-personalization">Personalization text (optional)</label>
-                    <textarea id="heart-personalization" rows="3" placeholder="Add a special message or name" class="customization-input"></textarea>
+                    <textarea id="heart-personalization" rows="3" placeholder="Add a special message or name"></textarea>
                 </div>
                 
                 <!-- Custom bracelet customization -->
-                <div id="custom-customization" class="bracelet-customization" style="display: none;">
-                    <label for="custom-feature">What do you want it to feature?</label>
-                    <input id="custom-feature" type="text" placeholder="Describe your design or theme" class="customization-input">
+                <div id="custom-customization" class="bracelet-customization hidden">
+                    <label for="custom-feature">What do you want it to feature? <span class="required">*</span></label>
+                    <input id="custom-feature" type="text" placeholder="Describe your design or theme" required>
                     
                     <label for="custom-color">Primary color</label>
-                    <select id="custom-color" class="customization-input">
+                    <select id="custom-color">
                         <option value="">Select a color</option>
                         <option value="red">Red</option>
                         <option value="pink">Pink</option>
@@ -415,10 +211,10 @@
                     </select>
                     
                     <label for="custom-color-custom">Or enter custom color</label>
-                    <input id="custom-color-custom" type="text" placeholder="Custom color name" class="customization-input">
+                    <input id="custom-color-custom" type="text" placeholder="Custom color name">
                     
                     <label for="custom-color2">Optional second color</label>
-                    <select id="custom-color2" class="customization-input">
+                    <select id="custom-color2">
                         <option value="">Select a color (optional)</option>
                         <option value="red">Red</option>
                         <option value="pink">Pink</option>
@@ -430,7 +226,7 @@
                         <option value="silver">Silver</option>
                     </select>
                     
-                    <label>Select size</label>
+                    <label>Select size <span class="required">*</span></label>
                     <div class="size-options">
                         <div class="size-option" data-size="small" data-price="5">
                             Small<br>
@@ -451,19 +247,19 @@
                     </div>
                     
                     <label for="donation">Donate to (optional)</label>
-                    <select id="donation" class="customization-input">
+                    <select id="donation">
                         <option value="remove_co2">Remove CO₂ from our environment</option>
                         <option value="msf">Montessori School of Franklin</option>
                         <option value="none">No donation</option>
                     </select>
                     
                     <label for="custom-personalization">Personalization text (optional)</label>
-                    <textarea id="custom-personalization" rows="3" placeholder="Add a special message or name" class="customization-input"></textarea>
+                    <textarea id="custom-personalization" rows="3" placeholder="Add a special message or name"></textarea>
                 </div>
                 
                 <div class="flow-navigation">
-                    <button class="nav-btn secondary" onclick="goToStep(1)">← Back</button>
-                    <button class="nav-btn" onclick="goToStep(3)">Continue to Shipping →</button>
+                    <button class="btn secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn" onclick="goToStep(3)">Continue to Shipping →</button>
                 </div>
             </div>
             
@@ -476,28 +272,37 @@
                 </div>
                 
                 <div class="section">
-                    <label for="shipping-option">Shipping method *</label>
+                    <label for="shipping-option">Shipping method <span class="required">*</span></label>
                     <select id="shipping-option" required>
                         <option value="">Select shipping</option>
-                        <option value="usps_ground" data-price="9">USPS Ground Advantage — $9</option>
-                        <option value="usps_priority" data-price="11">USPS Priority Mail — $11</option>
-                        <option value="usps_express" data-price="29">USPS Priority Mail Express — $29</option>
-                        <option value="ups_exp" data-price="93">UPS Worldwide Expedited — $93</option>
-                        <option value="ups_expr" data-price="119">UPS Worldwide Express — $119</option>
+                        <!-- Domestic Shipping -->
+                        <optgroup label="US Domestic">
+                            <option value="usps_ground" data-price="9">USPS Ground Advantage — $9 (3-5 business days)</option>
+                            <option value="usps_priority" data-price="11">USPS Priority Mail — $11 (1-3 business days)</option>
+                            <option value="usps_express" data-price="29">USPS Priority Mail Express — $29 (1-2 business days)</option>
+                        </optgroup>
+                        <!-- International Shipping -->
+                        <optgroup label="International (Select if shipping outside US)">
+                            <option value="usps_intl_pri" data-price="28">USPS Priority Mail International — $28 (6-10 business days)</option>
+                            <option value="usps_intl_exp" data-price="45">USPS Priority Mail Express International — $45 (3-5 business days)</option>
+                            <option value="ups_worldwide_saver" data-price="65">UPS Worldwide Saver — $65 (1-3 business days)</option>
+                            <option value="ups_worldwide_expedited" data-price="93">UPS Worldwide Expedited — $93 (2-5 business days)</option>
+                            <option value="ups_worldwide_express" data-price="119">UPS Worldwide Express — $119 (1-3 business days)</option>
+                        </optgroup>
                     </select>
                     
                     <h3 style="margin-top: 24px;">Shipping Address</h3>
                     
-                    <label for="name">Full name *</label>
+                    <label for="name">Full name <span class="required">*</span></label>
                     <input id="name" type="text" placeholder="Your full name" required>
                     
-                    <label for="email">Email address *</label>
+                    <label for="email">Email address <span class="required">*</span></label>
                     <input id="email" type="email" placeholder="you@example.com" required>
                     
                     <label for="phone">Phone number (optional)</label>
                     <input id="phone" type="tel" placeholder="(123) 456-7890">
                     
-                    <label for="address1">Street address *</label>
+                    <label for="address1">Street address <span class="required">*</span></label>
                     <input id="address1" type="text" placeholder="123 Main St" required>
                     
                     <label for="address2">Apartment, suite, etc. (optional)</label>
@@ -505,30 +310,40 @@
                     
                     <div class="inline-group">
                         <div>
-                            <label for="city">City *</label>
+                            <label for="city">City <span class="required">*</span></label>
                             <input id="city" type="text" placeholder="City" required>
                         </div>
                         <div>
-                            <label for="state">State / Province *</label>
+                            <label for="state">State / Province <span class="required">*</span></label>
                             <input id="state" type="text" placeholder="State" required>
                         </div>
                     </div>
                     
                     <div class="inline-group">
                         <div>
-                            <label for="postal">ZIP / Postal code *</label>
+                            <label for="postal">ZIP / Postal code <span class="required">*</span></label>
                             <input id="postal" type="text" placeholder="12345" required>
                         </div>
                         <div>
-                            <label for="country">Country *</label>
-                            <input id="country" type="text" placeholder="United States" required>
+                            <label for="country">Country <span class="required">*</span></label>
+                            <select id="country" required>
+                                <option value="">Select country</option>
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="AU">Australia</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                                <option value="JP">Japan</option>
+                                <option value="OTHER">Other Country</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 
                 <div class="flow-navigation">
-                    <button class="nav-btn secondary" onclick="goToStep(2)">← Back</button>
-                    <button class="nav-btn" onclick="goToStep(4)">Continue to Payment →</button>
+                    <button class="btn secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn" onclick="goToStep(4)">Continue to Payment →</button>
                 </div>
             </div>
             
@@ -541,13 +356,13 @@
                     
                     <div id="card-element" style="margin-top:16px;"></div>
                     
-                    <div id="card-errors" role="alert" style="color:#c00; margin-top:8px;"></div>
+                    <div id="card-errors" role="alert"></div>
                     
-                    <button id="card-button" class="nav-btn" style="width: 100%; margin-top: 20px;">Pay Now</button>
+                    <button id="card-button" class="btn" style="width: 100%; margin-top: 20px;">Pay Now</button>
                 </div>
                 
                 <div class="flow-navigation">
-                    <button class="nav-btn secondary" onclick="goToStep(3)">← Back to Shipping</button>
+                    <button class="btn secondary" onclick="goToStep(3)">← Back to Shipping</button>
                 </div>
             </div>
             
@@ -557,12 +372,11 @@
                     <h2 style="color: #5a17ff;">🎉 Order Successful!</h2>
                     <p>Your payment was successful and your order has been saved to our system.</p>
                     <p>Expect a confirmation email from Charmers soon.</p>
-                    <button id="dashboard-button" class="nav-btn" style="margin-top: 20px;">View Order Dashboard</button>
                 </div>
             </div>
         </div>
         
-        <!-- Cart Summary (sticky bottom) -->
+        <!-- Cart Summary -->
         <div class="cart-summary" id="cart-summary">
             <div class="cart-item">
                 <span id="cart-product-name">No product selected</span>
@@ -576,13 +390,13 @@
                 <strong>Total</strong>
                 <strong id="cart-total-price">$0.00</strong>
             </div>
-            <button id="checkout-btn" class="nav-btn" style="width: 100%; margin-top: 16px;">Proceed to Checkout</button>
+            <button id="checkout-btn" class="btn" style="width: 100%; margin-top: 16px;">Proceed to Checkout</button>
         </div>
     </main>
 
     <script>
     // Configuration
-    const BACKEND_URL = 'https://pay-charmersv2.onrender.com';
+    const BACKEND_URL = 'https://literate-tribble-fm5n.onrender.com';
     const stripePublicKey = 'pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc';
     
     const paymentIntentUrl = `${BACKEND_URL}/create-payment-intent`;
@@ -596,6 +410,7 @@
     let stripe = null;
     let elements = null;
     let card = null;
+    let paymentRequest = null;
 
     // Product data
     const products = {
@@ -629,12 +444,12 @@
         const style = {
             base: {
                 color: "#32325d",
-                fontFamily: 'Arial, sans-serif',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 fontSmoothing: "antialiased",
                 fontSize: "16px",
                 "::placeholder": { color: "#a0a0a0" }
             },
-            invalid: { color: "#fa755a", iconColor: "#fa755a" }
+            invalid: { color: "#d32f2f", iconColor: "#d32f2f" }
         };
         
         card = elements.create("card", {style: style});
@@ -649,12 +464,11 @@
             }
         });
         
-        // Initialize Payment Request Button
         initPaymentRequestButton();
     }
 
     function initPaymentRequestButton() {
-        const paymentRequest = stripe.paymentRequest({
+        paymentRequest = stripe.paymentRequest({
             country: 'US',
             currency: 'usd',
             total: {
@@ -669,14 +483,32 @@
                 {
                     id: 'usps_ground',
                     label: 'USPS Ground Advantage',
-                    detail: 'Delivery in 3-5 business days',
+                    detail: '3-5 business days',
                     amount: 900,
                 },
                 {
                     id: 'usps_priority',
                     label: 'USPS Priority Mail',
-                    detail: 'Delivery in 1-3 business days',
+                    detail: '1-3 business days',
                     amount: 1100,
+                },
+                {
+                    id: 'usps_express',
+                    label: 'USPS Priority Mail Express',
+                    detail: '1-2 business days',
+                    amount: 2900,
+                },
+                {
+                    id: 'usps_intl_pri',
+                    label: 'USPS Priority Mail International',
+                    detail: '6-10 business days',
+                    amount: 2800,
+                },
+                {
+                    id: 'usps_intl_exp',
+                    label: 'USPS Priority Mail Express International',
+                    detail: '3-5 business days',
+                    amount: 4500,
                 }
             ]
         });
@@ -686,7 +518,7 @@
             style: {
                 paymentRequestButton: {
                     theme: 'dark',
-                    height: '48px',
+                    height: '44px',
                 }
             }
         });
@@ -696,20 +528,21 @@
                 document.getElementById('payment-request-button').classList.remove('hidden');
                 prButton.mount('#payment-request-button');
                 
-                paymentRequest.on('paymentmethod', async (ev) => {
-                    if (!validateShippingForm()) {
-                        ev.complete('fail');
-                        alert('Please complete all required fields.');
-                        return;
-                    }
-
-                    const orderData = prepareOrderData();
-                    const amountCents = Math.round(orderData.total * 100);
-
+                paymentRequest.on('paymentmethod', async ev => {
                     try {
-                        const response = await fetch(paymentIntentUrl, {
+                        // ✅ Validate before doing anything
+                        if (!validateShippingForm() || !validateCustomization()) {
+                            ev.complete('fail');
+                            return;
+                        }
+
+                        const orderData = prepareOrderData();
+                        const amountCents = Math.round(orderData.total * 100);
+
+                        // ✅ Create PaymentIntent on backend
+                        const res = await fetch(paymentIntentUrl, {
                             method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 amount: amountCents,
                                 currency: 'usd',
@@ -718,27 +551,48 @@
                                 shipping: orderData.shipping
                             })
                         });
-                        
-                        const pi = await response.json();
-                        if (pi.error) {
+
+                        const pi = await res.json();
+                        if (pi.error || !pi.clientSecret) {
                             ev.complete('fail');
                             return;
                         }
 
-                        const { error } = await stripe.confirmCardPayment(
+                        // ✅ Confirm payment (NO updateWith here)
+                        const { error, paymentIntent } = await stripe.confirmCardPayment(
                             pi.clientSecret,
-                            { payment_method: ev.paymentMethod.id },
+                            {
+                                payment_method: ev.paymentMethod.id
+                            },
                             { handleActions: false }
                         );
 
                         if (error) {
                             ev.complete('fail');
-                        } else {
-                            await saveOrderToBackend(pi.paymentIntentId || pi.id, orderData);
-                            ev.complete('success');
-                            showSuccess();
+                            return;
                         }
-                    } catch (error) {
+
+                        // ✅ Handle required actions (3DS, etc.)
+                        if (paymentIntent.status === 'requires_action') {
+                            const { error: actionError, paymentIntent: finalIntent } =
+                                await stripe.confirmCardPayment(pi.clientSecret);
+
+                            if (actionError) {
+                                ev.complete('fail');
+                                return;
+                            }
+
+                            await saveOrderToBackend(finalIntent.id, orderData);
+                        } else {
+                            await saveOrderToBackend(paymentIntent.id, orderData);
+                        }
+
+                        // ✅ Tell Apple Pay / Google Pay we're done
+                        ev.complete('success');
+                        showSuccess();
+
+                    } catch (err) {
+                        console.error(err);
                         ev.complete('fail');
                     }
                 });
@@ -756,11 +610,13 @@
         });
         document.querySelector(`[data-product="${productType}"]`).classList.add('selected');
         
-        document.querySelectorAll('.select-btn').forEach(btn => {
-            btn.textContent = 'Select This Bracelet';
-            btn.classList.remove('selected');
+        document.querySelectorAll('.btn').forEach(btn => {
+            if (btn.textContent.includes('Select') || btn.textContent.includes('Create')) {
+                btn.textContent = btn.textContent.replace('✓ ', '');
+                btn.classList.remove('selected');
+            }
         });
-        event.target.textContent = '✓ Selected';
+        event.target.textContent = '✓ ' + event.target.textContent;
         event.target.classList.add('selected');
         
         // Show cart summary
@@ -883,12 +739,12 @@
     function showCustomization(productType) {
         // Hide all customizations
         document.querySelectorAll('.bracelet-customization').forEach(el => {
-            el.style.display = 'none';
+            el.classList.add('hidden');
         });
         
         // Show selected customization
         const customizationId = `${products[productType].customization}-customization`;
-        document.getElementById(customizationId).style.display = 'block';
+        document.getElementById(customizationId).classList.remove('hidden');
         
         // Reset size selection
         document.querySelectorAll('.size-option').forEach(option => {
@@ -910,6 +766,7 @@
             const birthstone = document.getElementById('birthstone-input').value.trim();
             if (!birthstone) {
                 alert('Please enter your birthstone month.');
+                document.getElementById('birthstone-input').focus();
                 return false;
             }
         }
@@ -918,6 +775,7 @@
             const feature = document.getElementById('custom-feature').value.trim();
             if (!feature) {
                 alert('Please describe what you want your bracelet to feature.');
+                document.getElementById('custom-feature').focus();
                 return false;
             }
         }
@@ -942,16 +800,21 @@
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             alert('Please enter a valid email address.');
+            document.getElementById('email').focus();
             return false;
         }
         
         // Update shipping price
-        const shippingOption = document.getElementById('shipping-option');
-        const selectedOption = shippingOption.options[shippingOption.selectedIndex];
-        shippingPrice = parseFloat(selectedOption.dataset.price) || 0;
+        updateShippingPrice();
         updateCartSummary();
         
         return true;
+    }
+
+    function updateShippingPrice() {
+        const shippingOption = document.getElementById('shipping-option');
+        const selectedOption = shippingOption.options[shippingOption.selectedIndex];
+        shippingPrice = parseFloat(selectedOption.dataset.price) || 0;
     }
 
     function updateOrderSummary() {
@@ -1024,4 +887,177 @@
             address2: document.getElementById('address2').value,
             city: document.getElementById('city').value,
             state: document.getElementById('state').value,
-            postal
+            postal: document.getElementById('postal').value,
+            country: document.getElementById('country').value,
+            shippingOption: document.getElementById('shipping-option').value
+        };
+
+        return {
+            total: total,
+            orderDetails,
+            customerInfo,
+            shipping
+        };
+    }
+
+    async function saveOrderToBackend(paymentIntentId, orderData) {
+        try {
+            const response = await fetch(saveOrderUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    paymentIntentId: paymentIntentId,
+                    status: 'completed',
+                    customerInfo: orderData.customerInfo,
+                    orderDetails: orderData.orderDetails,
+                    shipping: orderData.shipping,
+                    amount: orderData.total
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                console.log('✅ Order saved to backend');
+                localStorage.setItem('hasOrdered','yes');
+            }
+            return result;
+        } catch (error) {
+            console.error('Failed to save order:', error);
+            return { success: false };
+        }
+    }
+
+    // Card payment handler
+    document.getElementById('card-button').addEventListener('click', async function(e) {
+        e.preventDefault();
+
+        if (!validateShippingForm() || !validateCustomization()) {
+            return;
+        }
+
+        this.disabled = true;
+        this.textContent = 'Processing...';
+
+        const orderData = prepareOrderData();
+        const amountCents = Math.round(orderData.total * 100);
+
+        // Create PaymentIntent
+        let piResponse;
+        try {
+            piResponse = await fetch(paymentIntentUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: amountCents,
+                    currency: 'usd',
+                    orderDetails: orderData.orderDetails,
+                    customerInfo: orderData.customerInfo,
+                    shipping: orderData.shipping
+                })
+            });
+        } catch (err) {
+            document.getElementById('card-errors').textContent = 'Error contacting payment server.';
+            this.disabled = false;
+            this.textContent = 'Pay Now';
+            return;
+        }
+
+        const pi = await piResponse.json();
+        if (pi.error) {
+            document.getElementById('card-errors').textContent = pi.error;
+            this.disabled = false;
+            this.textContent = 'Pay Now';
+            return;
+        }
+
+        // Confirm card payment
+        const { error, paymentIntent } = await stripe.confirmCardPayment(pi.clientSecret, {
+            payment_method: {
+                card: card,
+                billing_details: {
+                    name: orderData.customerInfo.name,
+                    email: orderData.customerInfo.email,
+                    phone: orderData.customerInfo.phone,
+                    address: {
+                        line1: orderData.shipping.address1,
+                        line2: orderData.shipping.address2,
+                        city: orderData.shipping.city,
+                        state: orderData.shipping.state,
+                        postal_code: orderData.shipping.postal,
+                        country: orderData.shipping.country
+                    }
+                }
+            }
+        });
+
+        if (error) {
+            let msg = error.message || 'Payment failed. Please try again.';
+            
+            if (error.code === 'card_declined' && error.decline_code === 'insufficient_funds') {
+                msg = 'The card was declined by your bank, try again later (code: insufficient_funds).';
+            } else if (error.code === 'invalid_number' || error.code === 'incorrect_number') {
+                msg = 'Check the card number (code: ' + error.code + ').';
+            } else if (error.code === 'expired_card') {
+                msg = 'Your card has expired. Please use a different card.';
+            } else if (error.code === 'incorrect_cvc') {
+                msg = 'The CVC number is incorrect. Please check and try again.';
+            }
+            
+            document.getElementById('card-errors').textContent = msg;
+            this.disabled = false;
+            this.textContent = 'Pay Now';
+        } else if (paymentIntent.status === 'succeeded') {
+            await saveOrderToBackend(paymentIntent.id, orderData);
+            showSuccess();
+        }
+    });
+
+    function showSuccess() {
+        document.querySelectorAll('.flow-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        document.getElementById('step-success').classList.add('active');
+        document.querySelectorAll('.flow-dot').forEach(dot => {
+            dot.classList.add('active');
+        });
+        document.getElementById('cart-summary').classList.remove('show');
+    }
+
+    // Shipping option change
+    document.getElementById('shipping-option').addEventListener('change', function() {
+        updateShippingPrice();
+        updateCartSummary();
+        updateOrderSummary();
+    });
+
+    // Country change handler
+    document.getElementById('country').addEventListener('change', function() {
+        const isInternational = this.value !== 'US';
+        updateShippingOptions(isInternational);
+    });
+
+    function updateShippingOptions(isInternational) {
+        const shippingSelect = document.getElementById('shipping-option');
+        const domesticGroup = shippingSelect.querySelector('optgroup[label="US Domestic"]');
+        const intlGroup = shippingSelect.querySelector('optgroup[label="International"]');
+        
+        if (isInternational) {
+            domesticGroup.style.display = 'none';
+            intlGroup.style.display = '';
+            shippingSelect.value = 'usps_intl_pri';
+        } else {
+            domesticGroup.style.display = '';
+            intlGroup.style.display = 'none';
+            shippingSelect.value = 'usps_ground';
+        }
+        
+        updateShippingPrice();
+        updateCartSummary();
+        updateOrderSummary();
+    }
+
+    // Initialize with no product selected
+    document.getElementById('checkout-btn').disabled = true;
+    </script>
+</body>
+</html>
