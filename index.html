@@ -3,17 +3,261 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Charmers Checkout</title>
+    <title>Charmers Bracelets</title>
     
     <!-- External CSS File -->
     <link rel="stylesheet" href="style.css">
     
     <!-- Stripe.js -->
     <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        /* Product gallery styles */
+        .product-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+        
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .product-card.selected {
+            border-color: #5a17ff;
+            border-width: 3px;
+            box-shadow: 0 0 0 2px rgba(90, 23, 255, 0.1);
+        }
+        
+        .product-image {
+            height: 200px;
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .no-photo {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        
+        .no-photo i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #1a1a1a;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #5a17ff;
+            margin: 0 0 12px 0;
+        }
+        
+        .product-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0 0 16px 0;
+        }
+        
+        .select-btn {
+            width: 100%;
+            padding: 12px;
+            background: #5a17ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .select-btn:hover {
+            background: #4a0fe6;
+        }
+        
+        .select-btn.selected {
+            background: #ff5aaa;
+        }
+        
+        .cart-summary {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 2px solid #5a17ff;
+            padding: 16px;
+            display: none;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .cart-summary.show {
+            display: block;
+        }
+        
+        .checkout-flow {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .flow-step {
+            display: none;
+        }
+        
+        .flow-step.active {
+            display: block;
+        }
+        
+        .flow-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
+        
+        .nav-btn {
+            padding: 12px 24px;
+            background: #5a17ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .nav-btn:hover {
+            background: #4a0fe6;
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .nav-btn.secondary {
+            background: #666;
+        }
+        
+        .flow-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 32px 0;
+        }
+        
+        .flow-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        
+        .flow-dot.active {
+            background: #5a17ff;
+        }
+        
+        .flow-title {
+            text-align: center;
+            margin-bottom: 32px;
+            color: #1a1a1a;
+        }
+        
+        .product-summary {
+            background: #f8f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .product-summary h3 {
+            margin-top: 0;
+            color: #5a17ff;
+        }
+        
+        .size-options {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .size-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .size-option:hover {
+            border-color: #5a17ff;
+        }
+        
+        .size-option.selected {
+            border-color: #5a17ff;
+            background: #f0eaff;
+            font-weight: 600;
+        }
+        
+        .size-price {
+            display: block;
+            margin-top: 4px;
+            color: #5a17ff;
+            font-weight: 600;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #5a17ff;
+            text-align: right;
+            margin-top: 16px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Charmers Checkout</h1>
+        <h1>Charmers Bracelets</h1>
     </header>
 
     <div class="banner">
@@ -21,698 +265,367 @@
     </div>
 
     <main>
-        <!-- Customer info -->
-        <div class="section" id="customer-info">
-            <h2>Customer information</h2>
-            <label for="name">Name <span class="required">*</span></label>
-            <input id="name" type="text" placeholder="Full name" required>
-            <div class="field-error" id="name-error">Please enter your name</div>
-
-            <label for="email">Email <span class="required">*</span></label>
-            <input id="email" type="email" placeholder="you@example.com" required>
-            <div class="field-error" id="email-error">Please enter a valid email address</div>
-
-            <label for="phone">Phone</label>
-            <input id="phone" type="tel" placeholder="Optional">
-        </div>
-
-        <!-- Bracelet selection -->
-        <div class="section" id="bracelet-section">
-            <h2>Choose your bracelet</h2>
-
-            <label for="bracelet-type">Bracelet type</label>
-            <select id="bracelet-type">
-                <option value="birthstone">Charmers Birthstone Series</option>
-                <option value="heart">Charmers Heart Bracelet</option>
-                <option value="custom">Create Your Own Bracelet</option>
-            </select>
-
-            <!-- Birthstone -->
-            <div id="birthstone-fields" class="bracelet-specific">
-                <label for="birthstone">Your birthstone</label>
-                <input id="birthstone" type="text" placeholder="e.g., April, May" >
-
-                <label for="birthstone-size">Size <span class="required">*</span></label>
-                <select id="birthstone-size" class="size-dropdown">
-                    <option value="">Select size</option>
-                    <option value="small" data-price="5">Small — $5</option>
-                    <option value="medium" data-price="9">Medium — $9</option>
-                    <option value="large" data-price="11">Large — $11</option>
-                    <option value="xlarge" data-price="15">Extra Large — $15</option>
-                </select>
-                <div class="field-error" id="birthstone-size-error">Please select a size</div>
-
-                <label for="birthstone-personalization">Personalization text</label>
-                <textarea id="birthstone-personalization" rows="2" placeholder="Optional"></textarea>
-
-                <p style="margin-top:8px; font-size:0.9rem;">
-                    10% of profits donated to Montessori School of Franklin.
-                </p>
+        <!-- Step 1: Product Selection -->
+        <div class="checkout-flow">
+            <div class="flow-indicator">
+                <div class="flow-dot active" id="dot-1"></div>
+                <div class="flow-dot" id="dot-2"></div>
+                <div class="flow-dot" id="dot-3"></div>
+                <div class="flow-dot" id="dot-4"></div>
             </div>
-
-            <!-- Heart bracelet -->
-            <div id="heart-fields" class="bracelet-specific hidden">
-                <p style="font-size:0.9rem;">Colors fixed to pink & purple.</p>
-
-                <label for="heart-size">Size <span class="required">*</span></label>
-                <select id="heart-size" class="size-dropdown">
-                    <option value="">Select size</option>
-                    <option value="small" data-price="5">Small — $5</option>
-                    <option value="medium" data-price="9">Medium — $9</option>
-                    <option value="large" data-price="11">Large — $11</option>
-                    <option value="xlarge" data-price="15">Extra Large — $15</option>
-                </select>
-                <div class="field-error" id="heart-size-error">Please select a size</div>
-
-                <label for="heart-personalization">Personalization text</label>
-                <textarea id="heart-personalization" rows="2" placeholder="Optional"></textarea>
-            </div>
-
-            <!-- Custom bracelet -->
-            <div id="custom-fields" class="bracelet-specific hidden">
-                <label for="custom-feature">What do you want it to feature?</label>
-                <input id="custom-feature" type="text" placeholder="Describe your design or theme">
-
-                <!-- Color dropdown #1 -->
-                <label for="custom-color">Color</label>
-                <select id="custom-color" class="color-dropdown">
-                    <option value="">Select color</option>
-                    <option value="red">Red</option>
-                    <option value="orange">Orange</option>
-                    <option value="yellow">Yellow</option>
-                    <option value="green">Green</option>
-                    <option value="teal">Teal</option>
-                    <option value="blue">Blue</option>
-                    <option value="navy">Navy</option>
-                    <option value="cyan">Cyan</option>
-                    <option value="purple">Purple</option>
-                    <option value="magenta">Magenta</option>
-                    <option value="pink">Pink</option>
-                    <option value="lavender">Lavender</option>
-                    <option value="white">White</option>
-                    <option value="black">Black</option>
-                    <option value="gray">Gray</option>
-                    <option value="brown">Brown</option>
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silver</option>
-                    <option value="lime">Lime</option>
-                    <option value="maroon">Maroon</option>
-                    <option value="olive">Olive</option>
-                    <option value="indigo">Indigo</option>
-                    <option value="beige">Beige</option>
-                    <option value="mint">Mint</option>
-                    <option value="peach">Peach</option>
-                    <option value="coral">Coral</option>
-                    <option value="turquoise">Turquoise</option>
-                    <option value="rose">Rose</option>
-                    <option value="cream">Cream</option>
-                    <option value="bronze">Bronze</option>
-                    <option value="chartreuse">Chartreuse</option>
-                </select>
-                <!-- Custom color input -->
-                <label for="custom-color-custom">Or enter a custom color</label>
-                <input id="custom-color-custom" type="text" placeholder="Custom color name">
-
-                <!-- Color dropdown #2 -->
-                <label for="custom-color2">Optional second color</label>
-                <select id="custom-color2" class="color-dropdown-2">
-                    <option value="">Select color</option>
-                    <option value="red">Red</option>
-                    <option value="orange">Orange</option>
-                    <option value="yellow">Yellow</option>
-                    <option value="green">Green</option>
-                    <option value="teal">Teal</option>
-                    <option value="blue">Blue</option>
-                    <option value="navy">Navy</option>
-                    <option value="cyan">Cyan</option>
-                    <option value="purple">Purple</option>
-                    <option value="magenta">Magenta</option>
-                    <option value="pink">Pink</option>
-                    <option value="lavender">Lavender</option>
-                    <option value="white">White</option>
-                    <option value="black">Black</option>
-                    <option value="gray">Gray</option>
-                    <option value="brown">Brown</option>
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silver</option>
-                    <option value="lime">Lime</option>
-                    <option value="maroon">Maroon</option>
-                    <option value="olive">Olive</option>
-                    <option value="indigo">Indigo</option>
-                    <option value="beige">Beige</option>
-                    <option value="mint">Mint</option>
-                    <option value="peach">Peach</option>
-                    <option value="coral">Coral</option>
-                    <option value="turquoise">Turquoise</option>
-                    <option value="rose">Rose</option>
-                    <option value="cream">Cream</option>
-                    <option value="bronze">Bronze</option>
-                    <option value="chartreuse">Chartreuse</option>
-                </select>
-
-                <label for="custom-size">Size <span class="required">*</span></label>
-                <select id="custom-size" class="size-dropdown">
-                    <option value="">Select size</option>
-                    <option value="small" data-price="5">Small — $5</option>
-                    <option value="medium" data-price="9">Medium — $9</option>
-                    <option value="large" data-price="11">Large — $11</option>
-                    <option value="xlarge" data-price="15">Extra Large — $15</option>
-                </select>
-                <div class="field-error" id="custom-size-error">Please select a size</div>
-
-                <label for="donation">Donate to</label>
-                <select id="donation">
-                    <option value="remove_co2">Remove CO₂ from our environment (default)</option>
-                    <option value="msf">MSF (Montessori School of Franklin)</option>
-                    <option value="none">No one</option>
-                </select>
-
-                <label for="custom-personalization">Personalization text</label>
-                <textarea id="custom-personalization" rows="2" placeholder="Optional"></textarea>
-            </div>
-        </div>
-
-        <!-- Shipping -->
-        <div class="section" id="shipping-section">
-            <h2>Shipping</h2>
-            <label for="shipping-option">Shipping option <span class="required">*</span></label>
-            <select id="shipping-option">
-                <option value="">Select shipping</option>
-                <option value="usps_ground" data-price="9">USPS Ground Advantage — $9</option>
-                <option value="usps_priority" data-price="11">USPS Priority Mail — $11</option>
-                <option value="usps_express" data-price="29">USPS Priority Mail Express — $29</option>
-                <option value="ups_exp" data-price="93">UPS Worldwide Expedited — $93</option>
-                <option value="ups_expr" data-price="119">UPS Worldwide Express — $119</option>
-                <option value="usps_intl_exp" data-price="178">USPS Priority Mail Express International — $178</option>
-            </select>
-            <div class="field-error" id="shipping-error">Please select a shipping option</div>
-
-            <label for="address1">Street address <span class="required">*</span></label>
-            <input id="address1" type="text" placeholder="Address line 1" required>
-            <div class="field-error" id="address1-error">Please enter your street address</div>
-
-            <label for="address2">Street address 2</label>
-            <input id="address2" type="text" placeholder="Address line 2">
-
-            <div class="inline-group">
-                <div>
-                    <label for="city">City <span class="required">*</span></label>
-                    <input id="city" type="text" placeholder="City" required>
-                    <div class="field-error" id="city-error">Please enter your city</div>
-                </div>
-                <div>
-                    <label for="state">State / Province <span class="required">*</span></label>
-                    <input id="state" type="text" placeholder="State" required>
-                    <div class="field-error" id="state-error">Please enter your state/province</div>
+            
+            <div id="step-1" class="flow-step active">
+                <h2 class="flow-title">Choose Your Bracelet</h2>
+                
+                <div class="product-gallery">
+                    <!-- Birthstone Bracelet -->
+                    <div class="product-card" data-product="birthstone">
+                        <div class="product-image">
+                            <div class="no-photo">
+                                <div style="font-size: 48px; margin-bottom: 12px;">💎</div>
+                                <strong>No photo available</strong><br>
+                                <small>Images coming soon</small>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Charmers Birthstone Series</h3>
+                            <p class="product-price">Starting at $5</p>
+                            <p class="product-description">Personalized birthstone bracelet. 10% of profits donated to Montessori School of Franklin.</p>
+                            <button class="select-btn" onclick="selectProduct('birthstone')">Select This Bracelet</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Heart Bracelet -->
+                    <div class="product-card" data-product="heart">
+                        <div class="product-image">
+                            <div class="no-photo">
+                                <div style="font-size: 48px; margin-bottom: 12px;">💖</div>
+                                <strong>No photo available</strong><br>
+                                <small>Images coming soon</small>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Charmers Heart Bracelet</h3>
+                            <p class="product-price">Starting at $5</p>
+                            <p class="product-description">Beautiful pink & purple heart design. Perfect for any occasion.</p>
+                            <button class="select-btn" onclick="selectProduct('heart')">Select This Bracelet</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Bracelet -->
+                    <div class="product-card" data-product="custom">
+                        <div class="product-image">
+                            <div class="no-photo">
+                                <div style="font-size: 48px; margin-bottom: 12px;">🎨</div>
+                                <strong>No photo available</strong><br>
+                                <small>Custom design - your creation</small>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Create Your Own Bracelet</h3>
+                            <p class="product-price">Starting at $5</p>
+                            <p class="product-description">Design your own unique bracelet. Choose colors, theme, and more!</p>
+                            <button class="select-btn" onclick="selectProduct('custom')">Create Custom Bracelet</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="inline-group">
-                <div>
-                    <label for="postal">Postal code <span class="required">*</span></label>
-                    <input id="postal" type="text" placeholder="ZIP / Postal code" required>
-                    <div class="field-error" id="postal-error">Please enter your postal code</div>
+            
+            <!-- Step 2: Customization -->
+            <div id="step-2" class="flow-step">
+                <h2 class="flow-title">Customize Your <span id="product-name">Bracelet</span></h2>
+                
+                <div class="product-summary">
+                    <h3>Selected: <span id="selected-product-name">Birthstone Bracelet</span></h3>
                 </div>
-                <div>
-                    <label for="country">Country <span class="required">*</span></label>
-                    <input id="country" type="text" placeholder="Country" required>
-                    <div class="field-error" id="country-error">Please enter your country</div>
+                
+                <!-- Birthstone customization -->
+                <div id="birthstone-customization" class="bracelet-customization" style="display: none;">
+                    <label for="birthstone-input">Your birthstone month</label>
+                    <input id="birthstone-input" type="text" placeholder="e.g., April, May, Emerald" class="customization-input">
+                    
+                    <label>Select size</label>
+                    <div class="size-options">
+                        <div class="size-option" data-size="small" data-price="5">
+                            Small<br>
+                            <span class="size-price">$5</span>
+                        </div>
+                        <div class="size-option" data-size="medium" data-price="9">
+                            Medium<br>
+                            <span class="size-price">$9</span>
+                        </div>
+                        <div class="size-option" data-size="large" data-price="11">
+                            Large<br>
+                            <span class="size-price">$11</span>
+                        </div>
+                        <div class="size-option" data-size="xlarge" data-price="15">
+                            X-Large<br>
+                            <span class="size-price">$15</span>
+                        </div>
+                    </div>
+                    
+                    <label for="birthstone-personalization">Personalization text (optional)</label>
+                    <textarea id="birthstone-personalization" rows="3" placeholder="Add a special message or name" class="customization-input"></textarea>
+                </div>
+                
+                <!-- Heart customization -->
+                <div id="heart-customization" class="bracelet-customization" style="display: none;">
+                    <p style="color: #666; font-style: italic;">Colors fixed to pink & purple.</p>
+                    
+                    <label>Select size</label>
+                    <div class="size-options">
+                        <div class="size-option" data-size="small" data-price="5">
+                            Small<br>
+                            <span class="size-price">$5</span>
+                        </div>
+                        <div class="size-option" data-size="medium" data-price="9">
+                            Medium<br>
+                            <span class="size-price">$9</span>
+                        </div>
+                        <div class="size-option" data-size="large" data-price="11">
+                            Large<br>
+                            <span class="size-price">$11</span>
+                        </div>
+                        <div class="size-option" data-size="xlarge" data-price="15">
+                            X-Large<br>
+                            <span class="size-price">$15</span>
+                        </div>
+                    </div>
+                    
+                    <label for="heart-personalization">Personalization text (optional)</label>
+                    <textarea id="heart-personalization" rows="3" placeholder="Add a special message or name" class="customization-input"></textarea>
+                </div>
+                
+                <!-- Custom bracelet customization -->
+                <div id="custom-customization" class="bracelet-customization" style="display: none;">
+                    <label for="custom-feature">What do you want it to feature?</label>
+                    <input id="custom-feature" type="text" placeholder="Describe your design or theme" class="customization-input">
+                    
+                    <label for="custom-color">Primary color</label>
+                    <select id="custom-color" class="customization-input">
+                        <option value="">Select a color</option>
+                        <option value="red">Red</option>
+                        <option value="pink">Pink</option>
+                        <option value="purple">Purple</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="gold">Gold</option>
+                        <option value="silver">Silver</option>
+                    </select>
+                    
+                    <label for="custom-color-custom">Or enter custom color</label>
+                    <input id="custom-color-custom" type="text" placeholder="Custom color name" class="customization-input">
+                    
+                    <label for="custom-color2">Optional second color</label>
+                    <select id="custom-color2" class="customization-input">
+                        <option value="">Select a color (optional)</option>
+                        <option value="red">Red</option>
+                        <option value="pink">Pink</option>
+                        <option value="purple">Purple</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="gold">Gold</option>
+                        <option value="silver">Silver</option>
+                    </select>
+                    
+                    <label>Select size</label>
+                    <div class="size-options">
+                        <div class="size-option" data-size="small" data-price="5">
+                            Small<br>
+                            <span class="size-price">$5</span>
+                        </div>
+                        <div class="size-option" data-size="medium" data-price="9">
+                            Medium<br>
+                            <span class="size-price">$9</span>
+                        </div>
+                        <div class="size-option" data-size="large" data-price="11">
+                            Large<br>
+                            <span class="size-price">$11</span>
+                        </div>
+                        <div class="size-option" data-size="xlarge" data-price="15">
+                            X-Large<br>
+                            <span class="size-price">$15</span>
+                        </div>
+                    </div>
+                    
+                    <label for="donation">Donate to (optional)</label>
+                    <select id="donation" class="customization-input">
+                        <option value="remove_co2">Remove CO₂ from our environment</option>
+                        <option value="msf">Montessori School of Franklin</option>
+                        <option value="none">No donation</option>
+                    </select>
+                    
+                    <label for="custom-personalization">Personalization text (optional)</label>
+                    <textarea id="custom-personalization" rows="3" placeholder="Add a special message or name" class="customization-input"></textarea>
+                </div>
+                
+                <div class="flow-navigation">
+                    <button class="nav-btn secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="nav-btn" onclick="goToStep(3)">Continue to Shipping →</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Shipping -->
+            <div id="step-3" class="flow-step">
+                <h2 class="flow-title">Shipping Information</h2>
+                
+                <div class="product-summary" id="order-summary">
+                    <!-- Order summary will be populated here -->
+                </div>
+                
+                <div class="section">
+                    <label for="shipping-option">Shipping method *</label>
+                    <select id="shipping-option" required>
+                        <option value="">Select shipping</option>
+                        <option value="usps_ground" data-price="9">USPS Ground Advantage — $9</option>
+                        <option value="usps_priority" data-price="11">USPS Priority Mail — $11</option>
+                        <option value="usps_express" data-price="29">USPS Priority Mail Express — $29</option>
+                        <option value="ups_exp" data-price="93">UPS Worldwide Expedited — $93</option>
+                        <option value="ups_expr" data-price="119">UPS Worldwide Express — $119</option>
+                    </select>
+                    
+                    <h3 style="margin-top: 24px;">Shipping Address</h3>
+                    
+                    <label for="name">Full name *</label>
+                    <input id="name" type="text" placeholder="Your full name" required>
+                    
+                    <label for="email">Email address *</label>
+                    <input id="email" type="email" placeholder="you@example.com" required>
+                    
+                    <label for="phone">Phone number (optional)</label>
+                    <input id="phone" type="tel" placeholder="(123) 456-7890">
+                    
+                    <label for="address1">Street address *</label>
+                    <input id="address1" type="text" placeholder="123 Main St" required>
+                    
+                    <label for="address2">Apartment, suite, etc. (optional)</label>
+                    <input id="address2" type="text" placeholder="Apt 4B">
+                    
+                    <div class="inline-group">
+                        <div>
+                            <label for="city">City *</label>
+                            <input id="city" type="text" placeholder="City" required>
+                        </div>
+                        <div>
+                            <label for="state">State / Province *</label>
+                            <input id="state" type="text" placeholder="State" required>
+                        </div>
+                    </div>
+                    
+                    <div class="inline-group">
+                        <div>
+                            <label for="postal">ZIP / Postal code *</label>
+                            <input id="postal" type="text" placeholder="12345" required>
+                        </div>
+                        <div>
+                            <label for="country">Country *</label>
+                            <input id="country" type="text" placeholder="United States" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-navigation">
+                    <button class="nav-btn secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="nav-btn" onclick="goToStep(4)">Continue to Payment →</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Payment -->
+            <div id="step-4" class="flow-step">
+                <h2 class="flow-title">Payment</h2>
+                
+                <div class="section">
+                    <div id="payment-request-button" class="hidden"></div>
+                    
+                    <div id="card-element" style="margin-top:16px;"></div>
+                    
+                    <div id="card-errors" role="alert" style="color:#c00; margin-top:8px;"></div>
+                    
+                    <button id="card-button" class="nav-btn" style="width: 100%; margin-top: 20px;">Pay Now</button>
+                </div>
+                
+                <div class="flow-navigation">
+                    <button class="nav-btn secondary" onclick="goToStep(3)">← Back to Shipping</button>
+                </div>
+            </div>
+            
+            <!-- Success Step -->
+            <div id="step-success" class="flow-step">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h2 style="color: #5a17ff;">🎉 Order Successful!</h2>
+                    <p>Your payment was successful and your order has been saved to our system.</p>
+                    <p>Expect a confirmation email from Charmers soon.</p>
+                    <button id="dashboard-button" class="nav-btn" style="margin-top: 20px;">View Order Dashboard</button>
                 </div>
             </div>
         </div>
-
-        <!-- Processing -->
-        <div class="section" id="processing-section">
-            <h2>Processing</h2>
-            <label for="processing-option">Processing option <span class="required">*</span></label>
-            <select id="processing-option">
-                <option value="">Select processing</option>
-                <option value="24h" data-price="0.50">Charmers 24 Hour Processing™ — $0.50</option>
-                <option value="7day" data-price="0">Charmers Seven Day 12 Hours Processing™ — $0.00</option>
-            </select>
-            <div class="field-error" id="processing-error">Please select a processing option</div>
-        </div>
-
-        <!-- Coupon -->
-        <div class="section" id="coupon-section">
-            <h2>Coupon</h2>
-            <label for="coupon-code">Enter coupon code</label>
-            <input id="coupon-code" type="text" placeholder="Optional">
-            <div id="coupon-message"></div>
-        </div>
-
-        <!-- Totals panel -->
-        <div id="totals-panel">
-            <div><span>Bracelet Price:</span><span id="bracelet-price">$0.00</span></div>
-            <div><span>Coupon Savings:</span><span id="coupon-savings">-$0.00</span></div>
-            <div><span>Processing Fee:</span><span id="processing-fee">$0.00</span></div>
-            <div><span>Shipping:</span><span id="shipping-fee">$0.00</span></div>
-            <div><span>Additional Fee:</span><span id="additional-fee">$0.00</span></div>
-            <div id="final-total"><span>FINAL TOTAL:</span><span id="final-total-amount">$0.00</span></div>
-        </div>
-
-        <!-- Payment section -->
-        <div class="section" id="payment-section">
-            <h2>Payment</h2>
-
-            <!-- Payment Request Button container -->
-            <div id="payment-request-button" class="hidden"></div>
-
-            <!-- Card Element container -->
-            <div id="card-element" style="margin-top:16px;"></div>
-
-            <!-- Display errors -->
-            <div id="card-errors" role="alert" style="color:#c00; margin-top:8px;"></div>
-
-            <!-- Pay button for card -->
-            <button id="card-button" data-secret="">Pay</button>
-        </div>
-
-        <!-- After payment success -->
-        <div id="success-section" class="section hidden">
-            <h2>Payment successful!</h2>
-            <p>Thank you for your order. Please click below to send your order details via email.</p>
-
-            <button id="email-button">Complete Order</button>
+        
+        <!-- Cart Summary (sticky bottom) -->
+        <div class="cart-summary" id="cart-summary">
+            <div class="cart-item">
+                <span id="cart-product-name">No product selected</span>
+                <span id="cart-product-price">$0.00</span>
+            </div>
+            <div class="cart-item">
+                <span>Shipping</span>
+                <span id="cart-shipping-price">$0.00</span>
+            </div>
+            <div class="cart-item">
+                <strong>Total</strong>
+                <strong id="cart-total-price">$0.00</strong>
+            </div>
+            <button id="checkout-btn" class="nav-btn" style="width: 100%; margin-top: 16px;">Proceed to Checkout</button>
         </div>
     </main>
 
     <script>
-    (async function(){
-        // --------- CONFIG ----------
-        // ⚠️ IMPORTANT: Update this URL after deploying your backend!
-        const BACKEND_URL = 'https://your-render-backend.onrender.com'; // CHANGE THIS
-        const stripePublicKey = 'pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc';
+    // Configuration
+    const BACKEND_URL = 'https://pay-charmersv2.onrender.com';
+    const stripePublicKey = 'pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc';
+    
+    const paymentIntentUrl = `${BACKEND_URL}/create-payment-intent`;
+    const saveOrderUrl = `${BACKEND_URL}/save-order`;
+
+    // State
+    let selectedProduct = null;
+    let selectedSize = null;
+    let braceletPrice = 0;
+    let shippingPrice = 0;
+    let stripe = null;
+    let elements = null;
+    let card = null;
+
+    // Product data
+    const products = {
+        birthstone: {
+            name: 'Birthstone Bracelet',
+            basePrice: 5,
+            customization: 'birthstone'
+        },
+        heart: {
+            name: 'Heart Bracelet',
+            basePrice: 5,
+            customization: 'heart'
+        },
+        custom: {
+            name: 'Custom Bracelet',
+            basePrice: 5,
+            customization: 'custom'
+        }
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        initStripe();
+        updateCartSummary();
+    });
+
+    function initStripe() {
+        stripe = Stripe(stripePublicKey);
+        elements = stripe.elements();
         
-        const paymentIntentUrl = `${BACKEND_URL}/create-payment-intent`;
-        const saveOrderUrl = `${BACKEND_URL}/save-order`;
-
-        // Utility
-        function fmtMoney(val) {
-            return '$' + val.toFixed(2);
-        }
-
-        // DOM elements
-        const braceletType = document.getElementById('bracelet-type');
-        const birthstoneFields = document.getElementById('birthstone-fields');
-        const heartFields = document.getElementById('heart-fields');
-        const customFields = document.getElementById('custom-fields');
-
-        const sizeDropdowns = document.querySelectorAll('.size-dropdown');
-        const shippingOption = document.getElementById('shipping-option');
-        const processingOption = document.getElementById('processing-option');
-
-        const couponCodeInput = document.getElementById('coupon-code');
-        const couponMessage = document.getElementById('coupon-message');
-
-        const totals = {
-            bracelet: 0,
-            coupon: 0,
-            processing: 0,
-            shipping: 0,
-            additional: 0,
-        };
-
-        const braceletPriceEl = document.getElementById('bracelet-price');
-        const couponSavingsEl = document.getElementById('coupon-savings');
-        const processingFeeEl = document.getElementById('processing-fee');
-        const shippingFeeEl = document.getElementById('shipping-fee');
-        const additionalFeeEl = document.getElementById('additional-fee');
-        const finalTotalEl = document.getElementById('final-total-amount');
-
-        const cardButton = document.getElementById('card-button');
-        const paymentRequestButtonDiv = document.getElementById('payment-request-button');
-        const cardErrors = document.getElementById('card-errors');
-
-        const successSection = document.getElementById('success-section');
-        const emailButton = document.getElementById('email-button');
-
-        // Customer info fields
-        const nameField = document.getElementById('name');
-        const emailField = document.getElementById('email');
-        const phoneField = document.getElementById('phone');
-
-        // Address
-        const address1Field = document.getElementById('address1');
-        const address2Field = document.getElementById('address2');
-        const cityField = document.getElementById('city');
-        const stateField = document.getElementById('state');
-        const postalField = document.getElementById('postal');
-        const countryField = document.getElementById('country');
-
-        // Error fields
-        const errorFields = {
-            name: document.getElementById('name-error'),
-            email: document.getElementById('email-error'),
-            birthstoneSize: document.getElementById('birthstone-size-error'),
-            heartSize: document.getElementById('heart-size-error'),
-            customSize: document.getElementById('custom-size-error'),
-            shipping: document.getElementById('shipping-error'),
-            address1: document.getElementById('address1-error'),
-            city: document.getElementById('city-error'),
-            state: document.getElementById('state-error'),
-            postal: document.getElementById('postal-error'),
-            country: document.getElementById('country-error'),
-            processing: document.getElementById('processing-error')
-        };
-
-        // Coupon state
-        let couponApplied = null;
-
-        // Keep track of whether payment succeeded
-        let paymentSucceeded = false;
-
-        // --------- UI logic ----------
-        function showFieldsForType(type){
-            birthstoneFields.classList.add('hidden');
-            heartFields.classList.add('hidden');
-            customFields.classList.add('hidden');
-            if(type === 'birthstone') birthstoneFields.classList.remove('hidden');
-            if(type === 'heart') heartFields.classList.remove('hidden');
-            if(type === 'custom') customFields.classList.remove('hidden');
-            recalcTotals();
-        }
-        braceletType.addEventListener('change', e => {
-            showFieldsForType(e.target.value);
-        });
-        showFieldsForType(braceletType.value);
-
-        // Get bracelet price from selected size dropdown
-        function getBraceletPrice(){
-            let price = 0;
-            const type = braceletType.value;
-            let selectedOption;
-            if(type === 'birthstone'){
-                selectedOption = document.getElementById('birthstone-size').selectedOptions[0];
-            }else if(type === 'heart'){
-                selectedOption = document.getElementById('heart-size').selectedOptions[0];
-            }else{
-                selectedOption = document.getElementById('custom-size').selectedOptions[0];
-            }
-            if(selectedOption && selectedOption.dataset.price){
-                price = parseFloat(selectedOption.dataset.price);
-            }
-            return price;
-        }
-
-        // Get processing fee
-        function getProcessingFee(){
-            const option = processingOption.selectedOptions[0];
-            if(option && option.dataset.price){
-                return parseFloat(option.dataset.price);
-            }
-            return 0;
-        }
-
-        // Get shipping fee
-        function getShippingFee(){
-            const option = shippingOption.selectedOptions[0];
-            if(option && option.dataset.price){
-                return parseFloat(option.dataset.price);
-            }
-            return 0;
-        }
-
-        // Coupon validation
-        function validateCoupon(code){
-            const today = new Date();
-            const mm = today.getMonth()+1;
-            const dd = today.getDate();
-            const day = today.getDay();
-
-            const isNewCustomer = localStorage.getItem('hasOrdered') === null;
-
-            if(!code) return null;
-
-            code = code.trim();
-            if(code.toLowerCase() === 'cybermonday25'.toLowerCase()){
-                if(day === 1 && mm === 11 && dd >= 20 && dd <= 30 && isNewCustomer){
-                    return {code:'CyberMonday25', percent:25};
-                }
-                return {error:'Valid only on Cyber Monday for new customers.'};
-            }
-            if(code.toLowerCase() === 'christmasd34'.toLowerCase()){
-                if(mm === 12 && (dd === 24 || dd === 25)){
-                    return {code:'ChristmasD34', percent:34};
-                }
-                return {error:'Valid only on Dec 24 or 25.'};
-            }
-            return {error:'Invalid coupon code.'};
-        }
-
-        function applyCoupon(){
-            couponApplied = null;
-            couponMessage.textContent = '';
-            couponMessage.className = '';
-            const code = couponCodeInput.value;
-            if(!code) {
-                recalcTotals();
-                return;
-            }
-            const res = validateCoupon(code);
-            if(res && res.error){
-                couponMessage.textContent = res.error;
-                couponMessage.className = 'coupon-error';
-                recalcTotals();
-                return;
-            }
-            if(res){
-                couponApplied = res;
-                couponMessage.textContent = 'Coupon applied: ' + res.code;
-                couponMessage.className = 'coupon-success';
-                recalcTotals();
-            }
-        }
-
-        couponCodeInput.addEventListener('blur', applyCoupon);
-        couponCodeInput.addEventListener('change', applyCoupon);
-        couponCodeInput.addEventListener('keyup', (e)=>{
-            if(e.key === 'Enter') applyCoupon();
-        });
-
-        // Recalc totals
-        function recalcTotals(){
-            totals.bracelet = getBraceletPrice();
-            if(couponApplied && couponApplied.percent){
-                totals.coupon = totals.bracelet * (couponApplied.percent / 100);
-            }else{
-                totals.coupon = 0;
-            }
-            totals.processing = getProcessingFee();
-            totals.shipping = getShippingFee();
-            totals.additional = 0;
-
-            braceletPriceEl.textContent = fmtMoney(totals.bracelet);
-            couponSavingsEl.textContent = '-' + fmtMoney(totals.coupon);
-            processingFeeEl.textContent = fmtMoney(totals.processing);
-            shippingFeeEl.textContent = fmtMoney(totals.shipping);
-            additionalFeeEl.textContent = fmtMoney(totals.additional);
-
-            const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
-            finalTotalEl.textContent = fmtMoney(final);
-
-            cardButton.disabled = final <= 0 || !validateRequired();
-        }
-
-        // Validate required fields for enabling payment
-        function validateRequired(){
-            let isValid = true;
-            
-            Object.values(errorFields).forEach(field => {
-                if(field) field.style.display = 'none';
-            });
-            document.querySelectorAll('input, select').forEach(el => {
-                el.classList.remove('error');
-            });
-
-            if(!nameField.value.trim()) {
-                errorFields.name.style.display = 'block';
-                nameField.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!emailField.value.trim() || !isValidEmail(emailField.value)) {
-                errorFields.email.style.display = 'block';
-                emailField.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!shippingOption.value) {
-                errorFields.shipping.style.display = 'block';
-                shippingOption.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!address1Field.value.trim()) {
-                errorFields.address1.style.display = 'block';
-                address1Field.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!cityField.value.trim()) {
-                errorFields.city.style.display = 'block';
-                cityField.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!stateField.value.trim()) {
-                errorFields.state.style.display = 'block';
-                stateField.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!postalField.value.trim()) {
-                errorFields.postal.style.display = 'block';
-                postalField.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!countryField.value.trim()) {
-                errorFields.country.style.display = 'block';
-                countryField.classList.add('error');
-                isValid = false;
-            }
-            
-            if(!processingOption.value) {
-                errorFields.processing.style.display = 'block';
-                processingOption.classList.add('error');
-                isValid = false;
-            }
-            
-            const type = braceletType.value;
-            if(type === 'birthstone'){
-                if(!document.getElementById('birthstone-size').value) {
-                    errorFields.birthstoneSize.style.display = 'block';
-                    document.getElementById('birthstone-size').classList.add('error');
-                    isValid = false;
-                }
-            } else if(type === 'heart'){
-                if(!document.getElementById('heart-size').value) {
-                    errorFields.heartSize.style.display = 'block';
-                    document.getElementById('heart-size').classList.add('error');
-                    isValid = false;
-                }
-            } else {
-                if(!document.getElementById('custom-size').value) {
-                    errorFields.customSize.style.display = 'block';
-                    document.getElementById('custom-size').classList.add('error');
-                    isValid = false;
-                }
-            }
-            
-            return isValid;
-        }
-
-        // Email validation helper
-        function isValidEmail(email) {
-            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(String(email).toLowerCase());
-        }
-
-        // Attach change listeners to recalc
-        document.querySelectorAll('select').forEach(el=>{
-            el.addEventListener('change', recalcTotals);
-        });
-        document.querySelectorAll('input').forEach(el=>{
-            el.addEventListener('change', recalcTotals);
-        });
-        document.querySelectorAll('textarea').forEach(el=>{
-            el.addEventListener('change', recalcTotals);
-        });
-
-        // --------- Stripe setup ----------
-        const stripe = Stripe(stripePublicKey, {apiVersion: "2025-11-17.acacia"});
-        const elements = stripe.elements();
-
-        // Payment Request Button for Apple Pay / Google Pay
-        const paymentRequest = stripe.paymentRequest({
-            country: 'US',
-            currency: 'usd',
-            total: {
-                label: 'Total',
-                amount: 0,
-            },
-            requestPayerName: true,
-            requestPayerEmail: true,
-        });
-
-        const prButton = elements.create('paymentRequestButton', {
-            paymentRequest,
-        });
-
-        // Check availability
-        const prCanMake = await paymentRequest.canMakePayment();
-        if(prCanMake && (prCanMake.applePay || prCanMake.googlePay)) {
-            paymentRequestButtonDiv.classList.remove('hidden');
-            prButton.mount('#payment-request-button');
-
-            const updatePRTotal = () => {
-                const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
-                const cents = Math.round(final * 100);
-                paymentRequest.update({
-                    total: {
-                        label: 'Total',
-                        amount: cents,
-                    }
-                });
-            };
-
-            document.querySelectorAll('select, input, textarea').forEach(el=>{
-                el.addEventListener('change', updatePRTotal);
-            });
-
-            paymentRequest.on('token', async (ev) => {
-                if(!validateRequired()){
-                    ev.complete('fail');
-                    alert('Please complete all required fields before paying.');
-                    return;
-                }
-
-                // Prepare order data for PRB
-                const orderData = prepareOrderData();
-                const final = orderData.total;
-                const amountCents = Math.round(final * 100);
-                
-                const response = await fetch(paymentIntentUrl, {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({
-                        amount: amountCents,
-                        currency:'usd',
-                        orderDetails: orderData.orderDetails,
-                        customerInfo: orderData.customerInfo,
-                        shipping: orderData.shipping
-                    })
-                });
-                const pi = await response.json();
-                if(pi.error){
-                    ev.complete('fail');
-                    cardErrors.textContent = pi.error;
-                    return;
-                }
-
-                const result = await stripe.confirmCardPayment(
-                    pi.clientSecret,
-                    {payment_method: ev.token.id},
-                    {handleActions: false}
-                );
-                if(result.error){
-                    ev.complete('fail');
-                    cardErrors.textContent = result.error.message;
-                }else{
-                    // Save order
-                    await saveOrderToBackend(result.paymentIntent.id, orderData);
-                    
-                    ev.complete('success');
-                    paymentSucceeded = true;
-                    showSuccess();
-                }
-            });
-        } else {
-            paymentRequestButtonDiv.classList.add('hidden');
-        }
-
-        // Card Element
         const style = {
             base: {
                 color: "#32325d",
@@ -723,260 +636,392 @@
             },
             invalid: { color: "#fa755a", iconColor: "#fa755a" }
         };
-        const card = elements.create("card", {style: style});
+        
+        card = elements.create("card", {style: style});
         card.mount("#card-element");
-
-        card.on('change', (event)=>{
-            if(event.error){
-                cardErrors.textContent = event.error.message;
-            }else{
-                cardErrors.textContent = '';
-            }
-        });
-
-        // Prepare order data function
-        function prepareOrderData() {
-            const final = totals.bracelet - totals.coupon + totals.processing + totals.shipping + totals.additional;
-            const type = braceletType.value;
-            
-            const orderDetails = {
-                braceletType: type,
-                total: final,
-                couponUsed: couponApplied?.code || null,
-                shippingMethod: shippingOption.options[shippingOption.selectedIndex]?.text || '',
-                processingMethod: processingOption.options[processingOption.selectedIndex]?.text || ''
-            };
-
-            // Add bracelet-specific details
-            if (type === 'birthstone') {
-                orderDetails.birthstone = document.getElementById('birthstone').value;
-                orderDetails.size = document.getElementById('birthstone-size').value;
-                orderDetails.personalization = document.getElementById('birthstone-personalization').value;
-            } else if (type === 'heart') {
-                orderDetails.size = document.getElementById('heart-size').value;
-                orderDetails.personalization = document.getElementById('heart-personalization').value;
+        
+        card.on('change', (event) => {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
             } else {
-                orderDetails.feature = document.getElementById('custom-feature').value;
-                orderDetails.color = document.getElementById('custom-color').value || 
-                                    document.getElementById('custom-color-custom').value;
-                orderDetails.color2 = document.getElementById('custom-color2').value;
-                orderDetails.size = document.getElementById('custom-size').value;
-                orderDetails.donation = document.getElementById('donation').value;
-                orderDetails.personalization = document.getElementById('custom-personalization').value;
+                displayError.textContent = '';
             }
+        });
+        
+        // Initialize Payment Request Button
+        initPaymentRequestButton();
+    }
 
-            const customerInfo = {
-                name: nameField.value,
-                email: emailField.value,
-                phone: phoneField.value || ''
-            };
+    function initPaymentRequestButton() {
+        const paymentRequest = stripe.paymentRequest({
+            country: 'US',
+            currency: 'usd',
+            total: {
+                label: 'Charmers Bracelet',
+                amount: 0,
+            },
+            requestPayerName: true,
+            requestPayerEmail: true,
+            requestPayerPhone: true,
+            requestShipping: true,
+            shippingOptions: [
+                {
+                    id: 'usps_ground',
+                    label: 'USPS Ground Advantage',
+                    detail: 'Delivery in 3-5 business days',
+                    amount: 900,
+                },
+                {
+                    id: 'usps_priority',
+                    label: 'USPS Priority Mail',
+                    detail: 'Delivery in 1-3 business days',
+                    amount: 1100,
+                }
+            ]
+        });
 
-            const shipping = {
-                address1: address1Field.value,
-                address2: address2Field.value,
-                city: cityField.value,
-                state: stateField.value,
-                postal: postalField.value,
-                country: countryField.value,
-                shippingOption: shippingOption.value
-            };
+        const prButton = elements.create('paymentRequestButton', {
+            paymentRequest,
+            style: {
+                paymentRequestButton: {
+                    theme: 'dark',
+                    height: '48px',
+                }
+            }
+        });
 
-            return {
-                total: final,
-                orderDetails,
-                customerInfo,
-                shipping
-            };
-        }
-
-        // Save order to backend function
-        async function saveOrderToBackend(paymentIntentId, orderData) {
-            try {
-                const response = await fetch(saveOrderUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        paymentIntentId: paymentIntentId,
-                        status: 'completed',
-                        customerInfo: orderData.customerInfo,
-                        orderDetails: orderData.orderDetails,
-                        shipping: orderData.shipping,
-                        amount: orderData.total
-                    })
-                });
+        paymentRequest.canMakePayment().then(result => {
+            if (result) {
+                document.getElementById('payment-request-button').classList.remove('hidden');
+                prButton.mount('#payment-request-button');
                 
-                const result = await response.json();
-                if (result.success) {
-                    console.log('✅ Order saved to backend:', result.orderId);
-                } else {
-                    console.warn('⚠️ Order save warning:', result.message);
-                }
-            } catch (error) {
-                console.error('❌ Failed to save order to backend:', error);
-                // Don't fail the payment if backend save fails
-            }
-        }
-
-        // Card payment handler
-        cardButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-
-            if (!validateRequired()) {
-                alert('Please complete all required fields.');
-                return;
-            }
-
-            cardButton.disabled = true;
-            document.body.classList.add('loading');
-
-            // Prepare order data
-            const orderData = prepareOrderData();
-            const amountCents = Math.round(orderData.total * 100);
-
-            // Create PaymentIntent WITH order details
-            let piResponse;
-            try {
-                piResponse = await fetch(paymentIntentUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        amount: amountCents,
-                        currency: 'usd',
-                        orderDetails: orderData.orderDetails,
-                        customerInfo: orderData.customerInfo,
-                        shipping: orderData.shipping
-                    })
-                });
-            } catch (err) {
-                cardErrors.textContent = 'Error contacting payment server.';
-                cardButton.disabled = false;
-                document.body.classList.remove('loading');
-                return;
-            }
-
-            const pi = await piResponse.json();
-            if (pi.error) {
-                cardErrors.textContent = pi.error;
-                cardButton.disabled = false;
-                document.body.classList.remove('loading');
-                return;
-            }
-
-            // Confirm card payment
-            const { error, paymentIntent } = await stripe.confirmCardPayment(pi.clientSecret, {
-                payment_method: {
-                    card: card,
-                    billing_details: {
-                        name: orderData.customerInfo.name,
-                        email: orderData.customerInfo.email,
-                        phone: orderData.customerInfo.phone,
-                        address: {
-                            line1: orderData.shipping.address1,
-                            line2: orderData.shipping.address2,
-                            city: orderData.shipping.city,
-                            state: orderData.shipping.state,
-                            postal_code: orderData.shipping.postal,
-                            country: orderData.shipping.country
-                        }
+                paymentRequest.on('paymentmethod', async (ev) => {
+                    if (!validateShippingForm()) {
+                        ev.complete('fail');
+                        alert('Please complete all required fields.');
+                        return;
                     }
-                }
+
+                    const orderData = prepareOrderData();
+                    const amountCents = Math.round(orderData.total * 100);
+
+                    try {
+                        const response = await fetch(paymentIntentUrl, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                amount: amountCents,
+                                currency: 'usd',
+                                orderDetails: orderData.orderDetails,
+                                customerInfo: orderData.customerInfo,
+                                shipping: orderData.shipping
+                            })
+                        });
+                        
+                        const pi = await response.json();
+                        if (pi.error) {
+                            ev.complete('fail');
+                            return;
+                        }
+
+                        const { error } = await stripe.confirmCardPayment(
+                            pi.clientSecret,
+                            { payment_method: ev.paymentMethod.id },
+                            { handleActions: false }
+                        );
+
+                        if (error) {
+                            ev.complete('fail');
+                        } else {
+                            await saveOrderToBackend(pi.paymentIntentId || pi.id, orderData);
+                            ev.complete('success');
+                            showSuccess();
+                        }
+                    } catch (error) {
+                        ev.complete('fail');
+                    }
+                });
+            }
+        });
+    }
+
+    // Product selection
+    function selectProduct(productType) {
+        selectedProduct = productType;
+        
+        // Update UI
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        document.querySelector(`[data-product="${productType}"]`).classList.add('selected');
+        
+        document.querySelectorAll('.select-btn').forEach(btn => {
+            btn.textContent = 'Select This Bracelet';
+            btn.classList.remove('selected');
+        });
+        event.target.textContent = '✓ Selected';
+        event.target.classList.add('selected');
+        
+        // Show cart summary
+        document.getElementById('cart-summary').classList.add('show');
+        
+        // Update product name in next step
+        document.getElementById('product-name').textContent = products[productType].name;
+        document.getElementById('selected-product-name').textContent = products[productType].name;
+        
+        // Update cart
+        updateCartSummary();
+        
+        // Enable checkout button
+        document.getElementById('checkout-btn').disabled = false;
+    }
+
+    function updateCartSummary() {
+        const cartProductName = document.getElementById('cart-product-name');
+        const cartProductPrice = document.getElementById('cart-product-price');
+        const cartShippingPrice = document.getElementById('cart-shipping-price');
+        const cartTotalPrice = document.getElementById('cart-total-price');
+        
+        if (selectedProduct) {
+            cartProductName.textContent = products[selectedProduct].name;
+            cartProductPrice.textContent = `$${braceletPrice.toFixed(2)}`;
+        } else {
+            cartProductName.textContent = 'No product selected';
+            cartProductPrice.textContent = '$0.00';
+        }
+        
+        cartShippingPrice.textContent = `$${shippingPrice.toFixed(2)}`;
+        
+        const total = braceletPrice + shippingPrice;
+        cartTotalPrice.textContent = `$${total.toFixed(2)}`;
+        
+        // Update checkout button text
+        document.getElementById('checkout-btn').textContent = `Checkout - $${total.toFixed(2)}`;
+    }
+
+    // Flow navigation
+    let currentStep = 1;
+
+    function goToStep(step) {
+        // Validate current step before proceeding
+        if (step > currentStep) {
+            if (currentStep === 1 && !selectedProduct) {
+                alert('Please select a bracelet first.');
+                return;
+            }
+            if (currentStep === 2 && !validateCustomization()) {
+                alert('Please complete all required customization options.');
+                return;
+            }
+            if (currentStep === 3 && !validateShippingForm()) {
+                alert('Please complete all required shipping information.');
+                return;
+            }
+        }
+        
+        // Hide all steps
+        document.querySelectorAll('.flow-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        
+        // Update dots
+        document.querySelectorAll('.flow-dot').forEach((dot, index) => {
+            dot.classList.remove('active');
+            if (index < step) {
+                dot.classList.add('active');
+            }
+        });
+        
+        // Show target step
+        document.getElementById(`step-${step}`).classList.add('active');
+        currentStep = step;
+        
+        // Special handling for step 2
+        if (step === 2 && selectedProduct) {
+            showCustomization(selectedProduct);
+            updateOrderSummary();
+        }
+        
+        // Special handling for step 4
+        if (step === 4) {
+            updateOrderSummary();
+        }
+    }
+
+    // Checkout button
+    document.getElementById('checkout-btn').addEventListener('click', function() {
+        if (!selectedProduct) {
+            alert('Please select a bracelet first.');
+            return;
+        }
+        goToStep(2);
+    });
+
+    // Size selection
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.size-option')) {
+            const sizeOption = e.target.closest('.size-option');
+            
+            // Remove selected from all sizes
+            document.querySelectorAll('.size-option').forEach(option => {
+                option.classList.remove('selected');
             });
-
-            if (error) {
-                cardErrors.textContent = error.message;
-                cardButton.disabled = false;
-                document.body.classList.remove('loading');
-            } else if (paymentIntent.status === 'succeeded') {
-                // Save order to backend
-                await saveOrderToBackend(paymentIntent.id, orderData);
-
-                paymentSucceeded = true;
-                showSuccess();
-                document.body.classList.remove('loading');
-            }
-        });
-
-        function showSuccess(){
-            document.getElementById('payment-section').classList.add('hidden');
-            successSection.classList.remove('hidden');
-            localStorage.setItem('hasOrdered','yes');
+            
+            // Add selected to clicked size
+            sizeOption.classList.add('selected');
+            
+            // Update price
+            selectedSize = sizeOption.dataset.size;
+            braceletPrice = parseFloat(sizeOption.dataset.price);
+            
+            updateCartSummary();
+            updateOrderSummary();
         }
+    });
 
-        // Email button
-        emailButton.addEventListener('click',()=>{
-            const type = braceletType.value;
-            let details = '';
-            if(type === 'birthstone'){
-                details += `Type: Charmers Birthstone Series\n`;
-                details += `Birthstone: ${document.getElementById('birthstone').value}\n`;
-                details += `Size: ${document.getElementById('birthstone-size').value}\n`;
-                details += `Personalization: ${document.getElementById('birthstone-personalization').value}\n`;
-            }else if(type === 'heart'){
-                details += `Type: Charmers Heart Bracelet\n`;
-                details += `Size: ${document.getElementById('heart-size').value}\n`;
-                details += `Personalization: ${document.getElementById('heart-personalization').value}\n`;
-            }else{
-                details += `Type: Create Your Own Bracelet\n`;
-                details += `Feature: ${document.getElementById('custom-feature').value}\n`;
-                const col = document.getElementById('custom-color').value;
-                const colCustom = document.getElementById('custom-color-custom').value.trim();
-                const col2 = document.getElementById('custom-color2').value;
-                details += `Color: ${colCustom || col || 'N/A'}\n`;
-                details += `Second Color: ${col2 || 'N/A'}\n`;
-                details += `Size: ${document.getElementById('custom-size').value}\n`;
-                details += `Donation: ${document.getElementById('donation').value}\n`;
-                details += `Personalization: ${document.getElementById('custom-personalization').value}\n`;
-            }
-
-            details += `\n--- Totals ---\n`;
-            details += `Bracelet Price: ${braceletPriceEl.textContent}\n`;
-            details += `Coupon Savings: ${couponSavingsEl.textContent}\n`;
-            details += `Processing Fee: ${processingFeeEl.textContent}\n`;
-            details += `Shipping: ${shippingFeeEl.textContent}\n`;
-            details += `Additional Fee: ${additionalFeeEl.textContent}\n`;
-            details += `FINAL TOTAL: ${finalTotalEl.textContent}\n`;
-
-            details += `\n--- Shipping ---\n`;
-            details += `Street: ${address1Field.value}\n`;
-            details += `Street2: ${address2Field.value}\n`;
-            details += `City: ${cityField.value}\n`;
-            details += `State: ${stateField.value}\n`;
-            details += `Postal: ${postalField.value}\n`;
-            details += `Country: ${countryField.value}\n`;
-
-            details += `\n--- Customer ---\n`;
-            details += `Name: ${nameField.value}\n`;
-            details += `Email: ${emailField.value}\n`;
-            details += `Phone: ${phoneField.value || 'N/A'}\n`;
-
-            if(couponApplied && couponApplied.code){
-                details += `\nCoupon code used: ${couponApplied.code}\n`;
-            }
-
-            const subject = encodeURIComponent(`New Charmers Order – ${nameField.value}`);
-            const body = encodeURIComponent(details);
-
-            const mailto = `mailto:Charmers2346@gmail.com?subject=${subject}&body=${body}`;
-            window.location.href = mailto;
+    function showCustomization(productType) {
+        // Hide all customizations
+        document.querySelectorAll('.bracelet-customization').forEach(el => {
+            el.style.display = 'none';
         });
-
-        // Initial calc
-        recalcTotals();
         
-        // Test backend connection on load
-        async function testBackendConnection() {
-            try {
-                const response = await fetch(BACKEND_URL + '/health');
-                const data = await response.json();
-                console.log('✅ Backend connected:', data.status);
-            } catch (error) {
-                console.warn('⚠️ Backend not connected. Update BACKEND_URL in the config section.');
-                console.warn('Current BACKEND_URL:', BACKEND_URL);
+        // Show selected customization
+        const customizationId = `${products[productType].customization}-customization`;
+        document.getElementById(customizationId).style.display = 'block';
+        
+        // Reset size selection
+        document.querySelectorAll('.size-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        selectedSize = null;
+        braceletPrice = products[productType].basePrice;
+        
+        updateCartSummary();
+    }
+
+    function validateCustomization() {
+        if (!selectedSize) {
+            alert('Please select a size.');
+            return false;
+        }
+        
+        if (selectedProduct === 'birthstone') {
+            const birthstone = document.getElementById('birthstone-input').value.trim();
+            if (!birthstone) {
+                alert('Please enter your birthstone month.');
+                return false;
             }
         }
         
-        testBackendConnection();
-    })();
-    </script>
-</body>
-</html>
+        if (selectedProduct === 'custom') {
+            const feature = document.getElementById('custom-feature').value.trim();
+            if (!feature) {
+                alert('Please describe what you want your bracelet to feature.');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    function validateShippingForm() {
+        const requiredFields = ['name', 'email', 'address1', 'city', 'state', 'postal', 'country', 'shipping-option'];
+        
+        for (const fieldId of requiredFields) {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                alert(`Please fill in ${field.placeholder || fieldId}`);
+                field.focus();
+                return false;
+            }
+        }
+        
+        // Validate email format
+        const email = document.getElementById('email').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Please enter a valid email address.');
+            return false;
+        }
+        
+        // Update shipping price
+        const shippingOption = document.getElementById('shipping-option');
+        const selectedOption = shippingOption.options[shippingOption.selectedIndex];
+        shippingPrice = parseFloat(selectedOption.dataset.price) || 0;
+        updateCartSummary();
+        
+        return true;
+    }
+
+    function updateOrderSummary() {
+        const summaryDiv = document.getElementById('order-summary');
+        let summaryHTML = `<h3>Order Summary</h3>`;
+        
+        if (selectedProduct) {
+            summaryHTML += `
+                <p><strong>Product:</strong> ${products[selectedProduct].name}</p>
+                <p><strong>Size:</strong> ${selectedSize ? selectedSize.charAt(0).toUpperCase() + selectedSize.slice(1) : 'Not selected'}</p>
+            `;
+            
+            if (selectedProduct === 'birthstone') {
+                const birthstone = document.getElementById('birthstone-input').value;
+                if (birthstone) summaryHTML += `<p><strong>Birthstone:</strong> ${birthstone}</p>`;
+            }
+            
+            if (selectedProduct === 'custom') {
+                const feature = document.getElementById('custom-feature').value;
+                if (feature) summaryHTML += `<p><strong>Feature:</strong> ${feature}</p>`;
+            }
+            
+            summaryHTML += `
+                <p><strong>Bracelet Price:</strong> $${braceletPrice.toFixed(2)}</p>
+                <p><strong>Shipping:</strong> $${shippingPrice.toFixed(2)}</p>
+                <p style="font-size: 1.2rem; color: #5a17ff; margin-top: 10px;">
+                    <strong>Total: $${(braceletPrice + shippingPrice).toFixed(2)}</strong>
+                </p>
+            `;
+        } else {
+            summaryHTML += `<p>No product selected</p>`;
+        }
+        
+        summaryDiv.innerHTML = summaryHTML;
+    }
+
+    function prepareOrderData() {
+        const total = braceletPrice + shippingPrice;
+        const type = selectedProduct;
+        
+        const orderDetails = {
+            braceletType: type,
+            total: total,
+            size: selectedSize
+        };
+
+        // Add product-specific details
+        if (type === 'birthstone') {
+            orderDetails.birthstone = document.getElementById('birthstone-input').value;
+            orderDetails.personalization = document.getElementById('birthstone-personalization').value;
+        } else if (type === 'heart') {
+            orderDetails.personalization = document.getElementById('heart-personalization').value;
+        } else {
+            orderDetails.feature = document.getElementById('custom-feature').value;
+            orderDetails.color = document.getElementById('custom-color').value || 
+                                document.getElementById('custom-color-custom').value;
+            orderDetails.color2 = document.getElementById('custom-color2').value;
+            orderDetails.donation = document.getElementById('donation').value;
+            orderDetails.personalization = document.getElementById('custom-personalization').value;
+        }
+
+        const customerInfo = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value || ''
+        };
+
+        const shipping = {
+            address1: document.getElementById('address1').value,
+            address2: document.getElementById('address2').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            postal
