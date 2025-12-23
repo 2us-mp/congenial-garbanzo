@@ -3,213 +3,991 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot - BizPilot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { theme: { extend: { colors: { accent: '#D01B22', primary: '#EAB84E', primaryLight: '#F2D495', primaryLightest: '#FFFCEE', ink: '#171208' } } } };
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css">
-    <link rel="icon" href="./assets/logo.png">
-</head>
-<body class="bg-[color:var(--primaryLightest)]">
-    <script>
-        try { const u = JSON.parse(localStorage.getItem('bp_user')||'null'); if (!u || !u.uid) { location.href = './login.html'; } } catch { location.href = './login.html'; }
-    </script>
+    <title>Papa John's Pizza - Better Ingredients. Better Pizza.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <header class="app-header">
-        <div class="container header-inner">
-            <div class="brand">
-                <img src="./assets/logo.png" alt="BizPilot" class="logo" style="object-fit:contain;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'36\' height=\'36\' viewBox=\'0 0 36 36\'%3E%3Crect width=\'36\' height=\'36\' rx=\'10\' fill=\'%23EAB84E\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' text-anchor=\'middle\' font-family=\'Arial\' font-size=\'14\'%3EBP%3C/text%3E%3C/svg%3E'">
-                <div class="brand-text">
-                    <strong>BizPilot</strong>
-                    <span>AI Business Assistant</span>
-                </div>
-            </div>
-            <nav class="main-nav items-center">
-                <a href="./dashboard.html" class="nav-link">Dashboard</a>
-                <a href="./wizard.html" class="nav-link">Wizard</a>
-                <div class="relative ml-2">
-                    <button id="header-profile-btn" class="w-9 h-9 rounded-full overflow-hidden border border-[color:var(--muted)] bg-[color:var(--primaryLightest)]" title="Profile" aria-label="Profile">
-                        <img id="header-avatar" src="" alt="Profile" class="w-full h-full object-cover">
-                    </button>
-                </div>
+        :root {
+            --papa-red: #FF0000;
+            --papa-green: #006D56;
+            --papa-white: #FFFFFF;
+            --dark-bg: #1a1a1a;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: var(--papa-red);
+            color: var(--papa-white);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "🍕";
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--papa-white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .cart-btn {
+            background: var(--papa-green);
+            color: var(--papa-white);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .cart-btn:hover {
+            background: #005244;
+            transform: translateY(-2px);
+        }
+
+        .cart-count {
+            background: var(--papa-white);
+            color: var(--papa-red);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--papa-red), #cc0000);
+            color: var(--papa-white);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-button {
+            background: var(--papa-green);
+            color: var(--papa-white);
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background: #005244;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Menu Section */
+        .menu-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--dark-gray);
+        }
+
+        .pizza-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .pizza-card {
+            background: var(--papa-white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .pizza-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .pizza-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .pizza-info {
+            padding: 1.5rem;
+        }
+
+        .pizza-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+        }
+
+        .pizza-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .pizza-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--papa-red);
+            margin-bottom: 1rem;
+        }
+
+        .size-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .size-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid var(--medium-gray);
+            background: var(--papa-white);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .size-btn.active {
+            border-color: var(--papa-red);
+            background: var(--papa-red);
+            color: var(--papa-white);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            background: var(--papa-green);
+            color: var(--papa-white);
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #005244;
+        }
+
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: var(--papa-white);
+            box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+            transition: right 0.3s;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .cart-sidebar.open {
+            right: 0;
+        }
+
+        .cart-header {
+            background: var(--papa-red);
+            color: var(--papa-white);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            color: var(--papa-white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            padding: 1.5rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .cart-item-info h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .cart-item-info p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .remove-item {
+            background: var(--papa-red);
+            color: var(--papa-white);
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .cart-footer {
+            padding: 1.5rem;
+            border-top: 2px solid var(--medium-gray);
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: var(--papa-green);
+            color: var(--papa-white);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background: #005244;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Checkout Modal */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkout-modal.open {
+            display: flex;
+        }
+
+        .checkout-form {
+            background: var(--papa-white);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .checkout-form h2 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-gray);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--medium-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--papa-green);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .payment-method {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .payment-method.selected {
+            border-color: var(--papa-green);
+            background: rgba(0, 109, 86, 0.1);
+        }
+
+        .submit-order-btn {
+            width: 100%;
+            background: var(--papa-red);
+            color: var(--papa-white);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-order-btn:hover {
+            background: #cc0000;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-gray);
+            color: var(--papa-white);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .footer-links a {
+            color: var(--papa-white);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1500;
+        }
+
+        .overlay.open {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">Papa John's</div>
+            <nav class="nav-links">
+                <a href="#menu">Menu</a>
+                <a href="#deals">Deals</a>
+                <a href="#contact">Contact</a>
+                <button class="cart-btn" onclick="toggleCart()">
+                    <span>Cart</span>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
             </nav>
         </div>
     </header>
 
-    <main>
-        <section class="view active" id="view-chat">
-            <div class="container">
-                <div class="max-w-3xl mx-auto bg-white border border-[color:var(--muted)] rounded-2xl shadow-sm overflow-hidden">
-                    <div class="p-4 border-b border-[color:var(--muted)] flex items-center justify-between">
-                        <div>
-                            <h2 class="text-xl font-extrabold" id="chat-title">Chatbot</h2>
-                            <p class="text-xs text-[color:var(--ink-60)]" id="chat-sub">Advice grounded in your selected idea.</p>
-                        </div>
-                        <a href="./dashboard.html" class="px-3 py-2 rounded-md border border-[color:var(--muted)] text-sm">Back</a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Better Ingredients. Better Pizza.</h1>
+        <p>Order your favorite Papa John's pizzas, sides, and desserts online for delivery or pickup!</p>
+        <a href="#menu" class="cta-button">Order Now</a>
+    </section>
+
+    <!-- Menu Section -->
+    <section class="menu-section" id="menu">
+        <h2 class="section-title">Our Pizza Menu</h2>
+        <div class="pizza-grid" id="pizzaGrid"></div>
+    </section>
+
+    <!-- Cart Sidebar -->
+    <aside class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h2>Your Order</h2>
+            <button class="close-cart" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">$0.00</span>
+            </div>
+            <button class="checkout-btn" onclick="openCheckout()">Checkout</button>
+        </div>
+    </aside>
+
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-form">
+            <h2>Checkout</h2>
+            <form id="checkoutForm">
+                <h3>Delivery Information</h3>
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" required placeholder="John Doe">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone *</label>
+                        <input type="tel" required placeholder="(555) 123-4567">
                     </div>
-                    <div id="chat-log" class="p-4 space-y-3 h-[60vh] overflow-y-auto bg-[color:var(--primaryLightest)]"></div>
-                    <div class="p-3 border-t border-[color:var(--muted)] bg-white">
-                        <form id="chat-form" class="flex gap-2">
-                            <input id="chat-input" type="text" class="flex-1 rounded-xl border border-[color:var(--muted)] px-3 py-2" placeholder="Ask about go-to-market, pricing, suppliers..." autocomplete="off">
-                            <button id="chat-send" type="submit" class="px-4 py-2 rounded-xl bg-[color:var(--primary)] font-bold">Send</button>
-                        </form>
-                        <div class="text-[10px] text-[color:var(--ink-60)] mt-1" id="seed-hint"></div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" required placeholder="john@email.com">
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
+                <div class="form-group">
+                    <label>Delivery Address *</label>
+                    <input type="text" required placeholder="123 Main Street">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City *</label>
+                        <input type="text" required placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>ZIP Code *</label>
+                        <input type="text" required placeholder="12345">
+                    </div>
+                </div>
+                
+                <h3>Payment Method</h3>
+                <div class="payment-methods">
+                    <div class="payment-method selected" onclick="selectPayment(this)">
+                        <div>💳</div>
+                        <div>Credit Card</div>
+                    </div>
+                    <div class="payment-method" onclick="selectPayment(this)">
+                        <div>💵</div>
+                        <div>Cash</div>
+                    </div>
+                </div>
+                
+                <div id="cardDetails">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Card Number</label>
+                            <input type="text" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-group">
+                            <label>Expiry</label>
+                            <input type="text" placeholder="MM/YY">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" placeholder="123">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Delivery Instructions (Optional)</label>
+                    <textarea rows="3" placeholder="Leave at door, ring bell, etc."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-order-btn">Place Order</button>
+                <button type="button" class="submit-order-btn" style="background: #666; margin-top: 0.5rem;" onclick="closeCheckout()">Cancel</button>
+            </form>
+        </div>
+    </div>
 
-    <footer class="app-footer">
-        <div class="container footer-inner">
-            <span>© <span id="year"></span> BizPilot</span>
-            <a href="#/privacy">Privacy</a>
-            <a href="#/terms">Terms</a>
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Papa John's Pizza. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#contact">Contact Us</a>
+            </div>
         </div>
     </footer>
 
-    <script type="module" src="./db.js"></script>
-    <script src="./services/aiService.js"></script>
     <script>
-(function(){
-    function getStore(){
-        try { return JSON.parse(localStorage.getItem('bp_store_v1')||'{}'); } catch { return {}; }
-    }
-    function setYear(){ const y = document.getElementById('year'); if (y) y.textContent = String(new Date().getFullYear()); }
-    function el(tag, cls, text){ const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
-    const chatLog = document.getElementById('chat-log');
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('chat-input');
-    const title = document.getElementById('chat-title');
-    const sub = document.getElementById('chat-sub');
-    const seedHint = document.getElementById('seed-hint');
-    let history = [];
-    let ideaId = null;
-
-    function appendBubble(role, text){
-        const wrap = el('div');
-        const isUser = role === 'user';
-        wrap.className = 'flex ' + (isUser ? 'justify-end' : 'justify-start');
-        const bubble = el('div', 'max-w-[80%] px-3 py-2 rounded-2xl text-sm ' + (isUser ? 'bg-[color:var(--primary)]' : 'bg-white border border-[color:var(--muted)]'));
-        bubble.textContent = text;
-        wrap.appendChild(bubble);
-        chatLog.appendChild(wrap);
-        chatLog.scrollTop = chatLog.scrollHeight;
-    }
-
-    function seedSystemMessage(ideaName, wizard){
-        const take = (wizard && wizard.preferences && wizard.preferences.horizon) || '6m';
-        const risk = (wizard && wizard.preferences && wizard.preferences.risk) || 'conservative';
-        const loc = (wizard && wizard.location) || 'Unknown';
-        const cat = (wizard && wizard.category) || '';
-        seedHint.textContent = `Context: ${ideaName || 'Idea'} • ${loc} • ${cat} • Horizon ${take} • ${risk}`;
-    }
-
-    // removed explicit context injection to avoid the bot revealing background data
-
-    async function runChatTurn(userText){
-        const st = getStore();
-        const ideas = (st.ideas && st.ideas.items) || [];
-        ideaId = (st.ideas && st.ideas.selectedId) || (ideas[0] && ideas[0].id);
-        const sel = ideas.find(i => i.id === ideaId) || { name: 'Your Idea' };
-        const wizard = st.wizard || {};
-        const gps = (function(){ try { return JSON.parse(localStorage.getItem('bp_gps')||'null'); } catch { return null; } })();
-        history.push({ role: 'user', content: userText });
-        appendBubble('user', userText);
-        appendBubble('assistant', 'Thinking...');
-        const thinkingEl = chatLog.lastChild; // placeholder
-        try {
-            // Try to augment wizard with persisted assets for richer context
-            const user = (st.profile && st.profile.user) || null;
-            let wizForChat = wizard;
-            if (user && user.uid && window.DB && window.DB.readIdea && ideaId) {
-                try {
-                    const saved = await window.DB.readIdea(user.uid, ideaId);
-                    if (saved && (saved.photos || saved.pdf)) {
-                        wizForChat = Object.assign({}, wizard);
-                        // Convert remote URLs into inline base64 for Gemini context if CORS allows
-                        async function toDataUrl(url){
-                            try { const r = await fetch(url, { mode: 'cors' }); const b = await r.blob(); return await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }); } catch { return null; }
-                        }
-                        const images = [];
-                        if (Array.isArray(saved.photos)) {
-                            for (const p of saved.photos) {
-                                const dataUrl = await toDataUrl(p.url);
-                                if (dataUrl) images.push({ name: p.name || 'photo', data: String(dataUrl) });
-                            }
-                        }
-                        if (images.length) wizForChat.images = images;
-                        if (saved.pdf && saved.pdf.url) {
-                            const dataUrl = await toDataUrl(saved.pdf.url);
-                            if (dataUrl) wizForChat.pdf = { name: saved.pdf.name || 'document.pdf', data: String(dataUrl) };
-                        }
-                    }
-                } catch {}
+        // Pizza Menu Data
+        const pizzas = [
+            {
+                id: 1,
+                name: "The Works Pizza",
+                description: "Pepperoni, Canadian bacon, spicy Italian sausage, onions, green peppers, mushrooms, and black olives.",
+                image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400",
+                basePrice: 13.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 3 },
+                    { name: "Large", price: 6 },
+                    { name: "X-Large", price: 9 }
+                ]
+            },
+            {
+                id: 2,
+                name: "Pepperoni Pizza",
+                description: "Classic pepperoni with our signature pizza sauce and 100% real mozzarella cheese.",
+                image: "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=400",
+                basePrice: 11.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 2 },
+                    { name: "Large", price: 4 },
+                    { name: "X-Large", price: 6 }
+                ]
+            },
+            {
+                id: 3,
+                name: "BBQ Chicken Bacon",
+                description: "Grilled chicken, bacon, onions, and BBQ sauce with a blend of mozzarella cheese.",
+                image: "https://images.unsplash.com/photo-1594007654729-407eedc4be65?w=400",
+                basePrice: 14.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 3 },
+                    { name: "Large", price: 6 },
+                    { name: "X-Large", price: 9 }
+                ]
+            },
+            {
+                id: 4,
+                name: "Tuscan Six Cheese",
+                description: "Mozzarella, Parmesan, Romano, Asiago, provolone, and Fontina cheese on our signature crust.",
+                image: "https://images.unsplash.com/photo-1548365328-9b3e5e5d1c1e?w=400",
+                basePrice: 12.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 2 },
+                    { name: "Large", price: 4 },
+                    { name: "X-Large", price: 6 }
+                ]
+            },
+            {
+                id: 5,
+                name: "Garden Fresh",
+                description: "Fresh-cut onions, crisp green peppers, mushrooms, ripe black olives, and juicy Roma tomatoes.",
+                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400",
+                basePrice: 12.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 2 },
+                    { name: "Large", price: 4 },
+                    { name: "X-Large", price: 6 }
+                ]
+            },
+            {
+                id: 6,
+                name: "Fiery Buffalo Chicken",
+                description: "Spicy buffalo sauce, grilled chicken, onions, and a blend of mozzarella cheese.",
+                image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400",
+                basePrice: 14.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 3 },
+                    { name: "Large", price: 6 },
+                    { name: "X-Large", price: 9 }
+                ]
+            },
+            {
+                id: 7,
+                name: "Super Hawaiian",
+                description: "Canadian bacon, bacon, pineapple, and mozzarella cheese on our original crust.",
+                image: "https://images.unsplash.com/photo-1565299507177-b0ac71f36120?w=400",
+                basePrice: 13.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 2 },
+                    { name: "Large", price: 4 },
+                    { name: "X-Large", price: 6 }
+                ]
+            },
+            {
+                id: 8,
+                name: "Spinach Alfredo",
+                description: "Creamy Alfredo sauce, spinach, and a blend of mozzarella and Parmesan cheeses.",
+                image: "https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?w=400",
+                basePrice: 12.99,
+                sizes: [
+                    { name: "Small", price: 0 },
+                    { name: "Medium", price: 2 },
+                    { name: "Large", price: 4 },
+                    { name: "X-Large", price: 6 }
+                ]
             }
-            // Pass any existing analysis for stronger context
-            const analysis = (st.analysisByIdea && st.analysisByIdea[ideaId]) || null;
-            const res = await window.AIService.chatWithIdea({ ideaName: sel.name, wizard: wizForChat, gps, history, analysis });
-            // replace placeholder
-            if (thinkingEl && thinkingEl.firstChild) thinkingEl.firstChild.textContent = res.reply || '...';
-            history.push({ role: 'assistant', content: res.reply || '' });
-            persistChat(ideaId, history);
-        } catch {
-            if (thinkingEl && thinkingEl.firstChild) thinkingEl.firstChild.textContent = 'AI service unavailable.';
-        }
-    }
+        ];
 
-    // Persist chat per-idea with localStorage fallback and Firestore if available
-    function persistChat(id, hist){
-        try { localStorage.setItem(`bp_chat_${id}`, JSON.stringify(hist.slice(-50))); } catch {}
-        try {
-            const st = getStore();
-            const user = st.profile && st.profile.user;
-            if (user && user.uid && window.DB && window.DB.writeIdeaChat) {
-                window.DB.writeIdeaChat(user.uid, id, hist.slice(-100));
-            }
-        } catch {}
-    }
+        // Cart State
+        let cart = [];
+        let activeSizeIndex = {};
 
-    function loadChat(id){
-        try {
-            const raw = localStorage.getItem(`bp_chat_${id}`);
-            if (!raw) return [];
-            const arr = JSON.parse(raw);
-            return Array.isArray(arr) ? arr : [];
-        } catch { return []; }
-    }
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPizzas();
+            updateCartUI();
+        });
 
-    window.addEventListener('load', () => {
-        setYear();
-        const st = getStore();
-        const ideas = (st.ideas && st.ideas.items) || [];
-        const selId = (st.ideas && st.ideas.selectedId) || (ideas[0] && ideas[0].id);
-        const sel = ideas.find(i => i.id === selId) || { name: 'Your Idea' };
-        title.textContent = `AI Chatbot — ${sel.name || 'Idea'}`;
-        sub.textContent = 'Advice grounded in your selected idea.';
-        seedSystemMessage(sel.name, st.wizard || {});
-        // Load previous chat for this idea
-        if (selId) {
-            ideaId = selId;
-            history = loadChat(selId);
-            history.forEach(m => appendBubble(m.role, m.content));
-        }
-
-        if (form && input) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const text = (input.value || '').trim();
-                if (!text) return;
-                input.value = '';
-                await runChatTurn(text);
+        // Render Pizza Menu
+        function renderPizzas() {
+            const grid = document.getElementById('pizzaGrid');
+            grid.innerHTML = pizzas.map(pizza => `
+                <div class="pizza-card">
+                    <img src="${pizza.image}" alt="${pizza.name}" class="pizza-image">
+                    <div class="pizza-info">
+                        <h3 class="pizza-name">${pizza.name}</h3>
+                        <p class="pizza-description">${pizza.description}</p>
+                        <div class="pizza-price">From $${pizza.basePrice.toFixed(2)}</div>
+                        <div class="size-selector">
+                            ${pizza.sizes.map((size, index) => `
+                                <button class="size-btn ${index === 0 ? 'active' : ''}" 
+                                        onclick="selectSize(${pizza.id}, ${index})">
+                                    ${size.name}<br>+$${size.price.toFixed(2)}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCart(${pizza.id})">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Initialize active sizes
+            pizzas.forEach(pizza => {
+                activeSizeIndex[pizza.id] = 0;
             });
         }
-    });
-})();
+
+        // Select Size
+        function selectSize(pizzaId, sizeIndex) {
+            activeSizeIndex[pizzaId] = sizeIndex;
+            const card = event.target.closest('.pizza-card');
+            const sizeButtons = card.querySelectorAll('.size-btn');
+            sizeButtons.forEach((btn, index) => {
+                btn.classList.toggle('active', index === sizeIndex);
+            });
+        }
+
+        // Add to Cart
+        function addToCart(pizzaId) {
+            const pizza = pizzas.find(p => p.id === pizzaId);
+            const sizeIndex = activeSizeIndex[pizzaId];
+            const size = pizza.sizes[sizeIndex];
+            
+            const cartItem = {
+                id: `${pizzaId}-${sizeIndex}`,
+                name: pizza.name,
+                size: size.name,
+                price: pizza.basePrice + size.price,
+                quantity: 1
+            };
+
+            const existingItem = cart.find(item => item.id === cartItem.id);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push(cartItem);
+            }
+
+            updateCartUI();
+            showAddedNotification();
+        }
+
+        // Show Added Notification
+        function showAddedNotification() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Added!';
+            btn.style.background = 'var(--papa-red)';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'var(--papa-green)';
+            }, 1500);
+        }
+
+        // Update Cart UI
+        function updateCartUI() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+                cartTotal.textContent = '$0.00';
+                return;
+            }
+            
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartTotal.textContent = `$${totalPrice.toFixed(2)}`;
+            
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <p>${item.size} - $${item.price.toFixed(2)}</p>
+                        <p>Qty: ${item.quantity}</p>
+                    </div>
+                    <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove from Cart
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCartUI();
+        }
+
+        // Toggle Cart
+        function toggleCart() {
+            const cartSidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('overlay');
+            
+            cartSidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        // Open Checkout
+        function openCheckout() {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            
+            const checkoutModal = document.getElementById('checkoutModal');
+            const overlay = document.getElementById('overlay');
+            
+            document.getElementById('cartSidebar').classList.remove('open');
+            checkoutModal.classList.add('open');
+            overlay.classList.add('open');
+        }
+
+        // Close Checkout
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('open');
+        }
+
+        // Close All
+        function closeAll() {
+            document.getElementById('cartSidebar').classList.remove('open');
+            document.getElementById('checkoutModal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('open');
+        }
+
+        // Select Payment Method
+        function selectPayment(element) {
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const cardDetails = document.getElementById('cardDetails');
+            if (element.textContent.includes('Credit Card')) {
+                cardDetails.style.display = 'block';
+            } else {
+                cardDetails.style.display = 'none';
+            }
+        }
+
+        // Handle Checkout Form
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulate order processing
+            const submitBtn = e.target.querySelector('.submit-order-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                alert('Order placed successfully! Thank you for choosing Papa John\'s!');
+                cart = [];
+                updateCartUI();
+                closeCheckout();
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                e.target.reset();
+            }, 2000);
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
     </script>
 </body>
 </html>
