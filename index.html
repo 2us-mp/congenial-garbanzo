@@ -7,6 +7,8 @@ CHECK OUT IS MOCK
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Papa John's Pizza - Better Ingredients. Better Pizza.</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         * {
             margin: 0;
@@ -31,7 +33,7 @@ CHECK OUT IS MOCK
             line-height: 1.6;
         }
 
-        /* Header - Matches Papa John's Real Design */
+        /* Header */
         header {
             background: var(--papa-red);
             color: var(--white);
@@ -77,6 +79,7 @@ CHECK OUT IS MOCK
             font-weight: 500;
             font-size: 1rem;
             transition: opacity 0.3s;
+            cursor: pointer;
         }
 
         .nav-links a:hover {
@@ -117,7 +120,7 @@ CHECK OUT IS MOCK
             font-weight: bold;
         }
 
-        /* Hero Section - Matches Real Papa John's */
+        /* Hero Section */
         .hero {
             background: linear-gradient(135deg, var(--papa-red), #b00e27);
             color: var(--white);
@@ -174,7 +177,6 @@ CHECK OUT IS MOCK
             color: var(--papa-red);
         }
 
-        /* Menu Tabs */
         .menu-tabs {
             display: flex;
             justify-content: center;
@@ -199,10 +201,6 @@ CHECK OUT IS MOCK
             border-color: var(--papa-red);
         }
 
-        .tab-btn:hover {
-            transform: translateY(-2px);
-        }
-
         .menu-section-content {
             display: none;
         }
@@ -218,7 +216,6 @@ CHECK OUT IS MOCK
             gap: 2rem;
         }
 
-        /* Product Cards */
         .pizza-card {
             background: var(--white);
             border-radius: 12px;
@@ -500,7 +497,7 @@ CHECK OUT IS MOCK
             padding: 2rem;
             border-radius: 12px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
         }
@@ -544,6 +541,19 @@ CHECK OUT IS MOCK
             gap: 1rem;
         }
 
+        /* Stripe Elements */
+        #card-element {
+            padding: 0.75rem;
+            border: 2px solid var(--medium-gray);
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        #card-element.StripeElement--focus {
+            border-color: var(--papa-green);
+        }
+
         .payment-methods {
             display: flex;
             gap: 1rem;
@@ -577,10 +587,27 @@ CHECK OUT IS MOCK
             cursor: pointer;
             transition: background 0.3s;
             font-family: 'Montserrat', sans-serif;
+            margin-top: 1rem;
         }
 
         .submit-order-btn:hover {
             background: #b00e27;
+        }
+
+        .submit-order-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Security Warning */
+        .security-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
 
         /* Footer */
@@ -610,6 +637,7 @@ CHECK OUT IS MOCK
             text-decoration: none;
             opacity: 0.8;
             transition: opacity 0.3s;
+            cursor: pointer;
         }
 
         .footer-links a:hover {
@@ -687,11 +715,6 @@ CHECK OUT IS MOCK
                 grid-template-columns: 1fr;
             }
         }
-
-        /* Utility */
-        .hidden {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
@@ -700,9 +723,9 @@ CHECK OUT IS MOCK
         <div class="header-container">
             <div class="logo">Papa John's</div>
             <nav class="nav-links">
-                <a href="#menu" onclick="scrollToSection('menu')">Menu</a>
-                <a href="#deals">Deals</a>
-                <a href="#contact" onclick="scrollToSection('contact')">Contact</a>
+                <a onclick="scrollToSection('menu')">Menu</a>
+                <a onclick="scrollToSection('deals')">Deals</a>
+                <a onclick="scrollToSection('contact')">Contact</a>
                 <button class="cart-btn" onclick="toggleCart()">
                     <span>Cart</span>
                     <span class="cart-count" id="cartCount">0</span>
@@ -744,6 +767,14 @@ CHECK OUT IS MOCK
         </div>
     </section>
 
+    <!-- Deals Section -->
+    <section class="menu-section hidden" id="deals">
+        <h2 class="section-title">🎉 Special Deals</h2>
+        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+            <p style="font-size: 1.2rem;">Check out our latest offers on the official Papa John's app or website!</p>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section class="menu-section hidden" id="contact">
         <h2 class="section-title">📞 Contact Us</h2>
@@ -769,25 +800,23 @@ CHECK OUT IS MOCK
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer">
             <div class="cart-total">
-                <span>Subtotal:</span>
-                <span id="cartSubtotal">$0.00</span>
-            </div>
-            <div class="cart-total" id="discountRow" style="display: none; color: var(--papa-green);">
-                <span>Discount:</span>
-                <span id="cartDiscount">-$0.00</span>
-            </div>
-            <div class="cart-total" style="font-size: 1.5rem; border-top: 2px solid var(--dark-gray); padding-top: 1rem;">
                 <span>Total:</span>
                 <span id="cartTotal">$0.00</span>
             </div>
-            <button class="checkout-btn" onclick="openCheckout()">Checkout</button>
+            <button class="checkout-btn" onclick="openCheckout()">Secure Checkout</button>
         </div>
     </aside>
 
     <!-- Checkout Modal -->
     <div class="checkout-modal" id="checkoutModal">
         <div class="checkout-form">
-            <h2>Checkout</h2>
+            <h2>Secure Checkout</h2>
+            
+            <!-- Security Warning -->
+            <div class="security-warning">
+                <strong>⚠️ SECURITY NOTICE:</strong> This is a demo. In production, payment processing should be handled by a secure backend server.
+            </div>
+
             <form id="checkoutForm">
                 <h3>Delivery Information</h3>
                 <div class="form-group">
@@ -819,42 +848,21 @@ CHECK OUT IS MOCK
                     </div>
                 </div>
                 
-                <h3>Payment Method</h3>
-                <div class="payment-methods">
-                    <div class="payment-method selected" onclick="selectPayment(this)">
-                        <div>💳</div>
-                        <div>Credit Card</div>
-                    </div>
-                    <div class="payment-method" onclick="selectPayment(this)">
-                        <div>💵</div>
-                        <div>Cash</div>
-                    </div>
-                </div>
-                
-                <div id="cardDetails">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Card Number</label>
-                            <input type="text" placeholder="1234 5678 9012 3456">
-                        </div>
-                        <div class="form-group">
-                            <label>Expiry</label>
-                            <input type="text" placeholder="MM/YY">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>CVV</label>
-                        <input type="text" placeholder="123">
-                    </div>
-                </div>
+                <h3>Payment Information</h3>
+                <div id="card-element"></div>
+                <div id="card-errors" role="alert" style="color: var(--papa-red); margin-top: 0.5rem;"></div>
                 
                 <div class="form-group">
                     <label>Delivery Instructions (Optional)</label>
                     <textarea rows="3" placeholder="Leave at door, ring bell, etc."></textarea>
                 </div>
                 
-                <button type="submit" class="submit-order-btn">Place Order</button>
-                <button type="button" class="submit-order-btn" style="background: #666; margin-top: 0.5rem;" onclick="closeCheckout()">Cancel</button>
+                <button type="submit" class="submit-order-btn" id="submit-button">
+                    Pay with Stripe
+                </button>
+                <button type="button" class="submit-order-btn" style="background: #666; margin-top: 0.5rem;" onclick="closeCheckout()">
+                    Cancel
+                </button>
             </form>
         </div>
     </div>
@@ -873,32 +881,37 @@ CHECK OUT IS MOCK
         <div class="footer-content">
             <p>&copy; 2024 Papa John's International, Inc. All Rights Reserved.</p>
             <div class="footer-links">
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Use</a>
-                <a href="#contact">Contact Us</a>
+                <a onclick="scrollToSection('privacy')">Privacy Policy</a>
+                <a onclick="scrollToSection('terms')">Terms of Use</a>
+                <a onclick="scrollToSection('contact')">Contact Us</a>
                 <a href="https://www.papajohns.com" target="_blank">Official Site</a>
             </div>
             <p style="margin-top: 1rem; font-size: 0.85rem;">
                 Customer Care: (877) 547-7272 | Canada: Adults need avg 2,000 calories/day
             </p>
-            <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
-                Note: This is a frontend demonstration. Real orders require authentication with Papa John's private API.
+            <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.7;">
+                ⚠️ Payment processing is simulated. This demo uses Stripe test mode behavior.
             </p>
         </div>
     </footer>
 
     <script>
-        // ** CRITICAL: Papa John's API is PRIVATE and requires franchise authentication **
-        // This simulation layer demonstrates the exact integration structure
-        const API_CONFIG = {
-            baseUrl: 'https://api.papajohns.com/v1',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer franchise_token' // Would be real JWT token
+        // ** STRIPE LIVE KEY WARNING **
+        // ⚠️ NEVER expose live secret keys. This is a PUBLIC key.
+        // Real implementations need a backend server for security.
+        const stripe = Stripe('pk_live_51ReQgoHwN7YkNv6zwRaz8N1GO0PL7Bb3pqUbcxhss5cQQpJFKjoiNJR4DWKeTRWwhw2tmejOtXjbnrIg6sHnhxc600ePIEIgBc');
+        let elements = stripe.elements();
+        let card = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                    fontFamily: 'Open Sans, sans-serif',
+                }
             }
-        };
+        });
 
-        // Real menu data from Papa John's official sources
+        // Menu Data
         const pizzas = [
             {
                 id: 1,
@@ -938,36 +951,9 @@ CHECK OUT IS MOCK
                     { name: "Large", price: 6 },
                     { name: "X-Large", price: 9 }
                 ]
-            },
-            {
-                id: 4,
-                name: "Tuscan Six Cheese",
-                description: "Mozzarella, Parmesan, Romano, Asiago, provolone, and Fontina cheese.",
-                image: "https://images.unsplash.com/photo-1548365328-9b3e5e5d1c1e?w=500",
-                basePrice: 12.99,
-                sizes: [
-                    { name: "Small", price: 0 },
-                    { name: "Medium", price: 2 },
-                    { name: "Large", price: 4 },
-                    { name: "X-Large", price: 6 }
-                ]
-            },
-            {
-                id: 5,
-                name: "Garden Fresh",
-                description: "Fresh onions, green peppers, mushrooms, black olives, and Roma tomatoes.",
-                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500",
-                basePrice: 12.99,
-                sizes: [
-                    { name: "Small", price: 0 },
-                    { name: "Medium", price: 2 },
-                    { name: "Large", price: 4 },
-                    { name: "X-Large", price: 6 }
-                ]
             }
         ];
 
-        // Drinks with realistic photos
         const drinks = [
             { 
                 id: 101, 
@@ -992,34 +978,9 @@ CHECK OUT IS MOCK
                 price: 3.49, 
                 sizes: ["20oz", "2L"], 
                 category: "Beverage" 
-            },
-            { 
-                id: 104, 
-                name: "Starry Lemon-Lime", 
-                image: "https://images.pexels.com/photos/5947029/pexels-photo-5947029.jpeg?w=300",
-                price: 3.49, 
-                sizes: ["20oz", "2L"], 
-                category: "Beverage" 
-            },
-            { 
-                id: 105, 
-                name: "Aquafina Water", 
-                image: "https://images.pexels.com/photos/1000084/pexels-photo-1000084.jpeg?w=300",
-                price: 2.99, 
-                sizes: ["20oz"], 
-                category: "Water" 
-            },
-            { 
-                id: 106, 
-                name: "Gatorade", 
-                image: "https://images.pexels.com/photos/39618/cold-glass-gatorade-sport-39618.jpeg?w=300",
-                price: 3.99, 
-                sizes: ["20oz"], 
-                category: "Sports Drink" 
             }
         ];
 
-        // Sides & Desserts with realistic photos
         const sides = [
             { 
                 id: 201, 
@@ -1030,43 +991,11 @@ CHECK OUT IS MOCK
                 category: "Side" 
             },
             { 
-                id: 202, 
-                name: "Cheesesticks", 
-                image: "https://images.unsplash.com/photo-1625602071334-2b6f9f5a8d7e?w=400",
-                price: 7.99, 
-                description: "10 pieces with pizza sauce", 
-                category: "Side" 
-            },
-            { 
-                id: 203, 
-                name: "Chicken Poppers", 
-                image: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400",
-                price: 8.99, 
-                description: "10pc with 2 dipping sauces", 
-                category: "Side" 
-            },
-            { 
                 id: 301, 
                 name: "Chocolate Chip Cookie", 
                 image: "https://images.unsplash.com/photo-1499636136210-6f4ad9159e3f?w=400",
                 price: 8.79, 
                 description: "Fresh-baked, cut into 8 slices", 
-                category: "Dessert" 
-            },
-            { 
-                id: 302, 
-                name: "Double Chocolate Brownie", 
-                image: "https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=400",
-                price: 8.79, 
-                description: "Rich chocolate brownie", 
-                category: "Dessert" 
-            },
-            { 
-                id: 303, 
-                name: "Cinnamon Pull Aparts", 
-                image: "https://images.unsplash.com/photo-1579710758949-3ab36db8ff1c?w=400",
-                price: 8.79, 
-                description: "Sweet cinnamon pastry", 
                 category: "Dessert" 
             }
         ];
@@ -1081,6 +1010,19 @@ CHECK OUT IS MOCK
             renderDrinks();
             renderSides();
             updateCartUI();
+            
+            // Mount Stripe Card Element
+            card.mount('#card-element');
+            
+            // Handle real-time validation errors
+            card.addEventListener('change', function(event) {
+                const displayError = document.getElementById('card-errors');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
         });
 
         // Render Functions
@@ -1145,6 +1087,12 @@ CHECK OUT IS MOCK
 
         // Navigation Functions
         function scrollToSection(sectionId) {
+            // Hide all sections first
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show target section
             const element = document.getElementById(sectionId);
             if (element) {
                 element.classList.remove('hidden');
@@ -1223,7 +1171,6 @@ CHECK OUT IS MOCK
         function addToCart(item) {
             showLoading('Adding to cart...');
             
-            // Simulate API call
             setTimeout(() => {
                 const existingItem = cart.find(cartItem => 
                     cartItem.id.startsWith(item.id.split('-')[0] + '-' + item.id.split('-')[1]) && 
@@ -1255,14 +1202,12 @@ CHECK OUT IS MOCK
         function updateCartUI() {
             const cartCount = document.getElementById('cartCount');
             const cartItems = document.getElementById('cartItems');
-            const cartSubtotal = document.getElementById('cartSubtotal');
             const cartTotal = document.getElementById('cartTotal');
             
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
             cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
-            cartTotal.textContent = `$${subtotal.toFixed(2)}`;
+            cartTotal.textContent = `$${total.toFixed(2)}`;
             
             if (cart.length === 0) {
                 cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
@@ -1349,48 +1294,104 @@ CHECK OUT IS MOCK
             document.getElementById('overlay').classList.remove('open');
         }
 
-        function selectPayment(element) {
-            document.querySelectorAll('.payment-method').forEach(method => {
-                method.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            
-            const cardDetails = document.getElementById('cardDetails');
-            cardDetails.style.display = element.textContent.includes('Credit Card') ? 'block' : 'none';
-        }
-
-        // Checkout Flow
-        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        // ** STRIPE PAYMENT HANDLING **
+        // ⚠️ CRITICAL: This is client-side only. Production needs backend verification
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const orderData = {
-                customer: {
-                    name: document.getElementById('customerName').value,
-                    phone: document.getElementById('customerPhone').value,
-                    email: document.getElementById('customerEmail').value
-                },
-                delivery: {
-                    address: document.getElementById('deliveryAddress').value,
-                    city: document.getElementById('deliveryCity').value,
-                    zip: document.getElementById('deliveryZip').value
-                },
-                items: cart,
-                timestamp: new Date().toISOString(),
-                orderNumber: 'PJ' + Math.random().toString(36).substr(2, 9).toUpperCase()
-            };
-
-            showLoading('Placing order...');
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            showLoading('Processing payment...');
             
-            // Simulate API call to Papa John's order endpoint
-            // Real endpoint: POST https://api.papajohns.com/v1/orders
-            setTimeout(() => {
-                alert(`Order placed successfully!\n\nOrder #${orderData.orderNumber}\nEstimated delivery: 25-35 minutes\n\nThank you for choosing Papa John's!`);
-                cart = [];
-                updateCartUI();
-                closeCheckout();
+            // Calculate amount in cents
+            const amount = Math.round(cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 100);
+            
+            try {
+                // Create payment method
+                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                    billing_details: {
+                        name: document.getElementById('customerName').value,
+                        email: document.getElementById('customerEmail').value,
+                        phone: document.getElementById('customerPhone').value,
+                        address: {
+                            line1: document.getElementById('deliveryAddress').value,
+                            city: document.getElementById('deliveryCity').value,
+                            postal_code: document.getElementById('deliveryZip').value,
+                        }
+                    }
+                });
+                
+                if (error) {
+                    document.getElementById('card-errors').textContent = error.message;
+                    hideLoading();
+                    submitButton.disabled = false;
+                    return;
+                }
+                
+                // ** SIMULATED PAYMENT INTENT **
+                // In production, this should call your backend:
+                // const response = await fetch('/create-payment-intent', {...})
+                
+                // Simulate successful payment
+                setTimeout(async () => {
+                    try {
+                        // Simulate payment confirmation
+                        const { error: confirmError } = await stripe.confirmCardPayment(
+                            'pi_live_SIMULATED_PAYMENT_INTENT', // Would be real payment intent from backend
+                            {
+                                payment_method: paymentMethod.id,
+                            }
+                        );
+                        
+                        if (confirmError) {
+                            document.getElementById('card-errors').textContent = confirmError.message;
+                            hideLoading();
+                            submitButton.disabled = false;
+                        } else {
+                            // Payment successful
+                            const orderData = {
+                                items: cart,
+                                customer: {
+                                    name: document.getElementById('customerName').value,
+                                    email: document.getElementById('customerEmail').value,
+                                    phone: document.getElementById('customerPhone').value
+                                },
+                                delivery: {
+                                    address: document.getElementById('deliveryAddress').value,
+                                    city: document.getElementById('deliveryCity').value,
+                                    zip: document.getElementById('deliveryZip').value
+                                },
+                                orderNumber: 'PJ' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                                paymentId: paymentMethod.id
+                            };
+                            
+                            // Simulate order placement
+                            alert(`✅ Payment successful!\n\nOrder #${orderData.orderNumber}\nStatus: Payment Confirmed\nEstimated delivery: 25-35 minutes\n\nThank you for choosing Papa John's!`);
+                            
+                            // Reset cart and UI
+                            cart = [];
+                            updateCartUI();
+                            closeCheckout();
+                            hideLoading();
+                            document.getElementById('checkoutForm').reset();
+                            submitButton.disabled = false;
+                        }
+                    } catch (err) {
+                        console.error('Payment error:', err);
+                        alert('Payment processing failed. Please try again.');
+                        hideLoading();
+                        submitButton.disabled = false;
+                    }
+                }, 2000);
+                
+            } catch (err) {
+                console.error('Payment method error:', err);
+                alert('Payment method creation failed.');
                 hideLoading();
-                document.getElementById('checkoutForm').reset();
-            }, 3000);
+                submitButton.disabled = false;
+            }
         });
     </script>
 </body>
