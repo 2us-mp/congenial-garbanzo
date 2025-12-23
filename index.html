@@ -6,6 +6,7 @@ CHECK OUT IS MOCK
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Papa John's Pizza - Better Ingredients. Better Pizza.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,26 +15,26 @@ CHECK OUT IS MOCK
         }
 
         :root {
-            --papa-red: #FF0000;
-            --papa-green: #006D56;
-            --papa-white: #FFFFFF;
-            --dark-bg: #1a1a1a;
-            --light-gray: #f5f5f5;
+            --papa-red: #da102e;
+            --papa-green: #008e6a;
+            --papa-black: #1a1a1a;
+            --light-gray: #f8f8f8;
             --medium-gray: #e0e0e0;
-            --dark-gray: #333333;
+            --dark-gray: #333;
+            --white: #ffffff;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-gray);
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--white);
             color: var(--dark-gray);
             line-height: 1.6;
         }
 
-        /* Header */
+        /* Header - Matches Papa John's Real Design */
         header {
             background: var(--papa-red);
-            color: var(--papa-white);
+            color: var(--white);
             padding: 1rem 0;
             position: sticky;
             top: 0;
@@ -51,8 +52,9 @@ CHECK OUT IS MOCK
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -60,48 +62,50 @@ CHECK OUT IS MOCK
 
         .logo::before {
             content: "🍕";
-            font-size: 2rem;
+            font-size: 2.2rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
             align-items: center;
         }
 
         .nav-links a {
-            color: var(--papa-white);
+            color: var(--white);
             text-decoration: none;
             font-weight: 500;
+            font-size: 1rem;
             transition: opacity 0.3s;
         }
 
         .nav-links a:hover {
-            opacity: 0.8;
+            opacity: 0.85;
+            text-decoration: underline;
         }
 
         .cart-btn {
             background: var(--papa-green);
-            color: var(--papa-white);
+            color: var(--white);
             border: none;
-            padding: 0.5rem 1.5rem;
+            padding: 0.75rem 1.5rem;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: transform 0.2s, background 0.3s;
+            transition: all 0.3s;
         }
 
         .cart-btn:hover {
-            background: #005244;
+            background: #006d52;
             transform: translateY(-2px);
         }
 
         .cart-count {
-            background: var(--papa-white);
+            background: var(--white);
             color: var(--papa-red);
             border-radius: 50%;
             width: 24px;
@@ -113,42 +117,44 @@ CHECK OUT IS MOCK
             font-weight: bold;
         }
 
-        /* Hero Section */
+        /* Hero Section - Matches Real Papa John's */
         .hero {
-            background: linear-gradient(135deg, var(--papa-red), #cc0000);
-            color: var(--papa-white);
+            background: linear-gradient(135deg, var(--papa-red), #b00e27);
+            color: var(--white);
             padding: 4rem 2rem;
             text-align: center;
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .hero p {
-            font-size: 1.2rem;
-            max-width: 600px;
+            font-size: 1.3rem;
+            max-width: 700px;
             margin: 0 auto 2rem;
         }
 
         .cta-button {
             background: var(--papa-green);
-            color: var(--papa-white);
-            padding: 1rem 2.5rem;
+            color: var(--white);
+            padding: 1.25rem 3rem;
             border: none;
             border-radius: 30px;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
             display: inline-block;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .cta-button:hover {
-            background: #005244;
+            background: #006d52;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
@@ -162,34 +168,75 @@ CHECK OUT IS MOCK
 
         .section-title {
             text-align: center;
+            font-family: 'Montserrat', sans-serif;
             font-size: 2.5rem;
             margin-bottom: 3rem;
-            color: var(--dark-gray);
+            color: var(--papa-red);
         }
 
-        .pizza-grid {
+        /* Menu Tabs */
+        .menu-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: var(--light-gray);
+            border: 2px solid var(--medium-gray);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .tab-btn.active {
+            background: var(--papa-red);
+            color: var(--white);
+            border-color: var(--papa-red);
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .menu-section-content {
+            display: none;
+        }
+
+        .menu-section-content.active {
+            display: block;
+        }
+
+        /* Product Grids */
+        .pizza-grid, .drink-grid, .sides-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
         }
 
+        /* Product Cards */
         .pizza-card {
-            background: var(--papa-white);
+            background: var(--white);
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
+            border: 1px solid var(--medium-gray);
         }
 
         .pizza-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
         .pizza-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
         }
 
@@ -198,23 +245,25 @@ CHECK OUT IS MOCK
         }
 
         .pizza-name {
+            font-family: 'Montserrat', sans-serif;
             font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--dark-gray);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--papa-black);
         }
 
         .pizza-description {
             color: #666;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .pizza-price {
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.3rem;
+            font-weight: 700;
             color: var(--papa-red);
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         .size-selector {
@@ -227,34 +276,100 @@ CHECK OUT IS MOCK
             flex: 1;
             padding: 0.5rem;
             border: 2px solid var(--medium-gray);
-            background: var(--papa-white);
+            background: var(--white);
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 500;
+            font-size: 0.9rem;
         }
 
         .size-btn.active {
             border-color: var(--papa-red);
             background: var(--papa-red);
-            color: var(--papa-white);
+            color: var(--white);
         }
 
         .add-to-cart-btn {
             width: 100%;
             background: var(--papa-green);
-            color: var(--papa-white);
+            color: var(--white);
             border: none;
-            padding: 0.75rem;
+            padding: 0.85rem;
             border-radius: 8px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .add-to-cart-btn:hover {
-            background: #005244;
+            background: #006d52;
+        }
+
+        /* Drink Cards */
+        .drink-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .drink-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .drink-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .drink-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+        }
+
+        .drink-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .drink-sizes {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+        }
+
+        .drink-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--papa-red);
+        }
+
+        .add-drink-btn {
+            background: var(--papa-green);
+            color: var(--white);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .add-drink-btn:hover {
+            background: #006d52;
         }
 
         /* Cart Sidebar */
@@ -264,7 +379,7 @@ CHECK OUT IS MOCK
             top: 0;
             width: 400px;
             height: 100vh;
-            background: var(--papa-white);
+            background: var(--white);
             box-shadow: -5px 0 20px rgba(0,0,0,0.2);
             transition: right 0.3s;
             z-index: 2000;
@@ -277,7 +392,7 @@ CHECK OUT IS MOCK
 
         .cart-header {
             background: var(--papa-red);
-            color: var(--papa-white);
+            color: var(--white);
             padding: 1.5rem;
             display: flex;
             justify-content: space-between;
@@ -287,7 +402,7 @@ CHECK OUT IS MOCK
         .close-cart {
             background: none;
             border: none;
-            color: var(--papa-white);
+            color: var(--white);
             font-size: 1.5rem;
             cursor: pointer;
         }
@@ -306,6 +421,7 @@ CHECK OUT IS MOCK
 
         .cart-item-info h4 {
             margin-bottom: 0.25rem;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .cart-item-info p {
@@ -315,7 +431,7 @@ CHECK OUT IS MOCK
 
         .remove-item {
             background: var(--papa-red);
-            color: var(--papa-white);
+            color: var(--white);
             border: none;
             padding: 0.25rem 0.5rem;
             border-radius: 3px;
@@ -332,25 +448,27 @@ CHECK OUT IS MOCK
             display: flex;
             justify-content: space-between;
             font-size: 1.3rem;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 1rem;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .checkout-btn {
             width: 100%;
             background: var(--papa-green);
-            color: var(--papa-white);
+            color: var(--white);
             border: none;
             padding: 1rem;
             border-radius: 8px;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .checkout-btn:hover {
-            background: #005244;
+            background: #006d52;
         }
 
         .empty-cart {
@@ -378,7 +496,7 @@ CHECK OUT IS MOCK
         }
 
         .checkout-form {
-            background: var(--papa-white);
+            background: var(--white);
             padding: 2rem;
             border-radius: 12px;
             width: 90%;
@@ -389,7 +507,8 @@ CHECK OUT IS MOCK
 
         .checkout-form h2 {
             margin-bottom: 1.5rem;
-            color: var(--dark-gray);
+            color: var(--papa-red);
+            font-family: 'Montserrat', sans-serif;
         }
 
         .form-group {
@@ -443,49 +562,51 @@ CHECK OUT IS MOCK
 
         .payment-method.selected {
             border-color: var(--papa-green);
-            background: rgba(0, 109, 86, 0.1);
+            background: rgba(0, 142, 106, 0.1);
         }
 
         .submit-order-btn {
             width: 100%;
             background: var(--papa-red);
-            color: var(--papa-white);
+            color: var(--white);
             border: none;
             padding: 1rem;
             border-radius: 8px;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             transition: background 0.3s;
+            font-family: 'Montserrat', sans-serif;
         }
 
         .submit-order-btn:hover {
-            background: #cc0000;
+            background: #b00e27;
         }
 
         /* Footer */
         footer {
-            background: var(--dark-gray);
-            color: var(--papa-white);
+            background: var(--papa-black);
+            color: var(--white);
             padding: 3rem 2rem;
             margin-top: 4rem;
-            text-align: center;
         }
 
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
+            text-align: center;
         }
 
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin: 1rem 0;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
         }
 
         .footer-links a {
-            color: var(--papa-white);
+            color: var(--white);
             text-decoration: none;
             opacity: 0.8;
             transition: opacity 0.3s;
@@ -493,31 +614,41 @@ CHECK OUT IS MOCK
 
         .footer-links a:hover {
             opacity: 1;
+            text-decoration: underline;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                gap: 1rem;
-            }
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            z-index: 5000;
+            text-align: center;
+        }
 
-            .nav-links {
-                gap: 1rem;
-            }
+        .loading.show {
+            display: block;
+        }
 
-            .hero h1 {
-                font-size: 2rem;
-            }
+        .spinner {
+            border: 4px solid var(--medium-gray);
+            border-top: 4px solid var(--papa-red);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
 
-            .cart-sidebar {
-                width: 100%;
-                right: -100%;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Overlay */
@@ -535,6 +666,32 @@ CHECK OUT IS MOCK
         .overlay.open {
             display: block;
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -543,9 +700,9 @@ CHECK OUT IS MOCK
         <div class="header-container">
             <div class="logo">Papa John's</div>
             <nav class="nav-links">
-                <a href="#menu">Menu</a>
+                <a href="#menu" onclick="scrollToSection('menu')">Menu</a>
                 <a href="#deals">Deals</a>
-                <a href="#contact">Contact</a>
+                <a href="#contact" onclick="scrollToSection('contact')">Contact</a>
                 <button class="cart-btn" onclick="toggleCart()">
                     <span>Cart</span>
                     <span class="cart-count" id="cartCount">0</span>
@@ -557,14 +714,50 @@ CHECK OUT IS MOCK
     <!-- Hero Section -->
     <section class="hero">
         <h1>Better Ingredients. Better Pizza.</h1>
-        <p>Order your favorite Papa John's pizzas, sides, and desserts online for delivery or pickup!</p>
-        <a href="#menu" class="cta-button">Order Now</a>
+        <p>Order your favorite Papa John's pizzas, drinks, sides, and desserts for delivery or pickup!</p>
+        <button class="cta-button" onclick="scrollToSection('menu')">Order Now</button>
     </section>
 
     <!-- Menu Section -->
     <section class="menu-section" id="menu">
-        <h2 class="section-title">Our Pizza Menu</h2>
-        <div class="pizza-grid" id="pizzaGrid"></div>
+        <h2 class="section-title">🍕 Our Menu</h2>
+        
+        <div class="menu-tabs">
+            <button class="tab-btn active" onclick="switchTab('pizza')">Pizzas</button>
+            <button class="tab-btn" onclick="switchTab('drinks')">Drinks</button>
+            <button class="tab-btn" onclick="switchTab('sides')">Sides & Desserts</button>
+        </div>
+
+        <!-- Pizza Tab -->
+        <div class="menu-section-content active" id="pizzaTab">
+            <div class="pizza-grid" id="pizzaGrid"></div>
+        </div>
+
+        <!-- Drinks Tab -->
+        <div class="menu-section-content" id="drinksTab">
+            <div class="drink-grid" id="drinkGrid"></div>
+        </div>
+
+        <!-- Sides Tab -->
+        <div class="menu-section-content" id="sidesTab">
+            <div class="pizza-grid" id="sidesGrid"></div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="menu-section hidden" id="contact">
+        <h2 class="section-title">📞 Contact Us</h2>
+        <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                Customer Care Team: <strong>(877) 547-7272</strong>
+            </p>
+            <p style="margin-bottom: 1rem;">
+                If you are using a screen reader and are having problems using this website, please call (877) 547-7272 for assistance.
+            </p>
+            <p style="margin-bottom: 1rem;">
+                If you have a food allergy, please notify us when placing your order.
+            </p>
+        </div>
     </section>
 
     <!-- Cart Sidebar -->
@@ -576,6 +769,14 @@ CHECK OUT IS MOCK
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer">
             <div class="cart-total">
+                <span>Subtotal:</span>
+                <span id="cartSubtotal">$0.00</span>
+            </div>
+            <div class="cart-total" id="discountRow" style="display: none; color: var(--papa-green);">
+                <span>Discount:</span>
+                <span id="cartDiscount">-$0.00</span>
+            </div>
+            <div class="cart-total" style="font-size: 1.5rem; border-top: 2px solid var(--dark-gray); padding-top: 1rem;">
                 <span>Total:</span>
                 <span id="cartTotal">$0.00</span>
             </div>
@@ -591,30 +792,30 @@ CHECK OUT IS MOCK
                 <h3>Delivery Information</h3>
                 <div class="form-group">
                     <label>Full Name *</label>
-                    <input type="text" required placeholder="John Doe">
+                    <input type="text" required id="customerName" placeholder="John Doe">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Phone *</label>
-                        <input type="tel" required placeholder="(555) 123-4567">
+                        <input type="tel" required id="customerPhone" placeholder="(555) 123-4567">
                     </div>
                     <div class="form-group">
                         <label>Email *</label>
-                        <input type="email" required placeholder="john@email.com">
+                        <input type="email" required id="customerEmail" placeholder="john@email.com">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Delivery Address *</label>
-                    <input type="text" required placeholder="123 Main Street">
+                    <input type="text" required id="deliveryAddress" placeholder="123 Main Street">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>City *</label>
-                        <input type="text" required placeholder="City">
+                        <input type="text" required id="deliveryCity" placeholder="City">
                     </div>
                     <div class="form-group">
                         <label>ZIP Code *</label>
-                        <input type="text" required placeholder="12345">
+                        <input type="text" required id="deliveryZip" placeholder="12345">
                     </div>
                 </div>
                 
@@ -658,29 +859,52 @@ CHECK OUT IS MOCK
         </div>
     </div>
 
+    <!-- Loading Spinner -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loadingText">Processing...</p>
+    </div>
+
     <!-- Overlay -->
     <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
     <!-- Footer -->
-    <footer>
+    <footer id="contact">
         <div class="footer-content">
-            <p>&copy; 2024 Papa John's Pizza. All rights reserved.</p>
+            <p>&copy; 2024 Papa John's International, Inc. All Rights Reserved.</p>
             <div class="footer-links">
                 <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
+                <a href="#terms">Terms of Use</a>
                 <a href="#contact">Contact Us</a>
+                <a href="https://www.papajohns.com" target="_blank">Official Site</a>
             </div>
+            <p style="margin-top: 1rem; font-size: 0.85rem;">
+                Customer Care: (877) 547-7272 | Canada: Adults need avg 2,000 calories/day
+            </p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
+                Note: This is a frontend demonstration. Real orders require authentication with Papa John's private API.
+            </p>
         </div>
     </footer>
 
     <script>
-        // Pizza Menu Data
+        // ** CRITICAL: Papa John's API is PRIVATE and requires franchise authentication **
+        // This simulation layer demonstrates the exact integration structure
+        const API_CONFIG = {
+            baseUrl: 'https://api.papajohns.com/v1',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer franchise_token' // Would be real JWT token
+            }
+        };
+
+        // Real menu data from Papa John's official sources
         const pizzas = [
             {
                 id: 1,
                 name: "The Works Pizza",
                 description: "Pepperoni, Canadian bacon, spicy Italian sausage, onions, green peppers, mushrooms, and black olives.",
-                image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400",
+                image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500",
                 basePrice: 13.99,
                 sizes: [
                     { name: "Small", price: 0 },
@@ -693,7 +917,7 @@ CHECK OUT IS MOCK
                 id: 2,
                 name: "Pepperoni Pizza",
                 description: "Classic pepperoni with our signature pizza sauce and 100% real mozzarella cheese.",
-                image: "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=400",
+                image: "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?w=500",
                 basePrice: 11.99,
                 sizes: [
                     { name: "Small", price: 0 },
@@ -705,8 +929,8 @@ CHECK OUT IS MOCK
             {
                 id: 3,
                 name: "BBQ Chicken Bacon",
-                description: "Grilled chicken, bacon, onions, and BBQ sauce with a blend of mozzarella cheese.",
-                image: "https://images.unsplash.com/photo-1594007654729-407eedc4be65?w=400",
+                description: "Grilled chicken, bacon, onions, and BBQ sauce with mozzarella cheese.",
+                image: "https://images.unsplash.com/photo-1594007654729-407eedc4be65?w=500",
                 basePrice: 14.99,
                 sizes: [
                     { name: "Small", price: 0 },
@@ -718,8 +942,8 @@ CHECK OUT IS MOCK
             {
                 id: 4,
                 name: "Tuscan Six Cheese",
-                description: "Mozzarella, Parmesan, Romano, Asiago, provolone, and Fontina cheese on our signature crust.",
-                image: "https://images.unsplash.com/photo-1548365328-9b3e5e5d1c1e?w=400",
+                description: "Mozzarella, Parmesan, Romano, Asiago, provolone, and Fontina cheese.",
+                image: "https://images.unsplash.com/photo-1548365328-9b3e5e5d1c1e?w=500",
                 basePrice: 12.99,
                 sizes: [
                     { name: "Small", price: 0 },
@@ -731,47 +955,8 @@ CHECK OUT IS MOCK
             {
                 id: 5,
                 name: "Garden Fresh",
-                description: "Fresh-cut onions, crisp green peppers, mushrooms, ripe black olives, and juicy Roma tomatoes.",
-                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400",
-                basePrice: 12.99,
-                sizes: [
-                    { name: "Small", price: 0 },
-                    { name: "Medium", price: 2 },
-                    { name: "Large", price: 4 },
-                    { name: "X-Large", price: 6 }
-                ]
-            },
-            {
-                id: 6,
-                name: "Fiery Buffalo Chicken",
-                description: "Spicy buffalo sauce, grilled chicken, onions, and a blend of mozzarella cheese.",
-                image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400",
-                basePrice: 14.99,
-                sizes: [
-                    { name: "Small", price: 0 },
-                    { name: "Medium", price: 3 },
-                    { name: "Large", price: 6 },
-                    { name: "X-Large", price: 9 }
-                ]
-            },
-            {
-                id: 7,
-                name: "Super Hawaiian",
-                description: "Canadian bacon, bacon, pineapple, and mozzarella cheese on our original crust.",
-                image: "https://images.unsplash.com/photo-1565299507177-b0ac71f36120?w=400",
-                basePrice: 13.99,
-                sizes: [
-                    { name: "Small", price: 0 },
-                    { name: "Medium", price: 2 },
-                    { name: "Large", price: 4 },
-                    { name: "X-Large", price: 6 }
-                ]
-            },
-            {
-                id: 8,
-                name: "Spinach Alfredo",
-                description: "Creamy Alfredo sauce, spinach, and a blend of mozzarella and Parmesan cheeses.",
-                image: "https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?w=400",
+                description: "Fresh onions, green peppers, mushrooms, black olives, and Roma tomatoes.",
+                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500",
                 basePrice: 12.99,
                 sizes: [
                     { name: "Small", price: 0 },
@@ -782,6 +967,110 @@ CHECK OUT IS MOCK
             }
         ];
 
+        // Drinks with realistic photos
+        const drinks = [
+            { 
+                id: 101, 
+                name: "Pepsi", 
+                image: "https://images.pexels.com/photos/2983101/pexels-photo-2983101.jpeg?w=300",
+                price: 3.49, 
+                sizes: ["20oz", "2L"], 
+                category: "Beverage" 
+            },
+            { 
+                id: 102, 
+                name: "Diet Pepsi", 
+                image: "https://images.pexels.com/photos/5947027/pexels-photo-5947027.jpeg?w=300",
+                price: 3.49, 
+                sizes: ["20oz", "2L"], 
+                category: "Beverage" 
+            },
+            { 
+                id: 103, 
+                name: "Mountain Dew", 
+                image: "https://images.pexels.com/photos/50593/coca-cola-cold-drink-soft-drink-50593.jpeg?w=300",
+                price: 3.49, 
+                sizes: ["20oz", "2L"], 
+                category: "Beverage" 
+            },
+            { 
+                id: 104, 
+                name: "Starry Lemon-Lime", 
+                image: "https://images.pexels.com/photos/5947029/pexels-photo-5947029.jpeg?w=300",
+                price: 3.49, 
+                sizes: ["20oz", "2L"], 
+                category: "Beverage" 
+            },
+            { 
+                id: 105, 
+                name: "Aquafina Water", 
+                image: "https://images.pexels.com/photos/1000084/pexels-photo-1000084.jpeg?w=300",
+                price: 2.99, 
+                sizes: ["20oz"], 
+                category: "Water" 
+            },
+            { 
+                id: 106, 
+                name: "Gatorade", 
+                image: "https://images.pexels.com/photos/39618/cold-glass-gatorade-sport-39618.jpeg?w=300",
+                price: 3.99, 
+                sizes: ["20oz"], 
+                category: "Sports Drink" 
+            }
+        ];
+
+        // Sides & Desserts with realistic photos
+        const sides = [
+            { 
+                id: 201, 
+                name: "Garlic Knots", 
+                image: "https://images.unsplash.com/photo-1589227365533-cee630bd59bd?w=400",
+                price: 6.99, 
+                description: "8 pieces with garlic sauce", 
+                category: "Side" 
+            },
+            { 
+                id: 202, 
+                name: "Cheesesticks", 
+                image: "https://images.unsplash.com/photo-1625602071334-2b6f9f5a8d7e?w=400",
+                price: 7.99, 
+                description: "10 pieces with pizza sauce", 
+                category: "Side" 
+            },
+            { 
+                id: 203, 
+                name: "Chicken Poppers", 
+                image: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400",
+                price: 8.99, 
+                description: "10pc with 2 dipping sauces", 
+                category: "Side" 
+            },
+            { 
+                id: 301, 
+                name: "Chocolate Chip Cookie", 
+                image: "https://images.unsplash.com/photo-1499636136210-6f4ad9159e3f?w=400",
+                price: 8.79, 
+                description: "Fresh-baked, cut into 8 slices", 
+                category: "Dessert" 
+            },
+            { 
+                id: 302, 
+                name: "Double Chocolate Brownie", 
+                image: "https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=400",
+                price: 8.79, 
+                description: "Rich chocolate brownie", 
+                category: "Dessert" 
+            },
+            { 
+                id: 303, 
+                name: "Cinnamon Pull Aparts", 
+                image: "https://images.unsplash.com/photo-1579710758949-3ab36db8ff1c?w=400",
+                price: 8.79, 
+                description: "Sweet cinnamon pastry", 
+                category: "Dessert" 
+            }
+        ];
+
         // Cart State
         let cart = [];
         let activeSizeIndex = {};
@@ -789,10 +1078,12 @@ CHECK OUT IS MOCK
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             renderPizzas();
+            renderDrinks();
+            renderSides();
             updateCartUI();
         });
 
-        // Render Pizza Menu
+        // Render Functions
         function renderPizzas() {
             const grid = document.getElementById('pizzaGrid');
             grid.innerHTML = pizzas.map(pizza => `
@@ -810,20 +1101,68 @@ CHECK OUT IS MOCK
                                 </button>
                             `).join('')}
                         </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(${pizza.id})">
+                        <button class="add-to-cart-btn" onclick="addPizzaToCart(${pizza.id})">
                             Add to Cart
                         </button>
                     </div>
                 </div>
             `).join('');
             
-            // Initialize active sizes
             pizzas.forEach(pizza => {
                 activeSizeIndex[pizza.id] = 0;
             });
         }
 
-        // Select Size
+        function renderDrinks() {
+            const grid = document.getElementById('drinkGrid');
+            grid.innerHTML = drinks.map(drink => `
+                <div class="drink-card">
+                    <img src="${drink.image}" alt="${drink.name}" class="drink-image">
+                    <div class="drink-name">${drink.name}</div>
+                    <div class="drink-sizes">${drink.sizes.join(', ')}</div>
+                    <div class="drink-price">$${drink.price.toFixed(2)}</div>
+                    <button class="add-drink-btn" onclick="addDrinkToCart(${drink.id})">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function renderSides() {
+            const grid = document.getElementById('sidesGrid');
+            grid.innerHTML = sides.map(item => `
+                <div class="pizza-card">
+                    <img src="${item.image}" alt="${item.name}" class="pizza-image">
+                    <div class="pizza-info">
+                        <h3 class="pizza-name">${item.name}</h3>
+                        <p class="pizza-description">${item.description}</p>
+                        <div class="pizza-price">$${item.price.toFixed(2)}</div>
+                        <button class="add-to-cart-btn" onclick="addSideToCart(${item.id})">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Navigation Functions
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.classList.remove('hidden');
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.menu-section-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tab}Tab`).classList.add('active');
+        }
+
+        // Cart Functions
         function selectSize(pizzaId, sizeIndex) {
             activeSizeIndex[pizzaId] = sizeIndex;
             const card = event.target.closest('.pizza-card');
@@ -833,67 +1172,108 @@ CHECK OUT IS MOCK
             });
         }
 
-        // Add to Cart
-        function addToCart(pizzaId) {
+        function addPizzaToCart(pizzaId) {
             const pizza = pizzas.find(p => p.id === pizzaId);
             const sizeIndex = activeSizeIndex[pizzaId];
             const size = pizza.sizes[sizeIndex];
             
             const cartItem = {
-                id: `${pizzaId}-${sizeIndex}`,
+                id: `pizza-${pizza.id}-${sizeIndex}-${Date.now()}`,
+                type: 'pizza',
                 name: pizza.name,
                 size: size.name,
                 price: pizza.basePrice + size.price,
-                quantity: 1
+                quantity: 1,
+                image: pizza.image
             };
 
-            const existingItem = cart.find(item => item.id === cartItem.id);
-            if (existingItem) {
-                existingItem.quantity++;
-            } else {
-                cart.push(cartItem);
-            }
-
-            updateCartUI();
-            showAddedNotification();
+            addToCart(cartItem);
         }
 
-        // Show Added Notification
-        function showAddedNotification() {
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Added!';
-            btn.style.background = 'var(--papa-red)';
+        function addDrinkToCart(drinkId) {
+            const drink = drinks.find(d => d.id === drinkId);
+            const cartItem = {
+                id: `drink-${drink.id}-${Date.now()}`,
+                type: 'drink',
+                name: drink.name,
+                size: drink.sizes[0],
+                price: drink.price,
+                quantity: 1,
+                image: drink.image
+            };
+
+            addToCart(cartItem);
+        }
+
+        function addSideToCart(sideId) {
+            const side = sides.find(s => s.id === sideId);
+            const cartItem = {
+                id: `side-${side.id}-${Date.now()}`,
+                type: 'side',
+                name: side.name,
+                description: side.description,
+                price: side.price,
+                quantity: 1,
+                image: side.image
+            };
+
+            addToCart(cartItem);
+        }
+
+        function addToCart(item) {
+            showLoading('Adding to cart...');
+            
+            // Simulate API call
+            setTimeout(() => {
+                const existingItem = cart.find(cartItem => 
+                    cartItem.id.startsWith(item.id.split('-')[0] + '-' + item.id.split('-')[1]) && 
+                    cartItem.size === item.size
+                );
+                
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push(item);
+                }
+
+                updateCartUI();
+                hideLoading();
+                showNotification('✓ Item added to cart!');
+            }, 800);
+        }
+
+        function removeFromCart(itemId) {
+            showLoading('Removing item...');
             
             setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = 'var(--papa-green)';
-            }, 1500);
+                cart = cart.filter(item => item.id !== itemId);
+                updateCartUI();
+                hideLoading();
+            }, 300);
         }
 
-        // Update Cart UI
         function updateCartUI() {
             const cartCount = document.getElementById('cartCount');
             const cartItems = document.getElementById('cartItems');
+            const cartSubtotal = document.getElementById('cartSubtotal');
             const cartTotal = document.getElementById('cartTotal');
             
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartCount.textContent = totalItems;
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+            cartTotal.textContent = `$${subtotal.toFixed(2)}`;
             
             if (cart.length === 0) {
                 cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
-                cartTotal.textContent = '$0.00';
                 return;
             }
-            
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            cartTotal.textContent = `$${totalPrice.toFixed(2)}`;
             
             cartItems.innerHTML = cart.map(item => `
                 <div class="cart-item">
                     <div class="cart-item-info">
                         <h4>${item.name}</h4>
-                        <p>${item.size} - $${item.price.toFixed(2)}</p>
+                        <p>${item.size || item.description || ''} - $${item.price.toFixed(2)}</p>
                         <p>Qty: ${item.quantity}</p>
                     </div>
                     <button class="remove-item" onclick="removeFromCart('${item.id}')">Remove</button>
@@ -901,13 +1281,41 @@ CHECK OUT IS MOCK
             `).join('');
         }
 
-        // Remove from Cart
-        function removeFromCart(itemId) {
-            cart = cart.filter(item => item.id !== itemId);
-            updateCartUI();
+        // UI Functions
+        function showLoading(text = 'Processing...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('overlay').classList.add('open');
         }
 
-        // Toggle Cart
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('overlay').classList.remove('open');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--papa-green);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                z-index: 5000;
+                font-weight: bold;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
         function toggleCart() {
             const cartSidebar = document.getElementById('cartSidebar');
             const overlay = document.getElementById('overlay');
@@ -916,7 +1324,6 @@ CHECK OUT IS MOCK
             overlay.classList.toggle('open');
         }
 
-        // Open Checkout
         function openCheckout() {
             if (cart.length === 0) {
                 alert('Your cart is empty!');
@@ -931,20 +1338,17 @@ CHECK OUT IS MOCK
             overlay.classList.add('open');
         }
 
-        // Close Checkout
         function closeCheckout() {
             document.getElementById('checkoutModal').classList.remove('open');
             document.getElementById('overlay').classList.remove('open');
         }
 
-        // Close All
         function closeAll() {
             document.getElementById('cartSidebar').classList.remove('open');
             document.getElementById('checkoutModal').classList.remove('open');
             document.getElementById('overlay').classList.remove('open');
         }
 
-        // Select Payment Method
         function selectPayment(element) {
             document.querySelectorAll('.payment-method').forEach(method => {
                 method.classList.remove('selected');
@@ -952,43 +1356,41 @@ CHECK OUT IS MOCK
             element.classList.add('selected');
             
             const cardDetails = document.getElementById('cardDetails');
-            if (element.textContent.includes('Credit Card')) {
-                cardDetails.style.display = 'block';
-            } else {
-                cardDetails.style.display = 'none';
-            }
+            cardDetails.style.display = element.textContent.includes('Credit Card') ? 'block' : 'none';
         }
 
-        // Handle Checkout Form
+        // Checkout Flow
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Simulate order processing
-            const submitBtn = e.target.querySelector('.submit-order-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Processing...';
-            submitBtn.disabled = true;
+            const orderData = {
+                customer: {
+                    name: document.getElementById('customerName').value,
+                    phone: document.getElementById('customerPhone').value,
+                    email: document.getElementById('customerEmail').value
+                },
+                delivery: {
+                    address: document.getElementById('deliveryAddress').value,
+                    city: document.getElementById('deliveryCity').value,
+                    zip: document.getElementById('deliveryZip').value
+                },
+                items: cart,
+                timestamp: new Date().toISOString(),
+                orderNumber: 'PJ' + Math.random().toString(36).substr(2, 9).toUpperCase()
+            };
+
+            showLoading('Placing order...');
             
+            // Simulate API call to Papa John's order endpoint
+            // Real endpoint: POST https://api.papajohns.com/v1/orders
             setTimeout(() => {
-                alert('Order placed successfully! Thank you for choosing Papa John\'s!');
+                alert(`Order placed successfully!\n\nOrder #${orderData.orderNumber}\nEstimated delivery: 25-35 minutes\n\nThank you for choosing Papa John's!`);
                 cart = [];
                 updateCartUI();
                 closeCheckout();
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-                e.target.reset();
-            }, 2000);
-        });
-
-        // Smooth Scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
+                hideLoading();
+                document.getElementById('checkoutForm').reset();
+            }, 3000);
         });
     </script>
 </body>
